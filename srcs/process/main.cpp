@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/17 21:10:19 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/19 15:18:09 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/20 20:53:31 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ int main( void )
 {
 	try
 	{
-		throw WebServException( "main", "try", "error fatal", "main.cpp" );
+		throw WebServException( "main.cpp", "main", "error fatal" );
 	}
 	catch ( std::exception & e )
 	{
