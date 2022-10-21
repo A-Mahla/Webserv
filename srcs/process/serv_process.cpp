@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/21 22:25:40 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/21 22:33:48 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ bool	newConnection( int & servSock, std::vector<int> & clientSocks, fd_set* read
 	return ( false );
 }
 
-void		ioData( std::vector<int> & clientSocks, fd_set* readFds )
+void	ioData( std::vector<int> & clientSocks, fd_set* readFds )
 {
 	char		buffer_read[1024];
 	const char	*buffer_write = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
@@ -142,7 +142,6 @@ void	appServ( int & servSock )
 	}
 	catch ( std::exception & e )
 	{
-		std::string	error = e.what();
 		FD_CLR( servSock, &readFds );
 		close( servSock );
 		for (std::size_t i = 0; i < clientSocks.size(); i++ )
