@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/21 19:09:16 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/21 22:09:19 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,16 @@
 # include <algorithm>
 # include "WebServException.hpp"
 # include <cstdlib>
+# include <signal.h>
+# include <sstream>
+
+void	signal_handler(int sig)
+{
+	std::stringstream stringBuf;
+
+	stringBuf << "\r" << "==  Webserv was ended by a signal ( sig code : " << sig << " ) ==";
+	throw WebServException( stringBuf.str().c_str() );
+}
 
 void	setFds( int & maxSock, fd_set* readFds, std::vector<int> & clientSocks, int servSock )
 {
@@ -118,6 +128,8 @@ void	appServ( int & servSock )
 	std::vector<int>	clientSocks;
 	fd_set	readFds;
 
+	signal(SIGINT, &signal_handler);
+
 	std::cout << std::endl << "-------------- Server is on ---------------" << std::endl << std::endl;
 	try
 	{
@@ -130,7 +142,8 @@ void	appServ( int & servSock )
 	}
 	catch ( std::exception & e )
 	{
-		std::cout << e.what() << std::endl;
+		std::string	error = e.what();
+		std::cout << error << std::endl;
 		FD_CLR( servSock, &readFds );
 		close( servSock );
 		for (std::size_t i = 0; i < clientSocks.size(); i++ )
@@ -138,6 +151,7 @@ void	appServ( int & servSock )
 			FD_CLR( clientSocks[i], &readFds );
 			close( clientSocks[i] );
 		}
-		exit( EXIT_FAILURE );
+		if ( error.compare(0, 1, "\r") != 0 )
+			exit( EXIT_FAILURE );
 	}
 }

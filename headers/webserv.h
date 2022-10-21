@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/21 18:54:23 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/21 19:05:28 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/21 22:07:58 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,5 @@
 void	webServ( void );
 void	setSocket( int & servSock );
 void	appServ( int & servSock );
-
 
 #endif
