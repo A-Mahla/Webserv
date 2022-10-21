@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/21 21:56:13 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/21 22:22:00 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,8 +81,7 @@ void	setSocket( int & servSock )
 	}
 	catch ( std::exception & e )
 	{
-		std::cout << e.what() << std::endl;
 		close( servSock );
-		exit( EXIT_FAILURE );
+		throw WebServException( e.what() );
 	}
 }

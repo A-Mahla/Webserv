@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/21 22:09:19 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/21 22:25:40 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,6 @@ void	appServ( int & servSock )
 	catch ( std::exception & e )
 	{
 		std::string	error = e.what();
-		std::cout << error << std::endl;
 		FD_CLR( servSock, &readFds );
 		close( servSock );
 		for (std::size_t i = 0; i < clientSocks.size(); i++ )
@@ -151,7 +150,6 @@ void	appServ( int & servSock )
 			FD_CLR( clientSocks[i], &readFds );
 			close( clientSocks[i] );
 		}
-		if ( error.compare(0, 1, "\r") != 0 )
-			exit( EXIT_FAILURE );
+		throw ( WebServException( e.what() ) ); 
 	}
 }
