@@ -1,97 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main_server_select.cpp                             :+:      :+:    :+:   */
+/*   serv_process.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/21 18:50:50 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/21 19:09:16 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include <iostream>
-# include <string.h>
+# include <unistd.h>
+# include <cstring>
+# include <netinet/in.h>
 # include <sys/socket.h>
 # include <sys/types.h>
-# include <fcntl.h>
-# include <unistd.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
 # include <sys/select.h>
 # include <errno.h>
 # include <vector>
 # include <algorithm>
 # include "WebServException.hpp"
 # include <cstdlib>
-
-int		createSock( void )
-{
-	int	servSock;
-	int	on = 1;
-
-	if (( servSock = socket(AF_INET, SOCK_STREAM, 0 )) < 0 )
-	{
-		std::cout << "socket() failed" << std::endl;
-		exit(1);
-	}
-
-	if ( setsockopt( servSock, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
-		&on, sizeof(int) ) < 0 )
-	{
-		throw WebServException( "socket_setting.cpp", "createSock", "setsockopt() failed" );
-	}
-
-	return ( servSock );
-}
-
-void	nonBlockSock( int & servSock )
-{
-	int flag;
-
-	if ( (flag = fcntl( servSock, F_GETFL )) < 0 )
-		throw WebServException( "socket_setting.cpp", "nonBlockSock", "fcntl() F_GETFL failed" );
-
-	if ( fcntl( servSock, F_SETFL, flag | O_NONBLOCK ) < 0 )
-		throw WebServException( "socket_setting.cpp", "nonBlockSock", "fcntl() F_SETFL failed" );
-}
-
-void	nameSock( int & servSock )
-{
-	struct sockaddr_in	address;
-	const int			port = 8080;
-	memset( (char *)&address, 0, sizeof(address) );
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = htonl( INADDR_ANY );
-	address.sin_port = htons( port );
-
-	if ( bind( servSock, reinterpret_cast< struct sockaddr * >(&address),
-		sizeof(address)) < 0 )
-	{
-		throw WebServException( "socket_setting.cpp", "nameSock", "bind() failed" );
-	}
-
-	if ( listen( servSock, 5) < 0 )
-		throw WebServException( "socket_setting.cpp", "nameSock", "listen() failed" );
-}
-
-void	setSocket( int & servSock )
-{
-	try
-	{
-		servSock = createSock();
-		nonBlockSock( servSock );
-		nameSock( servSock );
-	}
-	catch ( std::exception & e )
-	{
-		std::cout << e.what() << std::endl;
-		close( servSock );
-		exit( EXIT_FAILURE );
-	}
-}
-
-//========================= serv_process.cpp ===============================
 
 void	setFds( int & maxSock, fd_set* readFds, std::vector<int> & clientSocks, int servSock )
 {
@@ -151,7 +81,7 @@ bool	newConnection( int & servSock, std::vector<int> & clientSocks, fd_set* read
 	return ( false );
 }
 
-void		ioData( std::vector<int> & clientSocks, fd_set* readFds, int & servSock )
+void		ioData( std::vector<int> & clientSocks, fd_set* readFds )
 {
 	char		buffer_read[1024];
 	const char	*buffer_write = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
@@ -195,7 +125,7 @@ void	appServ( int & servSock )
 		{
 			waitRequest( &readFds, clientSocks, servSock );
 			if ( !newConnection( servSock, clientSocks, &readFds ) )
-				ioData( clientSocks, &readFds, servSock );
+				ioData( clientSocks, &readFds );
 		}
 	}
 	catch ( std::exception & e )
@@ -210,14 +140,4 @@ void	appServ( int & servSock )
 		}
 		exit( EXIT_FAILURE );
 	}
-}
-
-int main( void )
-{
-	int					servSock = 0;
-
-	setSocket( servSock );
-	appServ( servSock );
-
-	return ( EXIT_SUCCESS );
 }

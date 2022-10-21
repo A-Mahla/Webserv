@@ -1,19 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/17 21:10:19 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/21 19:03:26 by amahla           ###   ########.fr       */
+/*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
+/*   Updated: 2022/10/21 19:05:29 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "webserv.h"
 
-int main( void )
+void	webServ( void )
 {
-	webServ();
-	return 0;
+	int					servSock = 0;
+
+	setSocket( servSock );
+	appServ( servSock );
+
 }

@@ -6,7 +6,7 @@
 #    By: amahla <amahla@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/10/17 21:07:29 by amahla            #+#    #+#              #
-#    Updated: 2022/10/19 15:14:43 by amahla           ###   ########.fr        #
+#    Updated: 2022/10/21 19:03:05 by amahla           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,9 +22,10 @@ OBJDIR				:=	./obj
 DEBUGDIR			:=	./debugobj
 
 SRCS				:=	$(addprefix process/,	main.cpp					\
-												)							\
-						$(addprefix class/,		WebServException.cpp		\
-												)
+												webserv.cpp					\
+												serv_process.cpp			\
+												socket_setting.cpp		)	\
+						$(addprefix class/,		WebServException.cpp	)
 
 CC					:=	c++
 RM					:=	rm
