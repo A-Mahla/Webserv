@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/22 18:06:49 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/22 18:34:13 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ bool	newConnection( std::vector<Server> & servers, std::vector<Client> & clients
 
 			if (newConnection > 0)			
 			{
-				std::cout << YELLOW << "Connection accepted" << std::endl;
+				std::cout << YELLOW << "Connection accepted" << SET << std::endl;
 				nonBlockSock( newConnection );
 				clients.push_back( Client( newConnection ) );
 				is_one_connection = true;
@@ -114,9 +114,9 @@ void	ioData( fd_set* readFds, std::vector<Client> & clients )
 			if ( (rd = recv( clients[i].getSock() , buffer_read, 1023, 0 )) <= 0 )
 			{
 				if ( rd < 0 )
-					std::cout << RED << "Connexion client lost" << std::endl;
+					std::cout << RED << "Connexion client lost" << SET << std::endl;
 				else
-					std::cout << RED << "Connexion client is closed" << std::endl;
+					std::cout << RED << "Connexion client is closed" << SET << std::endl;
 				FD_CLR( clients[i].getSock(), readFds);
 				close( clients[i].getSock() );
 				clients.erase( clients.begin() + i );
@@ -128,9 +128,9 @@ void	ioData( fd_set* readFds, std::vector<Client> & clients )
 				clients[i].getRequest().getStringRequest() = buffer_read;
 
 				buffer_write = clients[i].getResponse().getStringResponse().c_str();
-				std::cout << GREEN << "Server side receive from client : " << clients[i].getRequest().getStringRequest() << std::endl;
+				std::cout << GREEN << "Server side receive from client : " << clients[i].getRequest().getStringRequest() << SET << std::endl;
 				if ( send( clients[i].getSock(), buffer_write, strlen(buffer_write), 0 ) < 0 )
-					std::cout << RED << "Connexion client lost" << std::endl;
+					std::cout << RED << "Connexion client lost" << SET << std::endl;
 			}
 		}
 	}
@@ -143,7 +143,7 @@ void	appServ( std::vector<Server> & servers )
 
 	signal(SIGINT, &signal_handler);
 
-	std::cout << std::endl << "\r" << YELLOW << "-------------- Server is on ---------------" << std::endl << std::endl;
+	std::cout << std::endl << "\r" << YELLOW << "-------------- Server is on ---------------" << std::endl << SET << std::endl;
 	try
 	{
 		while (1)
