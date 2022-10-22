@@ -1,25 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   webserv.h                                          :+:      :+:    :+:   */
+/*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/21 18:54:23 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/22 16:10:07 by amahla           ###   ########.fr       */
+/*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
+/*   Updated: 2022/10/22 17:28:47 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef __WEBSERV_H__
-# define __WEBSERV_H__
+#ifndef __RESPONSE_HPP__
+# define __RESPONSE_HPP__
 
-# include "Server.hpp"
-# include "Client.hpp"
-# include <vector>
+# include <sstream>
 
-void	nonBlockSock( int & servSock );
-void	webServ( void );
-void	setServerSockets( std::vector<Server> & servers );
-void	appServ( std::vector<Server> & servers );
+class Response
+{
+
+	private:
+
+		std::string	_response;
+
+	public:
+
+		Response( void );
+		Response( const Response & rhs );
+
+		~Response( void );
+
+		Response &	operator=( const Response & rhs );
+
+		std::string			& getStringResponse( void );
+		const std::string	& getStringResponse( void ) const;
+
+};
+
 
 #endif

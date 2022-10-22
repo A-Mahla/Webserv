@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/17 21:38:09 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/17 21:38:32 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/22 14:40:09 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,5 +14,10 @@
 # define __DEFINES_H__
 
 # define DEBUG 0
+
+# define GREEN "\033[0;32m"
+# define RED "\033[0;31m"
+# define YELLOW "\033[0;33m"
+# define SET "\033[0m"
 
 #endif

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   socket_setting.cpp                                 :+:      :+:    :+:   */
+/*   socket_settings_linux.cpp                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/21 22:22:00 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/22 15:37:33 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,10 @@
 # include <arpa/inet.h>
 # include "WebServException.hpp"
 # include <cstdlib>
+# include "webserv.h"
 
-int		createSock( void )
+int		createSock( int & servSock )
 {
-	int	servSock;
 	int	on = 1;
 
 	if (( servSock = socket(AF_INET, SOCK_STREAM, 0 )) < 0 )
@@ -52,14 +52,13 @@ void	nonBlockSock( int & servSock )
 		throw WebServException( "socket_setting.cpp", "nonBlockSock", "fcntl() F_SETFL failed" );
 }
 
-void	nameSock( int & servSock )
+void	nameSock( int & servSock, Server & server )
 {
 	struct sockaddr_in	address;
-	const int			port = 8080;
 	memset( (char *)&address, 0, sizeof(address) );
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = htonl( INADDR_ANY );
-	address.sin_port = htons( port );
+	address.sin_port = htons( server.getPort() );
 
 	if ( bind( servSock, reinterpret_cast< struct sockaddr * >(&address),
 		sizeof(address)) < 0 )
@@ -67,21 +66,27 @@ void	nameSock( int & servSock )
 		throw WebServException( "socket_setting.cpp", "nameSock", "bind() failed" );
 	}
 
-	if ( listen( servSock, 5) < 0 )
+	if ( listen( servSock, 100) < 0 )
 		throw WebServException( "socket_setting.cpp", "nameSock", "listen() failed" );
+
 }
 
-void	setSocket( int & servSock )
+void	setServerSockets( std::vector<Server> & servers )
 {
 	try
 	{
-		servSock = createSock();
-		nonBlockSock( servSock );
-		nameSock( servSock );
+		for ( std::size_t i(0); i < servers.size(); i++ )
+		{
+			createSock( servers[i].getSock() );
+			nonBlockSock( servers[i].getSock() );
+			nameSock( servers[i].getSock(), servers[i] );
+		}
+
 	}
 	catch ( std::exception & e )
 	{
-		close( servSock );
+		for ( std::size_t i(0); i < servers.size(); i++ )
+			close( servers[i].getSock() );
 		throw WebServException( e.what() );
 	}
 }

@@ -6,7 +6,7 @@
 #    By: amahla <amahla@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/10/17 21:07:29 by amahla            #+#    #+#              #
-#    Updated: 2022/10/22 14:34:05 by amahla           ###   ########.fr        #
+#    Updated: 2022/10/22 17:42:11 by amahla           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,14 +22,21 @@ OBJDIR				:=	./obj
 DEBUGDIR			:=	./debugobj
 
 SRCSMAC				:=	$(addprefix	mac/,	serv_process_mac.cpp		\
-											socket_setting_mac.cpp		)
+											socket_settings_mac.cpp		)
 
-SRCSLINUX			:=	$(addprefix	linux/,	serv_process_linux.cpp		\
-											socket_setting_linux.cpp	)
+SRCSLINUXSELECT		:=	$(addprefix	linux/,	serv_process_select_linux.cpp		\
+											socket_settings_linux.cpp	)
+
+SRCSLINUX			:=	$(addprefix	linux/,	serv_process_select_linux.cpp		\
+											socket_settings_linux.cpp	)
 
 SRCSMULTIOS			:=	$(addprefix process/,	main.cpp					\
 												webserv.cpp				)	\
-						$(addprefix class/,		WebServException.cpp	)
+						$(addprefix class/,		WebServException.cpp		\
+												Server.cpp					\
+												Client.cpp					\
+												Request.cpp					\
+												Response.cpp			)
 
 SRCS				:=	$(SRCSMULTIOS) 							\
 						$(addprefix process/,	$(SRCSLINUX))
@@ -58,6 +65,11 @@ ifdef MAC
 							$(addprefix process/,	$(SRCSMAC))
 endif
 
+ifdef SELECT
+	SRCS				:=	$(SRCSMULTIOS) 							\
+							$(addprefix process/,	$(SRCSLINUXSELECT))
+endif
+
 all					:	$(NAME)
 
 bonus				:	$(BONUS)
@@ -70,6 +82,11 @@ endif
 mac					:
 ifndef MAC
 	$(MAKE) MAC=1
+endif
+
+select				:
+ifndef SELECT
+	$(MAKE) SELECT=1
 endif
 
 $(OUTDIR)/%.o		:	$(SRCDIR)/%.cpp | $(OUTDIR)
@@ -92,6 +109,6 @@ fclean				:	clean
 re					:	fclean
 	$(MAKE) $(NAME)
 
-.PHONY				:	all clean fclean re debug
+.PHONY				:	all clean fclean re debug mac select
 
 -include	$(addprefix $(OUTDIR)/,$(SRCS:.cpp=.d))
