@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   socket_settings_linux.cpp                          :+:      :+:    :+:   */
+/*   socket_settings_mac.cpp                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/22 15:37:33 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/22 18:08:05 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,7 @@ int		createSock( int & servSock )
 		exit( EXIT_FAILURE );
 	}
 
-	if ( setsockopt( servSock, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
-		&on, sizeof(int) ) < 0 )
+	if ( setsockopt( servSock, SOL_SOCKET, SO_REUSEPORT, &on, sizeof(int) ) < 0 )
 	{
 		throw WebServException( "socket_setting.cpp", "createSock", "setsockopt() failed" );
 	}
@@ -43,13 +42,10 @@ int		createSock( int & servSock )
 
 void	nonBlockSock( int & servSock )
 {
-	int flag;
 
-	if ( (flag = fcntl( servSock, F_GETFL )) < 0 )
-		throw WebServException( "socket_setting.cpp", "nonBlockSock", "fcntl() F_GETFL failed" );
-
-	if ( fcntl( servSock, F_SETFL, flag | O_NONBLOCK ) < 0 )
+	if ( fcntl( servSock, F_SETFL, O_NONBLOCK ) < 0 )
 		throw WebServException( "socket_setting.cpp", "nonBlockSock", "fcntl() F_SETFL failed" );
+
 }
 
 void	nameSock( int & servSock, Server & server )
