@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/21 22:33:48 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/22 13:24:49 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include <cstdlib>
 # include <signal.h>
 # include <sstream>
+# include "webserv.h"
 
 void	signal_handler(int sig)
 {
@@ -83,6 +84,7 @@ bool	newConnection( int & servSock, std::vector<int> & clientSocks, fd_set* read
 		if (newConnection > 0)			
 		{
 			std::cout << "Connection accepted" << std::endl;
+			nonBlockSock( servSock );
 			clientSocks.push_back(newConnection);
 			return ( true );
 		}
@@ -101,23 +103,22 @@ void	ioData( std::vector<int> & clientSocks, fd_set* readFds )
 	{
 		if ( FD_ISSET( clientSocks[i], readFds ) )
 		{
-			std::cout << "waiting for recv" << std::endl;
-			if ( (rd = recv( clientSocks[i], buffer_read, 1023, 0 )) < 0 )
-				throw WebServException( "serv_process.cpp", "ioData", "recv() failed" );
-			else if ( rd == 0)
+			if ( (rd = recv( clientSocks[i], buffer_read, 1023, 0 )) <= 0 )
 			{
+				if ( rd < 0 )
+					std::cout << "Connexion client lost" << std::endl;
+				else
+					std::cout << "Connexion client is closed" << std::endl;
 				FD_CLR( clientSocks[i], readFds);
 				close( clientSocks[i] );
 				clientSocks.erase( clientSocks.begin() + i );
-				std::cout << "Connexion client is closed" << std::endl;
 			}
 			else
 			{
-				std::cout << "recv successed" << std::endl;
 				buffer_read[rd] = '\0';
 				std::cout << "Server side receive from client : " << buffer_read << std::endl;
 				if ( send( clientSocks[i], buffer_write, strlen(buffer_write), 0 ) < 0 )
-					throw WebServException( "serv_process.cpp", "ioData", "send() failed" );
+					std::cout << "Connexion client lost" << std::endl;
 			}
 		}
 	}
