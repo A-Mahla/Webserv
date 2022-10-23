@@ -6,7 +6,7 @@
 #    By: amahla <amahla@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/10/17 21:07:29 by amahla            #+#    #+#              #
-#    Updated: 2022/10/22 17:42:11 by amahla           ###   ########.fr        #
+#    Updated: 2022/10/23 21:16:33 by amahla           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,10 +24,15 @@ DEBUGDIR			:=	./debugobj
 SRCSMAC				:=	$(addprefix	mac/,	serv_process_mac.cpp		\
 											socket_settings_mac.cpp		)
 
-SRCSLINUXSELECT		:=	$(addprefix	linux/,	serv_process_select_linux.cpp		\
-											socket_settings_linux.cpp	)
+SRCSLINUXSELECT		:=	$(addprefix	linux/,	$(addprefix	select/,	serv_process_select.cpp)	\
+																	socket_settings.cpp			)
 
-SRCSLINUX			:=	$(addprefix	linux/,	serv_process_select_linux.cpp		\
+SRCSLINUXEPOLL		:=	$(addprefix	linux/,	serv_process_epoll.cpp			\
+											serv_process_epoll_loop.cpp		\
+											serv_process_epoll_utils.cpp	\
+											socket_settings.cpp	)
+
+SRCSLINUX			:=	$(addprefix	linux/,	serv_process_epoll_linux.cpp		\
 											socket_settings_linux.cpp	)
 
 SRCSMULTIOS			:=	$(addprefix process/,	main.cpp					\
@@ -39,7 +44,7 @@ SRCSMULTIOS			:=	$(addprefix process/,	main.cpp					\
 												Response.cpp			)
 
 SRCS				:=	$(SRCSMULTIOS) 							\
-						$(addprefix process/,	$(SRCSLINUX))
+						$(addprefix process/,	$(SRCSLINUXEPOLL))
 
 CC					:=	c++
 RM					:=	rm
