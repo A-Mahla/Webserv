@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/24 00:19:40 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/24 01:04:11 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,10 +119,10 @@ void	addConnection( std::vector<Client> & clients, int server_fd, t_epoll & epol
 
 bool	newConnection( std::vector<Client> & clients, std::vector<Server> & servers, t_epoll & epollVar, int i )
 {
-	int					server_fd;
+	int		server_fd;
 
 	if ( epollVar.events[i].events & EPOLLIN &&
-		( server_fd = serverReady( servers, epollVar.events[i].data.fd ) ) >= 0 )
+		( server_fd = isServer( servers, epollVar.events[i].data.fd ) ) >= 0 )
 	{
 		addConnection( clients, server_fd, epollVar );
 		return ( true );
@@ -130,13 +130,18 @@ bool	newConnection( std::vector<Client> & clients, std::vector<Server> & servers
 	return ( false );
 }
 
-bool	errorEpoll( std::vector<Client> & clients , t_epoll & epollVar, int i )
+bool	errorEpoll( std::vector<Server> & servers, std::vector<Client> & clients, t_epoll & epollVar, int i )
 {
 	if ( epollVar.events[i].events & EPOLLERR || epollVar.events[i].events & EPOLLHUP )
 	{
-		clients.erase( find( clients, epollVar.events[i].data.fd ) );
+		int	fdToClear = epollVar.events[i].data.fd;
+
 		epoll_ctl( epollVar.maxNbFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
-		close( epollVar.events[i].data.fd );
+		if ( isServer( servers, fdToClear ) < 0 )
+			clients.erase( find( clients, fdToClear ) );
+		else
+			servers.erase( find( servers, fdToClear ) );
+		close( fdToClear );
 		return ( true );
 	}
 	return ( false );
@@ -150,7 +155,7 @@ void	servProcess( std::vector<Server> & servers, std::vector<Client> & clients, 
 		waitRequest( epollVar );
 		for ( int i(0); i < epollVar.maxNbFd; i++)
 		{
-			if ( errorEpoll( clients, epollVar, i ) )
+			if ( errorEpoll( servers, clients, epollVar, i ) )
 				continue ;
 			if ( !newConnection( clients, servers, epollVar, i ) )
 				if ( ioData( clients, epollVar, i ) )

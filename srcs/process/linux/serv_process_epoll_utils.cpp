@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/23 21:36:42 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/24 01:06:15 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,19 @@ itClient	find( std::vector<Client> & clients, int clientFd )
 	return ( it );
 }
 
+itServer	find( std::vector<Server> & servers, int serverFd )
+{
+	itServer	it;
+	itServer	ite = servers.end();
+
+	for ( it = servers.begin(); it < ite; it++ )
+	{
+		if ( (*it).getSock() == serverFd )
+			break ;
+	}
+	return ( it );
+}
+
 void	setEpollQueue( t_epoll & epollVar, std::vector<Server> & servers )
 {
 
@@ -49,7 +62,7 @@ void	setEpollQueue( t_epoll & epollVar, std::vector<Server> & servers )
 
 }
 
-int	serverReady( std::vector<Server> & servers, int fd )
+int	isServer( std::vector<Server> & servers, int fd )
 {
 	for ( std::size_t i(0); i < servers.size(); i++ )
 	{

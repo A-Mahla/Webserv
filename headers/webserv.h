@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/21 18:54:23 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/23 23:47:32 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/24 01:01:25 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ typedef struct s_epoll
 }	t_epoll;
 
 typedef typename std::vector<Client>::iterator	itClient;
+typedef typename std::vector<Server>::iterator	itServer;
 
 			/*	socket_settings.cpp		*/
 void		nonBlockSock( int & servSock );
@@ -43,9 +44,10 @@ void		appServ( std::vector<Server> & servers );
 
 			/*	serv_process_epoll_utils.cpp	*/
 itClient	find( std::vector<Client> & clients, int clientFd );
+itServer	find( std::vector<Server> & servers, int serverFd );
 void		setEpollQueue( t_epoll & epollVar, std::vector<Server> & servers );
 void		signal_handler(int sig);
-int			serverReady( std::vector<Server> & servers, int fd );
+int			isServer( std::vector<Server> & servers, int fd );
 
 			/*	serv_process_epoll_loop	*/
 void		servProcess( std::vector<Server> & servers,
