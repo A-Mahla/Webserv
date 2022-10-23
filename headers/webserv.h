@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/21 18:54:23 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/23 21:16:56 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/23 23:47:32 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,14 @@
 # include <sys/epoll.h>
 # include <vector>
 
+# define MAXFD 5000
+
 typedef struct s_epoll
 {
 	int					maxNbFd;
 	int					epollFd;
 	struct epoll_event	new_event;
-	struct epoll_event	events[10000];
+	struct epoll_event	events[MAXFD];
 }	t_epoll;
 
 typedef typename std::vector<Client>::iterator	itClient;

@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/23 21:18:46 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/24 00:19:40 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@ void	waitRequest( t_epoll & epollVar )
 {
 	int	timeout = 400;
 
-	if (( epollVar.maxNbFd = epoll_wait( epollVar.epollFd, epollVar.events, 5000, timeout) ) < 0 )
-		throw WebServException( "serv_process_epoll_process.cpp", "waitRequest", "select() failed" );
+	if (( epollVar.maxNbFd = epoll_wait( epollVar.epollFd, epollVar.events, MAXFD, timeout) ) < 0 )
+		throw WebServException( "serv_process_epoll_process.cpp", "waitRequest", "epoll_wait() failed" );
 }
 
 void	readData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, int i )
@@ -81,7 +81,7 @@ bool	ioData( std::vector<Client> & clients, t_epoll & epollVar, int i)
 		readData( clients, it, epollVar, i );
 		return ( true );
 	}
-	else if ( epollVar.events[i].data.fd & EPOLLOUT )
+	else if ( epollVar.events[i].events & EPOLLOUT )
 	{
 		sendData( clients, it, epollVar, i );
 		return ( true );
@@ -121,15 +121,22 @@ bool	newConnection( std::vector<Client> & clients, std::vector<Server> & servers
 {
 	int					server_fd;
 
-	if ( epollVar.events[i].data.fd & EPOLLERR || epollVar.events[i].events & EPOLLHUP )
-	{
-		clients.erase( find( clients, epollVar.events[i].data.fd ) );
-		close( epollVar.events[i].data.fd );
-		return ( true );
-	}
-	if ( ( server_fd = serverReady( servers, epollVar.events[i].data.fd ) ) >= 0 )
+	if ( epollVar.events[i].events & EPOLLIN &&
+		( server_fd = serverReady( servers, epollVar.events[i].data.fd ) ) >= 0 )
 	{
 		addConnection( clients, server_fd, epollVar );
+		return ( true );
+	}
+	return ( false );
+}
+
+bool	errorEpoll( std::vector<Client> & clients , t_epoll & epollVar, int i )
+{
+	if ( epollVar.events[i].events & EPOLLERR || epollVar.events[i].events & EPOLLHUP )
+	{
+		clients.erase( find( clients, epollVar.events[i].data.fd ) );
+		epoll_ctl( epollVar.maxNbFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
+		close( epollVar.events[i].data.fd );
 		return ( true );
 	}
 	return ( false );
@@ -143,10 +150,11 @@ void	servProcess( std::vector<Server> & servers, std::vector<Client> & clients, 
 		waitRequest( epollVar );
 		for ( int i(0); i < epollVar.maxNbFd; i++)
 		{
-			if ( newConnection( clients, servers, epollVar, i ) )
-				break ;
-			if ( ioData( clients, epollVar, i ) )
-				break ;
+			if ( errorEpoll( clients, epollVar, i ) )
+				continue ;
+			if ( !newConnection( clients, servers, epollVar, i ) )
+				if ( ioData( clients, epollVar, i ) )
+					break ;
 		}
 	}
 }
