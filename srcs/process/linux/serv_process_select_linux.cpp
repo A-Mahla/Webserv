@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   serv_process_select_linux.cpp                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/22 18:34:13 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/23 17:20:25 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void	signal_handler(int sig)
 void	setFds( int & maxSock, fd_set* readFds, std::vector<Client> & clients, std::vector<Server> & servers )
 {
 	FD_ZERO(readFds);
-	
+
 	for (std::size_t i = 0; i < servers.size(); i++ )
 	{
 		maxSock = (servers[i].getSock() > maxSock) ? servers[i].getSock() : maxSock;
@@ -88,7 +88,7 @@ bool	newConnection( std::vector<Server> & servers, std::vector<Client> & clients
 					throw WebServException( "serv_process.cpp", "newConnection", "accept() failed" );
 			}
 
-			if (newConnection > 0)			
+			if (newConnection > 0)
 			{
 				std::cout << YELLOW << "Connection accepted" << SET << std::endl;
 				nonBlockSock( newConnection );
@@ -134,7 +134,7 @@ void	ioData( fd_set* readFds, std::vector<Client> & clients )
 			}
 		}
 	}
-}	
+}
 
 void	appServ( std::vector<Server> & servers )
 {
@@ -149,8 +149,8 @@ void	appServ( std::vector<Server> & servers )
 		while (1)
 		{
 			waitRequest( &readFds, clients, servers );
-			if ( !newConnection( servers, clients, &readFds ) )
-				ioData( &readFds, clients );
+			newConnection( servers, clients, &readFds );
+			ioData( &readFds, clients );
 
 		}
 	}
@@ -166,6 +166,6 @@ void	appServ( std::vector<Server> & servers )
 			FD_CLR( clients[i].getSock(), &readFds );
 			close( clients[i].getSock() );
 		}
-		throw ( WebServException( e.what() ) ); 
+		throw ( WebServException( e.what() ) );
 	}
 }
