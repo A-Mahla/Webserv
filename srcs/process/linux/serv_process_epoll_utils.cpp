@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/23 20:32:23 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/23 21:36:42 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,8 @@ void		signal_handler(int sig)
 
 itClient	find( std::vector<Client> & clients, int clientFd )
 {
-	std::vector<Client>::iterator	it;
-	std::vector<Client>::iterator	ite = clients.end();
+	itClient	it;
+	itClient	ite = clients.end();
 
 	for ( it = clients.begin(); it < ite; it++ )
 	{
