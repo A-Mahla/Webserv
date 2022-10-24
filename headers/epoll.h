@@ -6,14 +6,14 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 12:55:28 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/24 13:00:17 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/24 14:28:57 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __EPOLL_H__
 # define __EPOLL_H__
 
-# define MAXFD 5000
+# define MAXFD 100000
 
 # include <sys/epoll.h>
 
@@ -25,8 +25,8 @@ typedef struct s_epoll
 	struct epoll_event	events[MAXFD];
 }	t_epoll;
 
-typedef typename std::vector<Client>::iterator	itClient;
-typedef typename std::vector<Server>::iterator	itServer;
+typedef std::vector<Client>::iterator	itClient;
+typedef std::vector<Server>::iterator	itServer;
 
 			/*	serv_process_epoll_utils.cpp	*/
 itClient	find( std::vector<Client> & clients, int clientFd );
