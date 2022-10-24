@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/22 15:55:23 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/24 14:36:46 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,12 @@
 #include "Server.hpp"
 
 Server::Server( void ) : _servSock(0), _port(8080)
+{
+	if ( DEBUG )
+		std::cout << "Server Default Constructor" << std::endl;
+}
+
+Server::Server( const int port ) : _servSock(0), _port(port)
 {
 	if ( DEBUG )
 		std::cout << "Server Default Constructor" << std::endl;

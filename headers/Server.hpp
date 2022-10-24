@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/22 15:53:32 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/24 14:35:56 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ class Server
 	public:
 
 		Server( void );
+		Server( const int port );
 		Server( const Server & rhs );
 
 		~Server( void );

@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/22 18:35:34 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/23 21:20:57 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,16 +64,15 @@ void	waitRequest( fd_set* readFds, std::vector<Client> & clients, std::vector<Se
 		setFds( maxSock, readFds, clients, servers );
 
 		if (( status = select( maxSock + 1, readFds, NULL, NULL, &timeout )) < 0 )
-			throw WebServException( "serv_process.cpp", "waitRequest", "select() failed" );
+			throw WebServException( "serv_process_mac.cpp", "waitRequest", "select() failed" );
 	}
 }
 
-bool	newConnection( std::vector<Server> & servers, std::vector<Client> & clients, fd_set* readFds )
+void	newConnection( std::vector<Server> & servers, std::vector<Client> & clients, fd_set* readFds )
 {
 	struct sockaddr_in	temp;
 	int					addrlen = sizeof(temp);
 	int					newConnection;
-	bool				is_one_connection = false;
 
 	memset( (char *)&temp, 0, sizeof(temp) );
 
@@ -85,20 +84,18 @@ bool	newConnection( std::vector<Server> & servers, std::vector<Client> & clients
 								reinterpret_cast< socklen_t * >(&addrlen) ) ) < 0) )
 			{
 				if ( errno != EWOULDBLOCK )
-					throw WebServException( "serv_process.cpp", "newConnection", "accept() failed" );
+					throw WebServException( "serv_process_mac.cpp", "newConnection", "accept() failed" );
 			}
 
+//			else ( newConnection peut-il etre egal a 0 ? )
 			if (newConnection > 0)			
 			{
 				std::cout << YELLOW << "Connection accepted" << SET << std::endl;
 				nonBlockSock( newConnection );
 				clients.push_back( Client( newConnection ) );
-				is_one_connection = true;
 			}
 		}
 	}
-
-	return ( is_one_connection ? true : false );
 }
 
 void	ioData( fd_set* readFds, std::vector<Client> & clients )
@@ -149,9 +146,8 @@ void	appServ( std::vector<Server> & servers )
 		while (1)
 		{
 			waitRequest( &readFds, clients, servers );
-			if ( !newConnection( servers, clients, &readFds ) )
-				ioData( &readFds, clients );
-
+			newConnection( servers, clients, &readFds );
+			ioData( &readFds, clients );
 		}
 	}
 	catch ( std::exception & e )
