@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
+/*   Server.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/24 18:03:10 by slahlou          ###   ########.fr       */
+/*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
+/*   Updated: 2022/10/24 20:25:30 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef __SERVER_HPP__
-# define __SERVER_HPP__
+#ifndef SERVER_H
+#define SERVER_H
 
 class Server
 {
@@ -20,6 +20,7 @@ class Server
 
 		int	_servSock;
 		int	_port;
+		int	_addr;
 
 	public:
 
@@ -34,9 +35,12 @@ class Server
 		int	&		getSock( void );
 		const int	&	getSock( void ) const;
 		const int	&	getPort( void ) const;
-		const int	&	getIp( void ) const;
+		const int	&	getAddr( void ) const;
+		void			setAddr( int addr );
+		void			setPort( int port );
+		void			setSock( int sock );
+		void			print(void);
 
 };
-
 
 #endif
