@@ -6,7 +6,7 @@
 #    By: amahla <amahla@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/10/17 21:07:29 by amahla            #+#    #+#              #
-#    Updated: 2022/10/23 21:16:33 by amahla           ###   ########.fr        #
+#    Updated: 2022/10/24 18:08:29 by amahla           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,6 +38,7 @@ SRCSLINUX			:=	$(addprefix	linux/,	serv_process_epoll_linux.cpp		\
 SRCSMULTIOS			:=	$(addprefix process/,	main.cpp					\
 												webserv.cpp				)	\
 						$(addprefix class/,		WebServException.cpp		\
+												ParseFile.cpp				\
 												Server.cpp					\
 												Client.cpp					\
 												Request.cpp					\

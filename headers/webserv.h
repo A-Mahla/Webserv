@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/21 18:54:23 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/24 13:00:25 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/24 19:22:25 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include "Server.hpp"
 # include "Client.hpp"
 # include <vector>
+# include "ParseFile.hpp"
 
 
 			/*	socket_settings.cpp		*/
@@ -24,7 +25,7 @@ void		nonBlockSock( int & servSock );
 void		setServerSockets( std::vector<Server> & servers );
 
 			/*	weserv.cpp				*/
-void		webServ( void );
+void		webServ( const char *av );
 
 			/*	serv_process_epoll.cpp	*/
 void		appServ( std::vector<Server> & servers );
