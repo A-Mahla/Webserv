@@ -5,6 +5,9 @@
 #include <netinet/in.h>
 #include <netinet/ip.h>
 
+#define ADDR_MASK1 255
+
+
 Server::Server( void ) : _servSock(0), _port(8080), _addr(INADDR_ANY)
 {
 	std::cout << "in construct : " << INADDR_ANY << std::endl;
@@ -65,5 +68,12 @@ void			Server::setSock( int sock ){
 void	Server::print(){
 	std::cout << "socket_fd : " << this->_servSock << std::endl;
 	std::cout << "port: " << this->_port << std::endl;
-	std::cout << "addr : " << this->_addr << std::endl;
+	int test = ((this->_addr >> 24) & ADDR_MASK1);
+	std::cout << "addr: " << test << "\n";
+	test = ((this->_addr >> 16) & ADDR_MASK1);
+	std::cout << "addr: " << test << "\n";
+	test = ((this->_addr >> 8) & ADDR_MASK1);
+	std::cout << "addr: " << test << "\n";
+	test = ((this->_addr) & ADDR_MASK1);
+	std::cout << "addr: " << test << "\n";
 }

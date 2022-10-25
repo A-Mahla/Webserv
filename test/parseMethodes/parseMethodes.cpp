@@ -21,11 +21,14 @@
 
 int	isPort( std::string occurs, Server & current){
 	int	res = 0;
+	int i = 0;
 
-	for (int i = 0 ; occurs[i] != ';' ; i++){
+	std::cout << "------->TEST " << occurs << "\n";
+	for (; occurs[i] != ';' ; i++){
 		if (occurs[i] > '9' || occurs[i] < '0')
 			return (false);
 	}
+
 	res = atoi(occurs.c_str());
 	if (res < MIN_PORT || res  > MAX_PORT)
 		return (false);
@@ -36,31 +39,39 @@ int	isPort( std::string occurs, Server & current){
 int	isaddr( std::string occurs, Server & current) {
 	int res = 0;
 	int test = 0;
-	int	dot_count = 0;
-	for (int i = 0 ;  occurs[i] == '.' || occurs[i] == ';' ||  occurs[i] == ':'
-		|| occurs[i] < '0' || occurs[i] > '9' ; i++)
-	{
-		test = atoi((occurs.c_str() + i));
-		if ( ( test > 255 || test < 0 ) )
-			return (false);
-		while ( occurs[i] >= '0' && occurs[i] <= '9' )
-			i++;
-		if (occurs[i] == '.'){
-			++dot_count;
-			++i;
-		}
-		else if ((occurs[i] == ';' ||  occurs[i] == ':') && dot_count == 3){
-			current.setAddr(res);
-			return (true);
-		}
-		else if ( dot_count == 3 )
-			return (false);
-		res |= test;
-		res <<= 8;
+	int dot_ct = 0;
 
+
+	for (int i = 0; occurs[i] != ';' && occurs[i] != ':' && occurs[i]; i++)
+	{
+		std::cout << "nouveau test >>>>>>>>>>> " << test << " && " << res << " dot_ct " << dot_ct << " [" << occurs[i] << "] " << "\n";
+		test = atoi((occurs.c_str() + i));
+		if (test < 0 || test > 255)
+		{
+			return (false);
+		}
+		while ( occurs[i] >= '0' && occurs[i] <= '9' ){
+			i++;
+		}
+		if (occurs[i] != '.' && occurs[i] != ';' && occurs[i] != ':'){
+
+			return (false);
+		}
+		else if (occurs[i] == '.')
+			dot_ct++;
+
+		res |= test;
+		if (occurs[i] != ';' && occurs[i] != ':')
+			res = (res << 8);
+		if (occurs[i] == ';' || occurs[i] == ':')
+			break;
+	}
+	std::cout << "nouveau test >>>>>>>>>>> " << res << "\n";
+	if (dot_ct == 3){
+		current.setAddr(res);
+		return (true);
 	}
 	return (false);
-
 }
 
 bool	serverListenConfig(std::string const & str, Server & current) {
@@ -71,8 +82,8 @@ bool	serverListenConfig(std::string const & str, Server & current) {
 
 	if ( ( str.compare(0, 7, "listen ") == 0 || str.compare(0, 7, "listen\t") == 0 )  && *(str.end() - 1) == ';')
 	{
-		std::cout << "ICI LE TEST\n";
-		i += 8;
+		i += 7;
+		std::cout << str[i] << "\n";
 		while ( str[i] == ' ' || str[i] == '\t')
 			i++;
 		if ( str.compare(i, 10,"localhost:") == 0 || str.compare(i, 2, "*:") == 0 )
@@ -81,8 +92,12 @@ bool	serverListenConfig(std::string const & str, Server & current) {
 			while (str[i] != ';' && str[i] != ':')
 				i++;
 		}
-		if ((portTest = isPort( (str.c_str() + i), current )) == 0 && (addrTest = isaddr( (str.c_str() + i), current ) == 0))
+		addrTest = isaddr( (str.c_str() + i), current );
+		portTest = isPort( (str.c_str() + i), current );
+		if (!addrTest && !portTest)
 			return (false);
+		if (!addr && )
+
 		return (true);
 	}
 	return (false);
