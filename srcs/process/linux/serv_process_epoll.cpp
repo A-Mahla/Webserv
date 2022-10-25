@@ -6,13 +6,14 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/23 21:06:42 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/24 12:57:31 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include <iostream>
 # include <signal.h>
 # include "webserv.h"
+# include "epoll.h"
 
 void	clearEpollProcess( std::vector<Server> & servers, std::vector<Client> & clients, t_epoll & epollVar )
 {

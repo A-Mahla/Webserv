@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/24 01:04:11 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/24 12:57:12 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <errno.h>
 # include <signal.h>
 # include "webserv.h"
+# include "epoll.h"
 
 
 void	waitRequest( t_epoll & epollVar )
