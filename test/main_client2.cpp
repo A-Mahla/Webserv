@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/21 16:25:54 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/24 14:09:10 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,6 @@ int main( void )
 	while ( i-- )
 	{
 
-		usleep( 2000 );
 		if ( send( socket_fd, buffer_write, strlen(buffer_write), 0 ) < 0 )
 		{
 			std::cout << "send() server failed" << std::endl;

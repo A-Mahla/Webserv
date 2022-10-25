@@ -6,7 +6,7 @@
 /*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/21 18:54:23 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/24 13:03:00 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/25 16:10:15 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,5 @@ void		appServ( std::vector<Server> & servers );
 			/*	serv_process_epoll_utils.cpp	*/
 void		signal_handler(int sig);
 int			isServer( std::vector<Server> & servers, int fd );
-
 
 #endif

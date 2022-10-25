@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/24 12:57:12 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/24 14:28:09 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include <signal.h>
 # include "webserv.h"
 # include "epoll.h"
+# include <unistd.h>
 
 
 void	waitRequest( t_epoll & epollVar )
@@ -29,32 +30,32 @@ void	waitRequest( t_epoll & epollVar )
 
 void	readData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, int i )
 {
-		char	buffer_read[1024];
-		int		rd;
+	char	buffer_read[1024];
+	int		rd;
 
-		if ( (rd = recv( epollVar.events[i].data.fd , buffer_read, 1023, 0 )) <= 0 )
-		{
-			if ( rd < 0 )
-				std::cout << RED << "Connexion client lost" << SET << std::endl;
-			else
-				std::cout << RED << "Connexion client is closed" << SET << std::endl;
-			clients.erase( it );
-			epoll_ctl(epollVar.epollFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
-			close( epollVar.events[i].data.fd );
-		}
+	if ( (rd = recv( epollVar.events[i].data.fd , buffer_read, 1023, 0 )) <= 0 )
+	{
+		if ( rd < 0 )
+			std::cout << RED << "Connexion client lost" << SET << std::endl;
 		else
-		{
-			buffer_read[rd] = '\0';
-			// (*it).getRequest().getStringRequest() += buffer_read; For concatenate recv
-			(*it).getRequest().getStringRequest() = buffer_read;
+			std::cout << RED << "Connexion client is closed" << SET << std::endl;
+		clients.erase( it );
+		epoll_ctl(epollVar.epollFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
+		close( epollVar.events[i].data.fd );
+	}
+	else
+	{
+		buffer_read[rd] = '\0';
+		// (*it).getRequest().getStringRequest() += buffer_read; For concatenate recv
+		(*it).getRequest().getStringRequest() = buffer_read;
 
-			epollVar.new_event.events = EPOLLOUT;
-			epollVar.new_event.data.fd = epollVar.events[i].data.fd;
-			epoll_ctl( epollVar.epollFd, EPOLL_CTL_MOD, epollVar.events[i].data.fd, &epollVar.new_event);
+		epollVar.new_event.events = EPOLLOUT;
+		epollVar.new_event.data.fd = epollVar.events[i].data.fd;
+		epoll_ctl( epollVar.epollFd, EPOLL_CTL_MOD, epollVar.events[i].data.fd, &epollVar.new_event);
 
-			std::cout << GREEN << "Server side receive from client : " << (*it).getRequest().getStringRequest() << SET << std::endl;
-		}
-}	
+		std::cout << GREEN << "Server side receive from client : " << (*it).getRequest().getStringRequest() << SET << std::endl;
+	}
+}
 
 void	sendData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, int i )
 {
@@ -112,7 +113,7 @@ void	addConnection( std::vector<Client> & clients, int server_fd, t_epoll & epol
 
 		epollVar.new_event.data.fd = newConnection;
 		epollVar.new_event.events = EPOLLIN;
-		epoll_ctl(epollVar.epollFd, EPOLL_CTL_ADD, newConnection, &(epollVar.new_event));
+		epoll_ctl( epollVar.epollFd, EPOLL_CTL_ADD, newConnection, &(epollVar.new_event ));
 
 		clients.push_back( Client( newConnection ) );
 	}
@@ -156,11 +157,11 @@ void	servProcess( std::vector<Server> & servers, std::vector<Client> & clients, 
 		waitRequest( epollVar );
 		for ( int i(0); i < epollVar.maxNbFd; i++)
 		{
+			std::cout << "test " << epollVar.maxNbFd << std::endl;
 			if ( errorEpoll( servers, clients, epollVar, i ) )
 				continue ;
 			if ( !newConnection( clients, servers, epollVar, i ) )
-				if ( ioData( clients, epollVar, i ) )
-					break ;
+				ioData( clients, epollVar, i );
 		}
 	}
 }

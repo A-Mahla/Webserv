@@ -3,22 +3,36 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/22 15:55:23 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/25 17:00:13 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <netinet/in.h>
-#include "defines.h"
+#include "../../headers/defines.h"
 #include <iostream>
-#include "Server.hpp"
+#include "../../headers/Server.hpp"
 
-Server::Server( void ) : _servSock(0), _port(8080)
+Server::Server( void ) : _servSock(0), _port(8080), _clientBody(16000)
 {
 	if ( DEBUG )
 		std::cout << "Server Default Constructor" << std::endl;
+	_is_set.insert(std::pair<std::string, bool>("clientbody", false));
+	_is_set.insert(std::pair<std::string, bool>("error_page", false));
+	_is_set.insert(std::pair<std::string, bool>("index", false));
+	_index.push_back("index.html");
+}
+
+Server::Server( const int port ) : _servSock(0), _port(port),  _clientBody(16000)
+{
+	if ( DEBUG )
+		std::cout << "Server Default Constructor" << std::endl;
+	_is_set.insert(std::pair<std::string, bool>("clientbody", false));
+	_is_set.insert(std::pair<std::string, bool>("error_page", false));
+	_is_set.insert(std::pair<std::string, bool>("index", false));
+	_index.push_back("index.html");
 }
 
 Server::Server( const Server & rhs )
@@ -40,6 +54,9 @@ Server &	Server::operator=( const Server & rhs )
 	{
 		this->_servSock = rhs._servSock;
 		this->_port = rhs._port;
+		this->_is_set = rhs._is_set;
+		this->_clientBody = rhs._clientBody;
+		this->_error_pages = rhs._error_pages;
 	}
 	return ( *this );
 }
@@ -57,4 +74,34 @@ const int	& Server::getSock( void ) const
 const int	& Server::getPort( void ) const
 {
 	return ( this->_port );
+}
+
+int	Server::get_clientBody(void)
+{
+	return (this->_clientBody);
+}
+
+map<string, string>	&Server::get_error_pages(void)
+{
+	return (this->_error_pages);
+}
+
+void	Server::set_clientBody(int val)
+{
+	_clientBody = val;
+}
+
+bool	Server::get_is_set(string atribute)
+{
+	return (_is_set[atribute]);
+}
+
+void	Server::set_is_set(string atribute)
+{
+	_is_set[atribute] = !_is_set[atribute];
+}
+
+vector<string>	&Server::get_index(void)
+{
+	return (_index);
 }
