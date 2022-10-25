@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/25 16:16:32 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/25 21:22:55 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@ ParseFile::ParseFile( const char *av )
 
 	this->_ft[0] = &ParseFile::setServerName;
 	this->readFile( av );
+	// reset les location Server en fonction du server parent
+	// resetLocation();
 }
 
 ParseFile::ParseFile( const ParseFile & rhs )
@@ -63,7 +65,7 @@ int	whileSpace( std::string temp )
 	return ( i );
 }
 
-void	ParseFile::readContent( std::ifstream & ifs, std::string temp )
+int	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::string file, Server *parent )
 {
 	Server	server;
 	int		i;
@@ -83,17 +85,29 @@ void	ParseFile::readContent( std::ifstream & ifs, std::string temp )
 				throw WebServException( "ParseFile.cpp", "readFile", "Invalid format config file" );
 			else
 			{
-				this->_servers.push_back( server );
-				break ;
+				if ( !parent )
+					this->_servers.push_back( server );
+				else
+				{
+//					parent->getLocation().insert( std::pair< std::string, Server>( file, server ) );
+					parent->getLocation()[ file ] = new Server(server);
+					std::cout << parent->getLocation()[file]->getServerName()[0] << std::endl;
+				}
+				return ( i ) ;
 			}
 		}
 
 		(this->*_ft[0])( temp.c_str() + i, server );
+		setLocation( ifs, temp.c_str() + i, server, i);
+//		std::cout << server.getLocation()[file]->getServerName()[0] << std::endl;
+			
+
 /*		for ( i = 0; i < 9 && (*ft[i])( temp.c_str() + i, server ); i++ )
 			;
 		if ( i == 9 )
 			throw WebServException( "ParseFile.cpp", "readFile", "Invalid format config file" );
 */	}
+	return ( i );
 }
 
 void	ParseFile::FormatFile( std::ifstream & ifs, std::string temp )
@@ -106,7 +120,7 @@ void	ParseFile::FormatFile( std::ifstream & ifs, std::string temp )
 		i += whileSpace( temp.c_str() + i );
 		if ( !temp[i] )
 			continue ;
-		if ( ( temp[i] && temp.compare( i, 6, "server" ) != 0 ) )
+		if ( temp[i] && temp.compare( i, 6, "server" ) != 0 )
 			throw WebServException( "ParseFile.cpp", "readFile", "Invalid format config file" );
 		else 
 		{
@@ -118,7 +132,7 @@ void	ParseFile::FormatFile( std::ifstream & ifs, std::string temp )
 				if ( temp[i] )
 					throw WebServException( "ParseFile.cpp", "readFile", "Invalid format config file" );
 				else
-					readContent( ifs, temp.c_str() + i );
+					readContent( ifs, temp.c_str() + i, "", NULL );
 			}
 			else
 				throw WebServException( "ParseFile.cpp", "readFile", "Invalid format config file" );
@@ -175,3 +189,36 @@ bool	ParseFile::setServerName( const std::string str, Server & server )
 	server.getMap()["server_name"] = true;
 	return ( true );
 }	
+
+bool	ParseFile::setLocation( std::ifstream & ifs, std::string temp, Server & server, int & index )
+{
+	std::string	file;
+	int			i = 0;
+	
+	try
+	{
+		if ( temp.compare( i, 8, "location" ) != 0 )
+			throw WebServException( "ParseFile.cpp", "setLocation", "Invalid format config file" );
+		i += 8;
+		i += whileSpace( temp.c_str() + i );
+		while ( temp[i] >= 33 && temp[i] <= 126 )
+			file.push_back( temp[i++] );
+		i += whileSpace( temp.c_str() + i );
+		if ( temp[i++] == '{' )
+		{
+			i += whileSpace( temp.c_str() + i );
+			if ( temp[i] || file.empty() )
+				throw WebServException( "ParseFile.cpp", "setLocation", "Invalid format config file" );
+			else
+				index += readContent( ifs, temp.c_str() + i, file, &server );
+		}
+		else
+			throw WebServException( "ParseFile.cpp", "setLocation", "Invalid format config file" );
+	}
+	catch ( std::exception & e )
+	{
+		return ( false );
+	}
+	std::cout << server.getLocation()[file]->getServerName()[0] << std::endl;
+	return ( true );
+}

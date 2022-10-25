@@ -2,6 +2,8 @@
 
 server	{
 
-	server_name	"";
+	location	ifs	{
+			server_name	Salut;
+	}
 
 }

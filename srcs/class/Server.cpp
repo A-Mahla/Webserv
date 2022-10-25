@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/25 14:45:19 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/25 21:07:59 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,27 +59,27 @@ std::map< std::string, bool >	& Server::getMap( void )
 	return ( this->_is_set );
 }
 
-int							& Server::getSock( void )
+int								& Server::getSock( void )
 {
 	return ( this->_servSock );
 }
 
-const int					& Server::getSock( void ) const
+const int						& Server::getSock( void ) const
 {
 	return ( this->_servSock );
 }
 
-std::vector< std::string >	& Server::getServerName( void )
+std::vector< std::string >		& Server::getServerName( void )
 {
 	return ( this->_serverName );
 }
 
-const int					& Server::getPort( void ) const
+std::map< std::string, Server*>	& Server::getLocation( void )
 {
-	return ( this->_port );
+	return ( this->_location );
 }
 
-void						Server::setServerName( std::vector< std::string > serverName )
+const int						& Server::getPort( void ) const
 {
-	this->_serverName = serverName;
+	return ( this->_port );
 }
