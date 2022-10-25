@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/25 21:05:03 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/26 01:32:31 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,11 @@ class Server
 
 	private:
 
-		std::vector< std::string >			_serverName;
-		int									_servSock;
-		int									_port;
-		std::map< std::string, Server* >	_location;
-		std::map< std::string, bool >		_is_set;
+		std::vector< std::string >		_serverName;
+		int								_servSock;
+		int								_port;
+		std::map< std::string, Server >	_location;
+		std::map< std::string, bool >	_is_set;
 
 	public:
 
@@ -41,7 +41,7 @@ class Server
 		int	&							getSock( void );
 		const int						& getSock( void ) const;
 		std::vector< std::string >		& getServerName( void );
-		std::map< std::string, Server*>	& getLocation( void );
+		std::map< std::string, Server >	& getLocation( void );
 		const int						& getPort( void ) const;
 		const int						& getIp( void ) const;
 

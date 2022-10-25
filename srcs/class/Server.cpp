@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/25 21:07:59 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/26 01:32:03 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ Server &			Server::operator=( const Server & rhs )
 		this->_port = rhs._port;
 		this->_serverName = rhs._serverName;
 		this->_is_set = rhs._is_set;
+		this->_location = rhs._location;
 	}
 	return ( *this );
 }
@@ -74,7 +75,7 @@ std::vector< std::string >		& Server::getServerName( void )
 	return ( this->_serverName );
 }
 
-std::map< std::string, Server*>	& Server::getLocation( void )
+std::map< std::string, Server >	& Server::getLocation( void )
 {
 	return ( this->_location );
 }

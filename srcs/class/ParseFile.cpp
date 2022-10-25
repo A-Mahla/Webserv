@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/25 21:22:55 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/26 01:35:09 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ int	whileSpace( std::string temp )
 	return ( i );
 }
 
-int	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::string file, Server *parent )
+void	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::string file, Server *parent )
 {
 	Server	server;
 	int		i;
@@ -88,26 +88,19 @@ int	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::st
 				if ( !parent )
 					this->_servers.push_back( server );
 				else
-				{
-//					parent->getLocation().insert( std::pair< std::string, Server>( file, server ) );
-					parent->getLocation()[ file ] = new Server(server);
-					std::cout << parent->getLocation()[file]->getServerName()[0] << std::endl;
-				}
-				return ( i ) ;
+					parent->getLocation()[ file ] = server;
+				break ;
 			}
 		}
 
 		(this->*_ft[0])( temp.c_str() + i, server );
-		setLocation( ifs, temp.c_str() + i, server, i);
-//		std::cout << server.getLocation()[file]->getServerName()[0] << std::endl;
-			
+		setLocation( ifs, temp.c_str() + i, server );
 
 /*		for ( i = 0; i < 9 && (*ft[i])( temp.c_str() + i, server ); i++ )
 			;
 		if ( i == 9 )
 			throw WebServException( "ParseFile.cpp", "readFile", "Invalid format config file" );
 */	}
-	return ( i );
 }
 
 void	ParseFile::FormatFile( std::ifstream & ifs, std::string temp )
@@ -190,7 +183,7 @@ bool	ParseFile::setServerName( const std::string str, Server & server )
 	return ( true );
 }	
 
-bool	ParseFile::setLocation( std::ifstream & ifs, std::string temp, Server & server, int & index )
+bool	ParseFile::setLocation( std::ifstream & ifs, std::string temp, Server & server )
 {
 	std::string	file;
 	int			i = 0;
@@ -210,7 +203,7 @@ bool	ParseFile::setLocation( std::ifstream & ifs, std::string temp, Server & ser
 			if ( temp[i] || file.empty() )
 				throw WebServException( "ParseFile.cpp", "setLocation", "Invalid format config file" );
 			else
-				index += readContent( ifs, temp.c_str() + i, file, &server );
+				readContent( ifs, temp.c_str() + i, file, &server );
 		}
 		else
 			throw WebServException( "ParseFile.cpp", "setLocation", "Invalid format config file" );
@@ -219,6 +212,5 @@ bool	ParseFile::setLocation( std::ifstream & ifs, std::string temp, Server & ser
 	{
 		return ( false );
 	}
-	std::cout << server.getLocation()[file]->getServerName()[0] << std::endl;
 	return ( true );
 }

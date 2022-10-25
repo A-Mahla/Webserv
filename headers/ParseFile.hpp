@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:38:07 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/25 21:22:07 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/26 00:53:44 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,13 @@ class ParseFile
 		const std::vector<Server>	& getServers( void ) const;
 		std::vector<Server>	& getServers( void );
 
-		int		readContent( std::ifstream & ifs, std::string temp,
+		void	readContent( std::ifstream & ifs, std::string temp,
 			const std::string file, Server *parent );
 		void	FormatFile( std::ifstream & ifs, std::string temp );
 		void	readFile( const char *file );
 
 		bool	setServerName( const std::string str, Server & server );
-		bool	setLocation( std::ifstream & ifs, std::string temp, Server & server, int & index );
+		bool	setLocation( std::ifstream & ifs, std::string temp, Server & server );
 
 };
 
