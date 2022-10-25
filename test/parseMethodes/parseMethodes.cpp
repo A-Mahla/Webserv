@@ -74,11 +74,23 @@ int	isaddr( std::string occurs, Server & current) {
 	return (false);
 }
 
+int		checkElements = checkElements(std::string str){
+	std::cout << str << std::endl;
+	if (str.find(":", 0) != npos){
+		return (2);
+	}
+	if (str.find(":", 0) == npos){
+		return (1);
+	}
+}
+
+
 bool	serverListenConfig(std::string const & str, Server & current) {
 	std::locale	loc;
 	int			i = 0;
 	int			portTest = 0;
 	int			addrTest = 0;
+	int			checkElements = 0;
 
 	if ( ( str.compare(0, 7, "listen ") == 0 || str.compare(0, 7, "listen\t") == 0 )  && *(str.end() - 1) == ';')
 	{
@@ -92,11 +104,11 @@ bool	serverListenConfig(std::string const & str, Server & current) {
 			while (str[i] != ';' && str[i] != ':')
 				i++;
 		}
-		addrTest = isaddr( (str.c_str() + i), current );
-		portTest = isPort( (str.c_str() + i), current );
-		if (!addrTest && !portTest)
-			return (false);
-		if (!addr && )
+		checkElements = checkElements(str.c_str() + i);
+		if (checkElements == 2){
+			if ((addrTest = isaddr(str.c_str() + i, current)) == 0)
+				
+		}
 
 		return (true);
 	}
