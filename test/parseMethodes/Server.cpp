@@ -10,7 +10,7 @@
 
 Server::Server( void ) : _servSock(0), _port(8080), _addr(INADDR_ANY)
 {
-	std::cout << "in construct : " << INADDR_ANY << std::endl;
+	//std::cout << "in construct : " << INADDR_ANY << std::endl;
 }
 
 Server::Server( const int port ) : _servSock(0), _port(port), _addr(INADDR_ANY)

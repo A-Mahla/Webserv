@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
+#include <ctype.h>
 #include <locale>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -22,8 +23,10 @@
 int	isPort( std::string occurs, Server & current){
 	int	res = 0;
 	int i = 0;
-
-	std::cout << "------->TEST " << occurs << "\n";
+	if (occurs.compare(0, 8, "default;") == 0 || occurs.compare(0, 2, "*;") == 0){
+		current.setPort(8080);
+		return (true);
+	}
 	for (; occurs[i] != ';' ; i++){
 		if (occurs[i] > '9' || occurs[i] < '0')
 			return (false);
@@ -41,10 +44,13 @@ int	isaddr( std::string occurs, Server & current) {
 	int test = 0;
 	int dot_ct = 0;
 
-
+	if (occurs.compare(0, 9, "localhost") == 0 || occurs.compare(0, 1, "*") == 0)
+	{
+		current.setAddr(INADDR_ANY);
+		return (true);
+	}
 	for (int i = 0; occurs[i] != ';' && occurs[i] != ':' && occurs[i]; i++)
 	{
-		std::cout << "nouveau test >>>>>>>>>>> " << test << " && " << res << " dot_ct " << dot_ct << " [" << occurs[i] << "] " << "\n";
 		test = atoi((occurs.c_str() + i));
 		if (test < 0 || test > 255)
 		{
@@ -66,7 +72,6 @@ int	isaddr( std::string occurs, Server & current) {
 		if (occurs[i] == ';' || occurs[i] == ':')
 			break;
 	}
-	std::cout << "nouveau test >>>>>>>>>>> " << res << "\n";
 	if (dot_ct == 3){
 		current.setAddr(res);
 		return (true);
@@ -74,14 +79,26 @@ int	isaddr( std::string occurs, Server & current) {
 	return (false);
 }
 
-int		checkElements = checkElements(std::string str){
-	std::cout << str << std::endl;
-	if (str.find(":", 0) != npos){
+int		checkElements(std::string str){
+	size_t occurence = str.find(':', 0);
+	int i = 0;
+	while (str[i] != ';'){
+		if (!isdigit(str[i]) && str[i] != ';' && str[i] != ':' && str[i] != '.')
+			return 0;
+		i++;
+	}
+	while (str[++i]){
+		if (str[i] != ' ' && str[i] != '\r')
+			return 0;
+	}
+
+	if (occurence != std::string::npos){
 		return (2);
 	}
-	if (str.find(":", 0) == npos){
+	if (occurence == std::string::npos){
 		return (1);
 	}
+	return (0);
 }
 
 
@@ -90,27 +107,32 @@ bool	serverListenConfig(std::string const & str, Server & current) {
 	int			i = 0;
 	int			portTest = 0;
 	int			addrTest = 0;
-	int			checkElements = 0;
+	int			checkreturn = 0;
 
-	if ( ( str.compare(0, 7, "listen ") == 0 || str.compare(0, 7, "listen\t") == 0 )  && *(str.end() - 1) == ';')
+	if ( ( str.compare(0, 7, "listen ") == 0 || str.compare(0, 7, "listen\t") == 0 ))
 	{
 		i += 7;
-		std::cout << str[i] << "\n";
 		while ( str[i] == ' ' || str[i] == '\t')
 			i++;
-		if ( str.compare(i, 10,"localhost:") == 0 || str.compare(i, 2, "*:") == 0 )
-		{
-			current.setAddr(INADDR_ANY);
-			while (str[i] != ';' && str[i] != ':')
-				i++;
-		}
-		checkElements = checkElements(str.c_str() + i);
-		if (checkElements == 2){
-			if ((addrTest = isaddr(str.c_str() + i, current)) == 0)
-				
-		}
+		checkreturn = checkElements(str.c_str() + i);
+		std::cout << "test0          " << checkreturn << "\n";
+		if (checkreturn == 2){
 
-		return (true);
+			if ((addrTest = isaddr(str.c_str() + i, current)) == 0) {
+				std::cout << "test1\n";
+				return (false);
+			}
+			else if ((portTest = isPort(str.c_str() + str.find(":", 0) + 1, current)) == 0) {
+					std::cout << "test2\n";
+					return (false);
+			}
+			else if ((addrTest == true && portTest == true))
+				return (true);
+		}
+		if (checkreturn == 1) {
+			if ((addrTest = isaddr(str.c_str() + i, current)) == 0 && (portTest = isPort(str.c_str() + i, current)) == 0)
+				return (false);
+		}
 	}
 	return (false);
 }
