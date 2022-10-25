@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/24 21:13:53 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/25 16:16:32 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ ParseFile::ParseFile( const char *av )
 {
 	if ( DEBUG )
 		std::cout << "ParseFile Default Constructor" << std::endl;
-	
+
+	this->_ft[0] = &ParseFile::setServerName;
 	this->readFile( av );
 }
 
@@ -62,7 +63,7 @@ int	whileSpace( std::string temp )
 	return ( i );
 }
 
-void	readContent( std::ifstream & ifs, std::string temp )
+void	ParseFile::readContent( std::ifstream & ifs, std::string temp )
 {
 	Server	server;
 	int		i;
@@ -81,19 +82,21 @@ void	readContent( std::ifstream & ifs, std::string temp )
 			if ( temp[i] )
 				throw WebServException( "ParseFile.cpp", "readFile", "Invalid format config file" );
 			else
+			{
+				this->_servers.push_back( server );
 				break ;
+			}
 		}
 
+		(this->*_ft[0])( temp.c_str() + i, server );
 /*		for ( i = 0; i < 9 && (*ft[i])( temp.c_str() + i, server ); i++ )
 			;
-		if ( i < 9 )
-			this->_servers.push_back( server );
-		else
+		if ( i == 9 )
 			throw WebServException( "ParseFile.cpp", "readFile", "Invalid format config file" );
 */	}
 }
 
-void	FormatBeginFile( std::ifstream & ifs, std::string temp )
+void	ParseFile::FormatFile( std::ifstream & ifs, std::string temp )
 {
 	int	i;
 
@@ -125,7 +128,6 @@ void	FormatBeginFile( std::ifstream & ifs, std::string temp )
 		throw WebServException( "ParseFile.cpp", "readFile", "An error occurred while reading the config file" );
 }
 
-
 void	ParseFile::readFile( const char *file )
 {
 	std::ifstream		ifs( file, std::ifstream::in );
@@ -136,8 +138,40 @@ void	ParseFile::readFile( const char *file )
 	std::getline( ifs, temp );
 	if ( ifs.eof() && temp == "")
 		WebServException( "ParseFile.cpp", "readFile", "Empty config file" );
-	FormatBeginFile( ifs, temp );
+	FormatFile( ifs, temp );
 
 	ifs.close();
 }
 
+bool	ParseFile::setServerName( const std::string str, Server & server )
+{
+	std::string	temp;
+	int			i = 0;
+
+	if ( server.getMap()["server_name"] == true )
+		return ( false );
+	if ( str.compare( i, 11, "server_name" ) == 0 )
+	{
+		i += 11;
+		while ( str[i] && str[i] != ';' )
+		{
+			i += whileSpace( str.c_str() + i );
+			if ( str.compare( i, 3, "\"\"" ) == 0 ) 
+				i += 2;
+			if ( str[i] == ';' )
+				break ;
+			while ( str[i] && !( str[i] == ' ' || str[i] == '\t' || str[i] == ';' ) )
+				temp.push_back( str[i++] );
+			server.getServerName().push_back( temp );
+			temp.clear();
+		}
+		i = i + whileSpace( str.c_str() + i ) + 1;
+		if ( str[i] )
+				return ( false );
+	}
+	else
+		return ( false );
+
+	server.getMap()["server_name"] = true;
+	return ( true );
+}	

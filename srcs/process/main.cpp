@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/17 21:10:19 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/24 19:34:45 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/25 15:22:45 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ int main( int ac, char **av )
 	}
 	catch ( std::exception & e )
 	{
-		std::cout << RED << e.what() << SET;
+		std::cout << RED << e.what() << std::endl << SET;
 		return ( EXIT_FAILURE );
 	}
 	return ( EXIT_SUCCESS );
