@@ -6,7 +6,7 @@
 /*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/25 16:58:37 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/26 12:19:20 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,11 +26,15 @@ class Server
 		int	_servSock;
 		int	_port;
 		
-		//for max test
+		/*================================*/
+		/*     max atributes              */
+		/*================================*/
 		map<string, bool>	_is_set;
 		map<string, string>	_error_pages;
 		int					_clientBody;
 		vector<string>		_index;
+		string				_root;
+		/*=================================*/
 
 		
 		
@@ -50,14 +54,18 @@ class Server
 		const int	&	getPort( void ) const;
 		const int	&	getIp( void ) const;
 
-		//max test
+		/*================================*/
+		/*     max methodes	              */
+		/*================================*/
 		bool				get_is_set(string atribute);
 		int					get_clientBody(void);
+		string				get_root(void);
 		map<string, string>	&get_error_pages(void);
 		vector<string>		&get_index(void);
-
-		void	set_clientBody(int val);
-		void	set_is_set(string atribute);
+		void				set_clientBody(int val);
+		void				set_is_set(string atribute);
+		void				set_root(string root);
+		/*==================================*/
 
 
 };
