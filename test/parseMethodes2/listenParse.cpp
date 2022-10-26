@@ -30,6 +30,7 @@ bool	checkSyntax(std::string str){
 
 bool	onlyDiggit(std::string const & str){
 	int i = 0;
+
 	while (str[i]){
 		if (str[i] > '9' || str[i] < '0'){
 			return (false);
@@ -96,7 +97,7 @@ bool	portIsGood(Server & serv, std::string port){
 		serv.setPort(8080);
 		return (true);
 	}
-	if ((test = atoi(port.c_str())) > MAX_PORT || (test = atoi(port.c_str())) < MIN_PORT)
+	if (!onlyDiggit(port) || (test = atoi(port.c_str())) > MAX_PORT || (test = atoi(port.c_str())) < MIN_PORT)
 		return (false);
 	serv.setPort(test);
 	return (true);
