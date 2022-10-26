@@ -6,7 +6,7 @@
 /*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 17:40:03 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/26 19:25:36 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,9 +81,8 @@ Response		& Client::getResponse( void )
 
 Response		& Client::getResponse( Server serv, Request req)
 {
-	Response *temp = NULL;
-	*temp = Response(serv, req);
-	return (*temp );
+	this->_response =  Response(serv, req);
+	return (_response);
 }
 /*=================================*/
 

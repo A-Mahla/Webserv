@@ -6,7 +6,7 @@
 /*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 18:06:23 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/26 19:25:21 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,19 +47,17 @@ Response::Response(Server serv, Request req)
 	
 	if ( DEBUG )
 		std::cout << "Response request Constructor" << std::endl;
-	
 	//use the request to replace index.html
-	filename = "../../" + serv.get_root() + "index.html";
-	cout << filename.c_str() << endl;
+	filename =  serv.get_root() + "index.html";
     if ((fd = open(filename.c_str(), O_RDONLY)) < 0)
         cerr << "bad file\n";
 		// return the good error html page
 	if (fd > 0)
 	{
-		close (fd);
 		ret = read(fd, &buff, 1023);
 		buff[ret] = '\0';
 		html = buff;
+		close (fd);
 	}
 	else
 	{

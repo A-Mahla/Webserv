@@ -6,7 +6,7 @@
 /*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 17:36:57 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/26 19:31:27 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,13 @@ void	ioData( fd_set* readFds, std::vector<Client> & clients )
 				// clients[i].getRequest().getStringRequest() += buffer_read; For concatenate recv
 				clients[i].getRequest().getStringRequest() = buffer_read;
 
+				/*=========================*/
+				/*       max               */
+				/*=========================*/
 				buffer_write = clients[i].getResponse(Server(), Request()).getStringResponse().c_str();
+				/*=========================*/
+
+				
 				std::cout << GREEN << "Server side receive from client : " << clients[i].getRequest().getStringRequest() << SET << std::endl;
 				if ( send( clients[i].getSock(), buffer_write, strlen(buffer_write), 0 ) < 0 )
 					std::cout << RED << "Connexion client lost" << SET << std::endl;

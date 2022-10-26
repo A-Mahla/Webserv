@@ -6,7 +6,7 @@
 /*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 17:47:39 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/26 18:32:59 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ Server::Server( void ) : _servSock(0), _port(8080), _clientBody(16000), _root("h
 	_is_set.insert(std::pair<std::string, bool>("clientbody", false));
 	_is_set.insert(std::pair<std::string, bool>("error_page", false));
 	_is_set.insert(std::pair<std::string, bool>("index", false));
+	_is_set.insert(std::pair<std::string, bool>("root", false));
 	_index.push_back("index.html");
 }
 
