@@ -3,15 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/23 20:31:57 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/26 17:37:25 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __RESPONSE_HPP__
 # define __RESPONSE_HPP__
+# include "Request.hpp"
+#include "Server.hpp"
 
 class Response
 {
@@ -23,6 +25,7 @@ class Response
 	public:
 
 		Response( void );
+		Response(Server serv, Request req);
 		Response( const Response & rhs );
 
 		~Response( void );

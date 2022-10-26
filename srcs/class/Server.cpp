@@ -6,7 +6,7 @@
 /*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 12:17:12 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/26 17:47:39 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 /* I ADDED ROOT, CLIENT_BODY AND INDEX WITH DEFAULT VALUE */
 /* AND I SETED _IS_SET BY DEFAULT                         */
 /*========================================================*/
-Server::Server( void ) : _servSock(0), _port(8080), _clientBody(16000), _root("html")
+Server::Server( void ) : _servSock(0), _port(8080), _clientBody(16000), _root("html/")
 {
 	if ( DEBUG )
 		std::cout << "Server Default Constructor" << std::endl;
@@ -35,7 +35,7 @@ Server::Server( void ) : _servSock(0), _port(8080), _clientBody(16000), _root("h
 /* I ADDED ROOT, CLIENT_BODY AND INDEX WITH DEFAULT VALUE */
 /* AND I SETED _IS_SET BY DEFAULT                         */
 /*========================================================*/
-Server::Server( const int port ) : _servSock(0), _port(port),  _clientBody(16000), _root("html")
+Server::Server( const int port ) : _servSock(0), _port(port),  _clientBody(16000), _root("html/")
 {
 	if ( DEBUG )
 		std::cout << "Server Default Constructor" << std::endl;
@@ -68,6 +68,7 @@ Server &	Server::operator=( const Server & rhs )
 		this->_is_set = rhs._is_set;
 		this->_clientBody = rhs._clientBody;
 		this->_error_pages = rhs._error_pages;
+		this->_root = rhs._root;
 	}
 	return ( *this );
 }

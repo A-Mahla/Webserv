@@ -6,7 +6,7 @@
 /*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/20 16:33:37 by maxenceeudi       #+#    #+#             */
-/*   Updated: 2022/10/22 10:22:14 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/26 16:12:25 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ int main(int ac, char **av)
 	/*========================================================================*/
 	/*                          CREATE AND SEND HTTP REQUEST                  */
 	/*========================================================================*/
-	string sendline = "coucou";
+	string sendline = "GET index.html";
 	int sendlen = sendline.size();
 	int i = 4;
 

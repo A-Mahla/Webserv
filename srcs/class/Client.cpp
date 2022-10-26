@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/22 17:03:12 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/26 17:40:03 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,19 @@ Response		& Client::getResponse( void )
 {
 	return ( this->_response );
 }
+
+/*=================================*/
+/*         MAX TEST                */
+/*=================================*/
+
+Response		& Client::getResponse( Server serv, Request req)
+{
+	Response *temp = NULL;
+	*temp = Response(serv, req);
+	return (*temp );
+}
+/*=================================*/
+
 
 const Response	& Client::getResponse( void ) const
 {

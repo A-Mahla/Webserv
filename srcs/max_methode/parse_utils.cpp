@@ -6,7 +6,7 @@
 /*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/25 09:37:12 by maxenceeudi       #+#    #+#             */
-/*   Updated: 2022/10/26 12:26:04 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/26 18:21:00 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,8 +195,9 @@ bool    get_value_map_error(string &rslt, map<string, string> &error_map)
 /*                              */
 /*==============================*/
 
-bool    client_body(string &line, Server &server)
+bool    client_body(const string line_const, Server &server)
 {
+    string line = line_const;
     string rslt;
     int     i = 0;
 
@@ -231,8 +232,9 @@ bool    client_body(string &line, Server &server)
 /*                              */
 /*==============================*/
 
-bool    error_page(string &line, Server &server)
+bool    error_page(const string line_const, Server &server)
 {
+    string line = line_const;
     string rslt;
     map<string, string> error_map;
 
@@ -260,8 +262,9 @@ bool    error_page(string &line, Server &server)
 /*                              */
 /*==============================*/
 
-bool    index(string &line, Server &server)
+bool    index(const string line_const, Server &server)
 {
+    string line = line_const;
     string rslt;
     int len = 0;
     string tmp;
@@ -310,9 +313,11 @@ bool    index(string &line, Server &server)
 /*                              */
 /*==============================*/
 
-bool    root(string &line, Server &server)
+bool    root(const string line_const, Server &server)
 {
     string  rslt;
+    string  back_slash = "";
+    string line = line_const;
 
     if (!get_the_info_i_need(line, "root", rslt))
         return (false);
@@ -321,8 +326,11 @@ bool    root(string &line, Server &server)
         return (false);
         
     server.set_is_set("root");
-    server.set_root(rslt);
     
+    if (rslt.back() != '/')
+        back_slash = "/";
+    server.set_root(rslt + back_slash);
+        
     return (true);
 }
 

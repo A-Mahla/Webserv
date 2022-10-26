@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/22 17:03:36 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/26 17:38:16 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,11 @@ class Client
 		const Request	& getRequest( void ) const;
 		Response		& getResponse( void );
 		const Response	& getResponse( void ) const;
+
+		/*=========================*/
+		/*       max test          */
+		/*=========================*/
+		Response		&getResponse( Server serv, Request req);
 
 };
 
