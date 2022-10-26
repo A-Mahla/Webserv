@@ -11,8 +11,6 @@
 #define MAX_PORT 65535
 #define MIN_PORT 1024
 
-
-
 int	checkOccurance(std::string & str, const char * toFind){
 	int	i = 0;
 	size_t occurs = 0;
@@ -24,14 +22,11 @@ int	checkOccurance(std::string & str, const char * toFind){
 	return (i);
 }
 
-
-
 bool	checkSyntax(std::string str){
 	if (checkOccurance(str, ";") != 1 || checkOccurance(str, ":") > 1 || checkOccurance(str, ".") > 3)
 		return (false);
 	return (true);
 }
-
 
 bool	onlyDiggit(std::string const & str){
 	int i = 0;
