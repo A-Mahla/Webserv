@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:38:07 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 00:53:44 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/26 20:51:17 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,8 @@ class ParseFile
 	private:
 
 		std::vector<Server>	_servers;
-		bool				(ParseFile::*_ft[8])( const std::string str, Server & server );
+		bool				(ParseFile::*_ft[7])( const std::string str,
+								Server & server );
 
 	public:
 
@@ -43,7 +44,35 @@ class ParseFile
 
 		bool	setServerName( const std::string str, Server & server );
 		bool	setLocation( std::ifstream & ifs, std::string temp, Server & server );
+		bool	error_page(const std::string line_const, Server &server);
+		bool	client_body( const std::string line_const, Server &server );
+		bool	root( const std::string line_const, Server &server );
+		bool	index(const std::string line_const, Server &server);
+		bool	listenParse(std::string str, Server & serv);
 
 };
+
+			/*	ParseFileUtils.cpp	*/
+//			max code
+bool		is_white_space(char val);
+int			suppr_white_space(std::string &line);
+bool		check_end_line(std::string &line);
+std::string	parse(const std::string &line, std::string comp);
+bool		get_the_info_i_need(std::string &line,
+				std::string atribut, std::string &rslt);
+size_t		get_nb_of_file(std::string line);
+bool		get_key_map_error(std::string &rslt,
+				std::map<std::string, std::string> &error_map);
+bool		get_value_map_error(std::string &rslt,
+				std::map<std::string, std::string> &error_map);
+
+//			sacha code
+int		checkOccurance(std::string & str, const char * toFind);
+bool	checkSyntax(std::string str);
+bool	onlyDiggit(std::string const & str);
+bool	addrIsValid(std::string	addr);
+void	resetDefault(Server & serv);
+bool	addrIsGood(Server & serv, std::string addr);
+bool	portIsGood(Server & serv, std::string port);
 
 #endif

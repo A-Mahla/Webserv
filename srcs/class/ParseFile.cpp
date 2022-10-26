@@ -6,11 +6,12 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 01:35:09 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/26 21:54:15 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include <iostream>
+# include <cstdlib>
 # include "ParseFile.hpp"
 # include <fstream>
 # include "WebServException.hpp"
@@ -21,6 +22,11 @@ ParseFile::ParseFile( const char *av )
 		std::cout << "ParseFile Default Constructor" << std::endl;
 
 	this->_ft[0] = &ParseFile::setServerName;
+	this->_ft[1] = &ParseFile::error_page;
+	this->_ft[2] = &ParseFile::client_body;
+	this->_ft[3] = &ParseFile::root;
+	this->_ft[4] = &ParseFile::index;
+	this->_ft[5] = &ParseFile::listenParse;
 	this->readFile( av );
 	// reset les location Server en fonction du server parent
 	// resetLocation();
@@ -68,7 +74,7 @@ int	whileSpace( std::string temp )
 void	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::string file, Server *parent )
 {
 	Server	server;
-	int		i;
+	int		i, j;
 
 	while ( std::getline( ifs, temp ).good() )
 	{
@@ -93,14 +99,13 @@ void	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::s
 			}
 		}
 
-		(this->*_ft[0])( temp.c_str() + i, server );
-		setLocation( ifs, temp.c_str() + i, server );
-
-/*		for ( i = 0; i < 9 && (*ft[i])( temp.c_str() + i, server ); i++ )
-			;
-		if ( i == 9 )
+//		i = 7 with last ft
+		for ( j = 0; j < 6 ; j++ )
+			if ( (this->*_ft[j])( temp.c_str() + i, server ) )
+				break ;
+		if ( !setLocation( ifs, temp.c_str() + i, server ) && j == 6 )
 			throw WebServException( "ParseFile.cpp", "readFile", "Invalid format config file" );
-*/	}
+	}
 }
 
 void	ParseFile::FormatFile( std::ifstream & ifs, std::string temp )
@@ -155,7 +160,7 @@ bool	ParseFile::setServerName( const std::string str, Server & server )
 	std::string	temp;
 	int			i = 0;
 
-	if ( server.getMap()["server_name"] == true )
+	if ( server.getMap()["server_name"] )
 		return ( false );
 	if ( str.compare( i, 11, "server_name" ) == 0 )
 	{
@@ -213,4 +218,158 @@ bool	ParseFile::setLocation( std::ifstream & ifs, std::string temp, Server & ser
 		return ( false );
 	}
 	return ( true );
+}
+
+bool	ParseFile::error_page(const std::string line_const, Server &server)
+{
+    std::string line = line_const;
+    std::string rslt;
+    std::map< std::string, std::string > error_map;
+
+    if (!get_the_info_i_need(line, "error_page", rslt))
+        return (false);
+
+    if (!get_key_map_error(rslt, error_map))
+        return (false);
+
+    if (!get_value_map_error(rslt, error_map))
+        return (false);
+
+    std::map< std::string, std::string > &map_error = server.get_error_pages();
+    map_error.insert(error_map.begin(), error_map.end());
+    server.set_is_set("error_page");
+
+    //default value: none
+    return (true);
+}
+
+bool	ParseFile::client_body(const std::string line_const, Server &server)
+{
+	std::string line = line_const;
+	std::string rslt;
+	int     i = 0;
+
+	if (!get_the_info_i_need(line, "client_body_buffer_size", rslt))
+		return (false);
+
+	while ( std::isdigit(rslt[++i]) );
+
+	if (rslt[i] && ( std::tolower(rslt[i]) == 'k') && !rslt[i + 1])
+	{
+		rslt.erase(i, 1);
+		rslt += "000";
+	}
+	else if (rslt[i])
+		return (false);
+
+	if (server.get_is_set("clientbody"))
+		return (false);
+
+	server.set_clientBody( std::atoi(rslt.c_str()) );
+	server.set_is_set("clientbody");
+
+	//default value depend of architecture: 8K if 32 bits / 16k if 64 bits
+	return (true);
+
+}
+
+bool	ParseFile::root(const std::string line_const, Server &server)
+{
+	std::string	rslt;
+	std::string	back_slash = "";
+	std::string	line = line_const;
+
+	if (!get_the_info_i_need(line, "root", rslt))
+		return (false);
+
+	if (server.get_is_set("root") || get_nb_of_file(rslt) != 1)
+		return (false);
+
+	server.set_is_set("root");
+
+	if ( *(rslt.rend()) != '/' )
+		back_slash = "/";
+	server.set_root(rslt + back_slash);
+
+	return (true);
+}
+
+bool	ParseFile::index(const std::string line_const, Server &server)
+{
+	std::string line = line_const;
+	std::string rslt;
+	int len = 0;
+	std::string tmp;
+	std::vector<std::string>  temp;
+	std::string::iterator it;
+
+	if (!get_the_info_i_need(line, "index", rslt))
+		return (false);
+
+	it = rslt.begin();
+	while (it != rslt.end())
+	{
+		if (is_white_space(*it))
+		{
+			while ((it != rslt.end()) && is_white_space(*it))
+				it++;
+		}
+		else
+		{
+			len = 0;
+			while ((it + len != rslt.end()) && !is_white_space(*(it + len)))
+				len++;
+			tmp.insert(tmp.begin(), it, it + len);
+			if (tmp != "index.html")
+				temp.push_back(tmp);
+			tmp.clear();
+			it += len;
+		}
+	}
+	if ( server.get_is_set("index") )
+		return (false);
+
+	std::vector<std::string> &index_vector = server.get_index();
+	index_vector.insert(index_vector.end(), temp.begin(), temp.end());
+
+	server.set_is_set("index");
+
+	//default value: index.html
+	return (true);
+}
+
+bool	ParseFile::listenParse(std::string str, Server & serv)
+{
+	if ( serv.get_is_set( "listen" ) )
+		return ( false );
+	if ( !(str.compare(0, 7, "listen ")) && checkSyntax((str.c_str() + 7) ))
+	{
+		if (checkOccurance(str, ":") == 1)
+		{
+			if ( addrIsGood(serv, str.substr(7, str.find(":", 0) - 7) )
+				&& portIsGood(serv, str.substr((str.find(":", 0) + 1),
+				( (str.find(";", 0)) - (str.find(":", 0) + 1) )) ))
+			{
+				serv.set_is_set( "listen" );
+				return (true);
+			}
+		}
+		else 
+		{
+			if ( addrIsGood(serv, str.substr(7, str.find(";", 0) - 7)) ){
+				serv.setPort(8080);
+				serv.set_is_set( "listen" );
+				return (true);
+			} else if ( portIsGood(serv, str.substr(7, str.find(";", 0) - 7)) ) {
+				serv.set_is_set( "listen" );
+				serv.setAddr(INADDR_ANY);
+				return (true);
+			} else {
+				resetDefault(serv);
+				return (false);
+			}
+		}
+	}
+	resetDefault(serv);
+	return (false);
 }

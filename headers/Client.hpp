@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/22 17:03:36 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/26 21:57:50 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "Request.hpp"
 # include "Response.hpp"
+# include "Server.hpp"
 
 class Client
 {
@@ -22,6 +23,7 @@ class Client
 	private:
 
 		int			_clientSock;
+		Server		* _server;
 		Request		_request;
 		Response	_response;
 

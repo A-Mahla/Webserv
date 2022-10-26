@@ -6,7 +6,7 @@
 #    By: amahla <amahla@42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/10/17 21:07:29 by amahla            #+#    #+#              #
-#    Updated: 2022/10/24 18:08:29 by amahla           ###   ########.fr        #
+#    Updated: 2022/10/26 18:37:43 by amahla           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,6 +39,7 @@ SRCSMULTIOS			:=	$(addprefix process/,	main.cpp					\
 												webserv.cpp				)	\
 						$(addprefix class/,		WebServException.cpp		\
 												ParseFile.cpp				\
+												ParseFileUtils.cpp				\
 												Server.cpp					\
 												Client.cpp					\
 												Request.cpp					\

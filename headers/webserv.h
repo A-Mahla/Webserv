@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/21 18:54:23 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/24 19:22:25 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/26 20:22:21 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 # include <vector>
 # include "ParseFile.hpp"
 
+#define MAX_PORT 65535
+#define MIN_PORT 1024
 
 			/*	socket_settings.cpp		*/
 void		nonBlockSock( int & servSock );

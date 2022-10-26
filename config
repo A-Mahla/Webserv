@@ -1,11 +1,10 @@
 
 
-server	{
+ server	{
 		server_name	YO;
 
 
 	location	ifs	{
 			server_name	Salut;
 	}
-
 }
