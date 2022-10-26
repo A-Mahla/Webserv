@@ -23,8 +23,17 @@ int	checkOccurance(std::string & str, const char * toFind){
 }
 
 bool	checkSyntax(std::string str){
+	int i = 0;
 	if (checkOccurance(str, ";") != 1 || checkOccurance(str, ":") > 1 || checkOccurance(str, ".") > 3)
 		return (false);
+	while (str[i] != ';')
+		i++;
+	i++;
+	while (str[i]){
+		if (str[i] != ' ' && str[i] != '\t')
+			return (false);
+		i++;
+	}
 	return (true);
 }
 
@@ -45,10 +54,10 @@ bool	addrIsValid(std::string	addr){
 	int	pos = 0;
 
 	while ( ( occurence = addr.find(".", occurence) ) != std::string::npos){
-		if (!onlyDiggit(addr.substr(pos, occurence - pos)) || addr.substr(pos, occurence - pos).size() == 0)
-		{
+		if (!onlyDiggit(addr.substr(pos, occurence - pos)) || addr.substr(pos, occurence - pos).size() == 0 )
 			return (false);
-		}
+		if (addr.substr(pos, occurence - pos).size() > 1 && (addr.substr(pos, occurence - pos))[0] == '0')
+			return (false);
 		occurence++;
 		pos = occurence;
 	}
@@ -97,6 +106,8 @@ bool	portIsGood(Server & serv, std::string port){
 		serv.setPort(8080);
 		return (true);
 	}
+	if (port[0] == '0')
+			return (false);
 	if (!onlyDiggit(port) || (test = atoi(port.c_str())) > MAX_PORT || (test = atoi(port.c_str())) < MIN_PORT)
 		return (false);
 	serv.setPort(test);
@@ -105,7 +116,7 @@ bool	portIsGood(Server & serv, std::string port){
 
 bool	listenParse(std::string str, Server & serv){
 
-	if ( /*(serv._is_set["listen"] == true) &&*/ !(str.compare(0, 7, "listen ")) && checkSyntax((str.c_str() + 7) )){
+	if ( /*(serv._is_set["listen"] == false) &&*/ !(str.compare(0, 7, "listen ")) && checkSyntax((str.c_str() + 7) )){
 		if (checkOccurance(str, ":") == 1){
 			if ( addrIsGood(serv, str.substr(7, str.find(":", 0) - 7) ) \
 			&& portIsGood(serv, str.substr((str.find(":", 0) + 1),  ( (str.find(";", 0)) - (str.find(":", 0) + 1) )) )){
@@ -122,13 +133,11 @@ bool	listenParse(std::string str, Server & serv){
 				serv.setAddr(INADDR_ANY);
 				return (true);
 			} else {
-				/*serv._is_set["listen"] = false;*/ // no port or addr detected, setting map to false, reseting default parametter and returning false
 				resetDefault(serv);
 				return (false);
 			}
 		}
 	}
-	/*serv._is_set["listen"] = false;*/ // no port or addr detected, setting map to false, reseting default parametter and returning false
 	resetDefault(serv);
 	return (false);
 }
