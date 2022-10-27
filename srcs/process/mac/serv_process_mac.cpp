@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/23 21:20:57 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/27 19:18:09 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,11 @@ void	newConnection( std::vector<Server> & servers, std::vector<Client> & clients
 			{
 				std::cout << YELLOW << "Connection accepted" << SET << std::endl;
 				nonBlockSock( newConnection );
-				clients.push_back( Client( newConnection ) );
+				/*=======================================*/
+				/*         max test                      */
+				/*         client construct whit server  */
+				/*=======================================*/
+				clients.push_back( Client( newConnection , servers[i]) );
 			}
 		}
 	}

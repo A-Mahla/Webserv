@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 21:39:37 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/27 20:47:34 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 /*	index		(index.html)	=> parse :	index	index.html				/ none	*/
 /*	root		(html/)			=> parse :	root	html/					/ none	*/
 
-Server::Server( void ) : _servSock(0), _port(8080), _addr(INADDR_ANY), _clientBody(16000), _root("html/")
+Server::Server( void ) : _servSock(0), _port(8080), _addr(INADDR_ANY), _clientBody(16000), _autoindex( false ), _root("html/")
 {
 	if ( DEBUG )
 		std::cout << "Server Default Constructor" << std::endl;
@@ -69,6 +69,7 @@ Server &			Server::operator=( const Server & rhs )
 		this->_error_pages = rhs._error_pages;
 		this->_is_set = rhs._is_set;
 		this->_location = rhs._location;
+		this->_autoindex = rhs._autoindex;
 	}
 	return ( *this );
 }
@@ -101,6 +102,11 @@ std::map< std::string, Server >			& Server::getLocation( void )
 const int								& Server::getPort( void ) const
 {
 	return ( this->_port );
+}
+
+const int								& Server::getAddr( void ) const
+{
+	return( this->_addr );
 }
 
 std::map< std::string, std::string >	& Server::get_error_pages(void)
@@ -157,4 +163,65 @@ void									Server::setAddr( const int addr )
 void									Server::setPort( const int port )
 {
 	this->_port = port;
+}
+
+void									Server::setAutoindex( bool onOff )
+{
+	this->_autoindex = onOff;
+}
+
+bool									Server::getAutoindex( void ) const 
+{
+	return ( this->_autoindex);
+}
+
+std::ostream	& operator<<( std::ostream & o, Server rhs )
+{
+	o << "Server :" << std::endl << std::endl;
+	if ( !rhs.getServerName().empty() )
+	{
+		o << "	server_name: ";
+		for ( std::size_t i(0); i < rhs.getServerName().size(); i++ )
+			o << "	" << rhs.getServerName()[i] << " ";
+		o << std::endl;
+	}
+	o << "	socket_fd :	" << rhs.getSock() << std::endl;
+	o << "	port:		" << rhs.getPort() << std::endl;
+	o << "	addr:		";
+	for ( int i = 3, bit = 24; i >= 0; i-- )
+	{
+		int addr = (rhs.getAddr() >> bit) & 255;
+		o << addr;
+		if ( i )
+			o << ".";
+		bit -= 8;
+	}
+	o << std::endl << "	clientbody:	" << rhs.get_clientBody() << std::endl;
+	o << "	autoindex:	" << (rhs.getAutoindex() ? "true" : "false") << std::endl;
+	o << "	root:		" << rhs.get_root() << std::endl;
+	if ( !rhs.get_index().empty() )
+	{
+		o << "	index: " << std::endl;
+		for ( std::size_t i(0); i < rhs.get_index().size(); i++ )
+			o << "			" << rhs.get_index()[i] << std::endl;
+		o << std::endl;
+	}
+	if ( !rhs.get_error_pages().empty() )
+	{
+		std::cout << "	map:" << std::endl;
+		for ( std::map< std::string, std::string >::iterator it( rhs.get_error_pages().begin() );
+				it != rhs.get_error_pages().end(); it++ )
+			o << "			" << it->first << " => " << it->second << std::endl;
+	}
+	if ( !rhs.getLocation().empty() )
+	{
+		for ( std::map< std::string, Server >::iterator it( rhs.getLocation().begin() );
+			it != rhs.getLocation().end(); it++ )
+		{
+			std::cout << std::endl << "	Location for file";
+			o << " \"" << it->first << "\" infos " << it->second;
+		}
+		o << std::endl;
+	}
+	return ( o );
 }

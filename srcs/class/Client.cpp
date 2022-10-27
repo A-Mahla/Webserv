@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 21:57:32 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/27 19:16:53 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,12 @@ Client::Client( void ) : _clientSock(0)
 		std::cout << "Client Default Constructor" << std::endl;
 }
 
-Client::Client( const int socket/*, Server *server*/ ) : _clientSock( socket )/*, _server( server ) */
+Client::Client( const int sock ) : _clientSock( sock )
 {
-	if ( DEBUG )
-		std::cout << "Client Default Constructor" << std::endl;
+}
+
+Client::Client(const int socket, const Server & serv) : _clientSock( socket ), _server( serv )
+{
 }
 
 Client::Client( const Client & rhs )
@@ -79,3 +81,16 @@ const Response	& Client::getResponse( void ) const
 {
 	return ( this->_response );
 }
+
+Server			&Client::getServer( void )
+{
+	return ( this->_server );
+}
+
+
+Response		& Client::getResponse( Server & serv, Request & req)
+{
+	this->_response =  Response( serv, req );
+	return ( this->_response );
+}
+

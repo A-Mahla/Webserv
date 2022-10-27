@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 21:54:15 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/27 20:26:07 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ ParseFile::ParseFile( const char *av )
 	this->_ft[3] = &ParseFile::root;
 	this->_ft[4] = &ParseFile::index;
 	this->_ft[5] = &ParseFile::listenParse;
+	this->_ft[6] = &ParseFile::autoindexParse;
 	this->readFile( av );
 	// reset les location Server en fonction du server parent
 	// resetLocation();
@@ -76,13 +77,20 @@ void	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::s
 	Server	server;
 	int		i, j;
 
+	if ( parent )
+	{
+		server = *parent;
+		for (std::map< std::string, bool >::iterator it = server.getMap().begin();
+				it != server.getMap().end(); it++ )
+			it->second = false;
+	}
+	
 	while ( std::getline( ifs, temp ).good() )
 	{
 		i = 0;
+		i += whileSpace( temp.c_str());
 		if ( !temp[i] )
 			continue ;
-
-		i += whileSpace( temp.c_str());
 		if ( temp[i] == '}' )
 		{
 			i++;
@@ -99,11 +107,10 @@ void	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::s
 			}
 		}
 
-//		i = 7 with last ft
-		for ( j = 0; j < 6 ; j++ )
+		for ( j = 0; j < 7 ; j++ )
 			if ( (this->*_ft[j])( temp.c_str() + i, server ) )
 				break ;
-		if ( !setLocation( ifs, temp.c_str() + i, server ) && j == 6 )
+		if ( j == 7 && !setLocation( ifs, temp.c_str() + i, server ) )
 			throw WebServException( "ParseFile.cpp", "readFile", "Invalid format config file" );
 	}
 }
@@ -217,8 +224,11 @@ bool	ParseFile::setLocation( std::ifstream & ifs, std::string temp, Server & ser
 	{
 		return ( false );
 	}
+    server.set_is_set("location");
 	return ( true );
 }
+
+//			Code Max
 
 bool	ParseFile::error_page(const std::string line_const, Server &server)
 {
@@ -338,15 +348,25 @@ bool	ParseFile::index(const std::string line_const, Server &server)
 	return (true);
 }
 
-bool	ParseFile::listenParse(std::string str, Server & serv)
+//			Code Sacha
+
+bool	ParseFile::listenParse( const std::string str_const, Server & serv )
 {
+	int				i = 0;
+	std::string	str = str_const;
+
 	if ( serv.get_is_set( "listen" ) )
 		return ( false );
-	if ( !(str.compare(0, 7, "listen ")) && checkSyntax((str.c_str() + 7) ))
+	if ( !str.compare(0, 6, "listen") )
 	{
+		i += 6;
+		while ( str[i] == ' ' || str[i] == '\t' )
+			i++;
+		if ( !checkSyntax( str.c_str() + i ) )
+			return ( false );
 		if (checkOccurance(str, ":") == 1)
 		{
-			if ( addrIsGood(serv, str.substr(7, str.find(":", 0) - 7) )
+			if ( addrIsGood(serv, str.substr(i, str.find(":", 0) - i) )
 				&& portIsGood(serv, str.substr((str.find(":", 0) + 1),
 				( (str.find(";", 0)) - (str.find(":", 0) + 1) )) ))
 			{
@@ -356,20 +376,47 @@ bool	ParseFile::listenParse(std::string str, Server & serv)
 		}
 		else 
 		{
-			if ( addrIsGood(serv, str.substr(7, str.find(";", 0) - 7)) ){
+			if ( addrIsGood(serv, str.substr(i, str.find(";", 0) - i)) ){
 				serv.setPort(8080);
 				serv.set_is_set( "listen" );
 				return (true);
-			} else if ( portIsGood(serv, str.substr(7, str.find(";", 0) - 7)) ) {
+			} else if ( portIsGood(serv, str.substr(i, str.find(";", 0) - i)) ) {
 				serv.set_is_set( "listen" );
 				serv.setAddr(INADDR_ANY);
 				return (true);
 			} else {
-				resetDefault(serv);
 				return (false);
 			}
 		}
 	}
-	resetDefault(serv);
+
+	return (false);
+}
+
+bool	ParseFile::autoindexParse( const std::string str_const, Server & serv )
+{
+	int				i = 0;
+	std::string	str = str_const;
+	if ( !( str.compare(0, 9, "autoindex") ) )
+	{
+		i += 9;
+		while ( str[i] == ' ' || str[i] == '\t' )
+			i++;
+		if ( !checkSyntaxIndex( (str.c_str() + i ) ) )
+			return ( false );
+		if ( !str.compare(i, 4, "off;") )
+		{
+			serv.set_is_set( "listen" );
+			serv.setAutoindex(false);
+			return (true);
+		}
+		else if (!str.compare(i, 3, "on;") )
+		{
+			serv.set_is_set( "listen" );
+			serv.setAutoindex(true);
+			return (true);
+		} else
+			return (false);
+	}
 	return (false);
 }

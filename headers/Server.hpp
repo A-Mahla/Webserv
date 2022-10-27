@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 21:02:08 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/27 18:54:31 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ class Server
 		int									_port;
 		int									_addr;
 		int									_clientBody;
+		bool								_autoindex;
 		std::string							_root;
 		std::vector< std::string >			_index;
 		std::map< std::string, std::string>	_error_pages;
@@ -56,7 +57,9 @@ class Server
 		int										get_clientBody( void ) const;
 		std::string								get_root( void ) const;
 		std::vector< std::string >				& get_index( void );
+		bool									getAutoindex( void ) const;
 
+		void									setAutoindex( bool onOff );
 		void									set_clientBody( const int val );
 		void									set_root( const std::string root );
 		void									setSock( const int sock );
@@ -65,5 +68,6 @@ class Server
 
 };
 
+std::ostream	& operator<<( std::ostream & ifs, Server rhs );
 
 #endif

@@ -230,12 +230,6 @@ bool	addrIsValid(std::string	addr)
 	return (true);
 }
 
-void	resetDefault(Server & serv)
-{
-	serv.setAddr(0);
-	serv.setPort(8080);
-}
-
 bool	addrIsGood(Server & serv, std::string addr)
 {
 	int		test = 0;
@@ -279,3 +273,21 @@ bool	portIsGood(Server & serv, std::string port)
 	serv.setPort(test);
 	return (true);
 }
+
+bool	checkSyntaxIndex(std::string str)
+{
+	int i = 0;
+
+	if (checkOccurance(str, ";") != 1)
+		return (false);
+	while (str[i] != ';')
+		i++;
+	i++;
+	while (str[i]){
+		if (str[i] != ' ' && str[i] != '\t')
+			return (false);
+		i++;
+	}
+	return (true);
+}
+

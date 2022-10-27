@@ -6,29 +6,26 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 21:36:44 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/27 19:43:33 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "webserv.h"
-//	test
+// ==== test =====
 # include <iostream>
-// =======
+// ==============
 
 void	webServ( const char *av )
 {
 	ParseFile	file( av );
-/*// ========= test ==========
+// ========= test ==========
 	
 	std::vector<Server> servers = file.getServers();
 
 	servers = file.getServers();
-	Server test = servers[0].getLocation()["ifs"];
-	//std::cout << test->getServerName()[0] << std::endl;
-
-	for ( std::size_t i(0); i < test.getServerName().size(); i++ )
-		std::cout << test.getServerName()[i] << std::endl;
-// ========================= */
+	for ( std::size_t i(0); i < servers.size(); i++ )
+		std::cout << std::endl << servers[i] << std::endl;
+// ========================= 
 
 	setServerSockets( file.getServers() );
 	appServ( file.getServers() );

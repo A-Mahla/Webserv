@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/24 14:28:09 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/27 19:22:57 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ bool	ioData( std::vector<Client> & clients, t_epoll & epollVar, int i)
 	return ( false );
 }	
 
-void	addConnection( std::vector<Client> & clients, int server_fd, t_epoll & epollVar )
+void	addConnection( std::vector<Client> & clients, Server & server, t_epoll & epollVar )
 {
 	struct sockaddr_in	temp;
 	int					addrlen = sizeof(temp);
@@ -99,7 +99,7 @@ void	addConnection( std::vector<Client> & clients, int server_fd, t_epoll & epol
 
 	memset( (char *)&temp, 0, sizeof(temp) );
 
-	if ( ( newConnection = accept( server_fd, reinterpret_cast< struct sockaddr *>(&temp),
+	if ( ( newConnection = accept( server.getSock(), reinterpret_cast< struct sockaddr *>(&temp),
 					reinterpret_cast< socklen_t * >(&addrlen) ) ) < 0 )
 	{
 		if ( errno != EWOULDBLOCK )
@@ -115,18 +115,18 @@ void	addConnection( std::vector<Client> & clients, int server_fd, t_epoll & epol
 		epollVar.new_event.events = EPOLLIN;
 		epoll_ctl( epollVar.epollFd, EPOLL_CTL_ADD, newConnection, &(epollVar.new_event ));
 
-		clients.push_back( Client( newConnection ) );
+		clients.push_back( Client( newConnection, server ) );
 	}
 }
 
 bool	newConnection( std::vector<Client> & clients, std::vector<Server> & servers, t_epoll & epollVar, int i )
 {
-	int		server_fd;
+	Server	* server;
 
 	if ( epollVar.events[i].events & EPOLLIN &&
-		( server_fd = isServer( servers, epollVar.events[i].data.fd ) ) >= 0 )
+		( server = isServer( servers, epollVar.events[i].data.fd ) ) )
 	{
-		addConnection( clients, server_fd, epollVar );
+		addConnection( clients, *server, epollVar );
 		return ( true );
 	}
 	return ( false );
@@ -139,7 +139,7 @@ bool	errorEpoll( std::vector<Server> & servers, std::vector<Client> & clients, t
 		int	fdToClear = epollVar.events[i].data.fd;
 
 		epoll_ctl( epollVar.maxNbFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
-		if ( isServer( servers, fdToClear ) < 0 )
+		if ( isServer( servers, fdToClear ) )
 			clients.erase( find( clients, fdToClear ) );
 		else
 			servers.erase( find( servers, fdToClear ) );

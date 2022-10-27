@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:38:07 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 20:51:17 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/27 17:14:43 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,8 @@ class ParseFile
 		bool	client_body( const std::string line_const, Server &server );
 		bool	root( const std::string line_const, Server &server );
 		bool	index(const std::string line_const, Server &server);
-		bool	listenParse(std::string str, Server & serv);
+		bool	listenParse( const std::string str_const, Server & serv);
+		bool	autoindexParse( const std::string str_const, Server & serv );
 
 };
 
@@ -68,10 +69,10 @@ bool		get_value_map_error(std::string &rslt,
 
 //			sacha code
 int		checkOccurance(std::string & str, const char * toFind);
-bool	checkSyntax(std::string str);
+bool	checkSyntax( std::string str );
+bool	checkSyntaxIndex( std::string str );
 bool	onlyDiggit(std::string const & str);
 bool	addrIsValid(std::string	addr);
-void	resetDefault(Server & serv);
 bool	addrIsGood(Server & serv, std::string addr);
 bool	portIsGood(Server & serv, std::string port);
 
