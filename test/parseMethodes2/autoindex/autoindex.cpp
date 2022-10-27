@@ -10,7 +10,7 @@
 
 			/*  AUTOINDEX PARSING  */
 			/*
-			 * autoindex allow server to response a listing of file and directories available when the request do not end reaching a file
+			 * autoindex allow server to response a listing of file and directories available when the request do not end by reaching a file
 			 * for exemple, when the url end with "http://.../toto/" and the autoindex is on, then a listing of file and directories inside toto/ will be send
 			 *
 			 *
@@ -19,7 +19,7 @@
 			 * autoindex on;
 			 * autoindex off;
 			 *
-			 * by default, autoindex is set with 'off' attribute
+			 * by default, autoindex is set to 'off' attribute
 			*/
 
 int	checkOccurance(std::string & str, const char * toFind){
