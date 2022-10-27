@@ -6,7 +6,7 @@
 /*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 19:31:27 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/27 11:22:24 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,11 @@ void	newConnection( std::vector<Server> & servers, std::vector<Client> & clients
 			{
 				std::cout << YELLOW << "Connection accepted" << SET << std::endl;
 				nonBlockSock( newConnection );
-				clients.push_back( Client( newConnection ) );
+				/*=======================================*/
+				/*         max test                      */
+				/*         client construct whit server  */
+				/*=======================================*/
+				clients.push_back( Client( newConnection , servers[i]) );
 			}
 		}
 	}
@@ -127,7 +131,7 @@ void	ioData( fd_set* readFds, std::vector<Client> & clients )
 				/*=========================*/
 				/*       max               */
 				/*=========================*/
-				buffer_write = clients[i].getResponse(Server(), Request()).getStringResponse().c_str();
+				buffer_write = clients[i].getResponse(clients[i].getServer(), clients[i].getRequest()).getStringResponse().c_str();
 				/*=========================*/
 
 				

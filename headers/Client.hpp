@@ -6,7 +6,7 @@
 /*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 17:38:16 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/27 11:17:55 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ class Client
 		int			_clientSock;
 		Request		_request;
 		Response	_response;
+		Server		_server;
 
 	public:
 
@@ -46,6 +47,8 @@ class Client
 		/*       max test          */
 		/*=========================*/
 		Response		&getResponse( Server serv, Request req);
+		Server			&getServer(void);
+		Client(const int socket, const Server serv);
 
 };
 
