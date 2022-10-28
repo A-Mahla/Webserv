@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/27 19:15:49 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/28 08:40:22 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,6 @@ Response::Response( void )
 
 Response::Response(Server & serv, Request & req)
 {
-	(void)req;
-//	std::allocator<char> alloc;
 	char    buff[1024];
 	int fd = 0;
 	int ret = 1;

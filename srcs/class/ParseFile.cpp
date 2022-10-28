@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseFile.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/27 20:26:07 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/28 08:36:44 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -297,7 +297,7 @@ bool	ParseFile::root(const std::string line_const, Server &server)
 
 	server.set_is_set("root");
 
-	if ( *(rslt.rend()) != '/' )
+	if ( (rslt.back()) != '/' )
 		back_slash = "/";
 	server.set_root(rslt + back_slash);
 
@@ -315,7 +315,6 @@ bool	ParseFile::index(const std::string line_const, Server &server)
 
 	if (!get_the_info_i_need(line, "index", rslt))
 		return (false);
-
 	it = rslt.begin();
 	while (it != rslt.end())
 	{
@@ -338,12 +337,9 @@ bool	ParseFile::index(const std::string line_const, Server &server)
 	}
 	if ( server.get_is_set("index") )
 		return (false);
-
 	std::vector<std::string> &index_vector = server.get_index();
 	index_vector.insert(index_vector.end(), temp.begin(), temp.end());
-
 	server.set_is_set("index");
-
 	//default value: index.html
 	return (true);
 }
@@ -389,7 +385,6 @@ bool	ParseFile::listenParse( const std::string str_const, Server & serv )
 			}
 		}
 	}
-
 	return (false);
 }
 
