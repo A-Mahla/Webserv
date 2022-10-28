@@ -1,5 +1,7 @@
 # include "ParseFile.hpp"
 # include <cstdlib>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 /*					Code Max		*/
 
@@ -252,7 +254,7 @@ bool	addrIsGood(Server & serv, std::string addr)
 			i++;
 		}
 
-		serv.setAddr(res);
+		serv.setAddr(inet_addr(addr.c_str()));
 		return (true);
 	} else {
 		return (false);

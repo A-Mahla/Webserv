@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/28 08:36:44 by meudier          ###   ########.fr       */
+/*   Updated: 2022/10/28 15:12:56 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,8 +108,12 @@ void	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::s
 		}
 
 		for ( j = 0; j < 7 ; j++ )
+		{
+			if ( parent && ( j == 5 || j == 0 || j == 2 ))
+				continue ;
 			if ( (this->*_ft[j])( temp.c_str() + i, server ) )
 				break ;
+		}
 		if ( j == 7 && !setLocation( ifs, temp.c_str() + i, server ) )
 			throw WebServException( "ParseFile.cpp", "readFile", "Invalid format config file" );
 	}
@@ -297,7 +301,7 @@ bool	ParseFile::root(const std::string line_const, Server &server)
 
 	server.set_is_set("root");
 
-	if ( (rslt.back()) != '/' )
+	if ( *(rslt.rbegin()) != '/' )
 		back_slash = "/";
 	server.set_root(rslt + back_slash);
 
@@ -378,13 +382,14 @@ bool	ParseFile::listenParse( const std::string str_const, Server & serv )
 				return (true);
 			} else if ( portIsGood(serv, str.substr(i, str.find(";", 0) - i)) ) {
 				serv.set_is_set( "listen" );
-				serv.setAddr(INADDR_ANY);
+				serv.setAddr((in_addr_t) INADDR_ANY);
 				return (true);
 			} else {
 				return (false);
 			}
 		}
 	}
+	serv.setAddr((in_addr_t) INADDR_ANY);
 	return (false);
 }
 

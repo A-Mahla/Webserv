@@ -1,24 +1,57 @@
 
-
- server	{
+server	{
 
 	server_name					YO;
 
-	listen						127.23.0.1:default;
+	listen						172.17.0.1:8080;
 
 	autoindex					on;
 
 	error_page					500 502 503 504	/ 50x.html ;
 
-	index						index.html index.php test.html;
+	index						index.html index.php test.html ;
 
-	root						/srcs/;
+	root						./html/;
 
 	client_body_buffer_size		8k; 
 
 	location		ifs	{
 
 				autoindex		off;
+				
+
+			
 
 	}
 }
+
+server	{
+
+	server_name					YO;
+
+	listen						127.0.0.1:2020;
+
+	autoindex					on;
+
+	error_page					500 502 503 504	/ 50x.html ;
+
+	index						index.html index.php test.html ;
+
+	root						./html;
+
+	client_body_buffer_size		8k; 
+
+	location		ifs	{
+
+				autoindex		off;
+				
+
+			
+
+	}
+}
+
+
+
+
+

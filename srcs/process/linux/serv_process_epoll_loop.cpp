@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   serv_process_epoll_loop.cpp                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/27 19:22:57 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/28 16:08:16 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,15 +52,14 @@ void	readData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, i
 		epollVar.new_event.events = EPOLLOUT;
 		epollVar.new_event.data.fd = epollVar.events[i].data.fd;
 		epoll_ctl( epollVar.epollFd, EPOLL_CTL_MOD, epollVar.events[i].data.fd, &epollVar.new_event);
-
-		std::cout << GREEN << "Server side receive from client : " << (*it).getRequest().getStringRequest() << SET << std::endl;
+		std:: cout << GREEN << buffer_read << SET << std::endl;
 	}
 }
 
 void	sendData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, int i )
 {
-		const char	*buffer_write = (*it).getResponse().getStringResponse().c_str();
-
+		const char	*buffer_write = it->getResponse(it->getServer(), it->getRequest()).getStringResponse().c_str();
+		
 		if ( send( epollVar.events[i].data.fd, buffer_write, strlen(buffer_write), 0 ) < 0 )
 		{
 			std::cout << RED << "Connexion client lost" << SET << std::endl;
@@ -105,6 +104,7 @@ void	addConnection( std::vector<Client> & clients, Server & server, t_epoll & ep
 		if ( errno != EWOULDBLOCK )
 			throw WebServException( "serv_process_epoll_loop.cpp", "newConnection", "accept() failed" );
 	}
+	
 
 	else if ( newConnection >= 0 )
 	{
@@ -114,7 +114,7 @@ void	addConnection( std::vector<Client> & clients, Server & server, t_epoll & ep
 		epollVar.new_event.data.fd = newConnection;
 		epollVar.new_event.events = EPOLLIN;
 		epoll_ctl( epollVar.epollFd, EPOLL_CTL_ADD, newConnection, &(epollVar.new_event ));
-
+		
 		clients.push_back( Client( newConnection, server ) );
 	}
 }
@@ -125,6 +125,7 @@ bool	newConnection( std::vector<Client> & clients, std::vector<Server> & servers
 
 	if ( epollVar.events[i].events & EPOLLIN &&
 		( server = isServer( servers, epollVar.events[i].data.fd ) ) )
+	
 	{
 		addConnection( clients, *server, epollVar );
 		return ( true );
@@ -157,7 +158,6 @@ void	servProcess( std::vector<Server> & servers, std::vector<Client> & clients, 
 		waitRequest( epollVar );
 		for ( int i(0); i < epollVar.maxNbFd; i++)
 		{
-			std::cout << "test " << epollVar.maxNbFd << std::endl;
 			if ( errorEpoll( servers, clients, epollVar, i ) )
 				continue ;
 			if ( !newConnection( clients, servers, epollVar, i ) )

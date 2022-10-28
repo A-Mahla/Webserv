@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/27 19:16:53 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/28 14:37:11 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ Client::Client( const int sock ) : _clientSock( sock )
 
 Client::Client(const int socket, const Server & serv) : _clientSock( socket ), _server( serv )
 {
+	
 }
 
 Client::Client( const Client & rhs )
@@ -48,6 +49,7 @@ Client &	Client::operator=( const Client & rhs )
 		this->_clientSock = rhs._clientSock;
 		this->_request = rhs._request;
 		this->_response = rhs._response;
+		this->_server = rhs._server;
 	}
 	return ( *this );
 }

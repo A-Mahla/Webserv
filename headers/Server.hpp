@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/27 18:54:31 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/28 14:46:47 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class Server
 		int									_servSock;
 		int									_port;
 		int									_addr;
+		in_addr_t							_inetAddr;
 		int									_clientBody;
 		bool								_autoindex;
 		std::string							_root;
@@ -53,7 +54,7 @@ class Server
 		std::map< std::string, std::string >	& get_error_pages(void);
 		std::map< std::string, Server >			& getLocation( void );
 		const int								& getPort( void ) const;
-		const int								& getAddr( void ) const;
+		const in_addr_t							& getInetAddr( void ) const;
 		int										get_clientBody( void ) const;
 		std::string								get_root( void ) const;
 		std::vector< std::string >				& get_index( void );
@@ -63,7 +64,7 @@ class Server
 		void									set_clientBody( const int val );
 		void									set_root( const std::string root );
 		void									setSock( const int sock );
-		void									setAddr( const int addr );
+		void									setAddr( in_addr_t addr );
 		void									setPort( const int port );
 
 };

@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/28 08:40:22 by meudier          ###   ########.fr       */
+/*   Updated: 2022/10/28 16:09:15 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include <iostream>
 #include "Response.hpp"
 #include "webserv.h"
+
+#include <sstream>  
 
 
 Response::Response( void )
@@ -41,12 +43,44 @@ Response::Response(Server & serv, Request & req)
 	std::string	filename;
 	std::string	html;
 
+	std::string request = req.getStringRequest();
+	size_t pos = 0;
+
+	if ((pos = request.find("GET")) != std::string::npos)
+		request.erase(pos, 3);
+	
+	if ((pos = request.find("HTTP/1.1")) != std::string::npos)
+		request.erase(pos, 8);
+		
+
+	if ((pos = request.find("/")) != std::string::npos)
+		request.erase(pos, 1);
+	
+	if ((pos = request.find("\n")) != std::string::npos)
+		request.erase(pos, request.size() - pos);
+
+	while ((pos = request.find(" ")) != std::string::npos)
+		request.erase(pos, 1);
+
+	while ((pos = request.find("\t")) != std::string::npos)
+		request.erase(pos, 1);
+
+	request.erase(request.size() - 1, 1);
+	
+
 	if ( DEBUG )
 		std::cout << "Response request Constructor" << std::endl;
 	//use the request to replace index.html
-	filename =  serv.get_root() + req.getStringRequest();
-	if ((fd = open(filename.c_str(), O_RDONLY)) < 0)
-		std::cerr << "bad file\n";
+	
+	filename =  serv.get_root() + request;
+	if (request == "favicon.ico" || !request.size())
+	{
+		filename =  serv.get_root() + "index.html";
+	}
+
+	
+	fd = open(filename.c_str(), O_RDONLY);
+
 	// return the good error html page
 	if (fd > 0)
 	{
@@ -64,11 +98,14 @@ Response::Response(Server & serv, Request & req)
 		html = buff;
 		close (fd);
 	}
+	
+	std::stringstream ss;
+	ss << ret;
 
     _response += "HTTP/1.1 200 OK\n";
     _response += "Content-Type: text/html\r\n";
     _response += "Content-Length: ";
-    _response += ret;
+    _response += ss.str();
     _response += "\n\n";
     _response += html;
     _response += "\r\n\r\n";
