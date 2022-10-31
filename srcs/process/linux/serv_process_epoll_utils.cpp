@@ -6,13 +6,14 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/27 19:21:24 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/31 17:18:08 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include <sstream>
 # include "webserv.h"
 # include "epoll.h"
+# include <netinet/in.h>
 
 void		signal_handler(int sig)
 {
@@ -56,6 +57,8 @@ void	setEpollQueue( t_epoll & epollVar, std::vector<Server> & servers )
 	
 	for (std::size_t i = 0; i < servers.size(); i++ )
 	{
+		if ( servers[i].getSock() == -1)
+			continue ;
 		epollVar.new_event.data.fd = servers[i].getSock();
 		epollVar.new_event.events = EPOLLIN;
 		epoll_ctl( epollVar.epollFd, EPOLL_CTL_ADD, servers[i].getSock(), &epollVar.new_event );
@@ -63,12 +66,34 @@ void	setEpollQueue( t_epoll & epollVar, std::vector<Server> & servers )
 
 }
 
-Server	*isServer( std::vector<Server> & servers, int fd )
+int	isServer( std::vector<Server> & servers, int fd )
 {
 	for ( std::size_t i(0); i < servers.size(); i++ )
 	{
 		if ( servers[i].getSock() == fd )
-			return ( &servers[i] );
+			return ( servers[i].getSock() );
 	}
-	return ( NULL );
+	return ( -1 );
+}
+
+void	whichAddrServer( std::vector<Server> & servers, struct sockaddr_in addr, Client & client )
+{
+	bool	checkAddr = false;
+
+	for ( std::size_t i(0); i < servers.size(); i++ )
+	{
+		if ( servers[i].getInetAddr() == addr.sin_addr.s_addr && servers[i].getPort() == addr.sin_port )
+		{
+			checkAddr = true;
+			client.getServerList().push_back( &servers[i] );
+		}
+		else if ( !checkAddr && servers[i].getInetAddr() == INADDR_ANY && servers[i].getPort() == addr.sin_port )
+			client.getServerList().push_back( &servers[i] ); 
+	}
+
+	for ( size_t i(0); checkAddr && i < client.getServerList().size(); i++ )
+	{
+		if ( client.getServerList()[i]->getInetAddr() == INADDR_ANY )
+			client.getServerList().erase( client.getServerList().begin() + i );
+	}
 }

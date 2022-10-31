@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/28 15:09:21 by meudier          ###   ########.fr       */
+/*   Updated: 2022/10/31 15:56:09 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,17 @@ const int								& Server::getPort( void ) const
 	return ( this->_port );
 }
 
+int										& Server::getPort( void )
+{
+	return ( this->_port );
+}
+
 const in_addr_t							& Server::getInetAddr( void ) const
+{
+	return (this->_inetAddr);
+}
+
+in_addr_t								& Server::getInetAddr( void )
 {
 	return (this->_inetAddr);
 }

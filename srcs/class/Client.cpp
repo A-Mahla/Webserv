@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/28 14:37:11 by meudier          ###   ########.fr       */
+/*   Updated: 2022/10/31 15:05:23 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,14 @@
 #include <iostream>
 #include "Client.hpp"
 
-Client::Client( void ) : _clientSock(0)
+Client::Client( void ) : _clientSock(0), _server(NULL)
 {
 	if ( DEBUG )
 		std::cout << "Client Default Constructor" << std::endl;
 }
 
-Client::Client( const int sock ) : _clientSock( sock )
+Client::Client( const int sock ) : _clientSock( sock ), _server(NULL)
 {
-}
-
-Client::Client(const int socket, const Server & serv) : _clientSock( socket ), _server( serv )
-{
-	
 }
 
 Client::Client( const Client & rhs )
@@ -49,6 +44,7 @@ Client &	Client::operator=( const Client & rhs )
 		this->_clientSock = rhs._clientSock;
 		this->_request = rhs._request;
 		this->_response = rhs._response;
+		this->_serverList = rhs._serverList;
 		this->_server = rhs._server;
 	}
 	return ( *this );
@@ -84,11 +80,15 @@ const Response	& Client::getResponse( void ) const
 	return ( this->_response );
 }
 
-Server			&Client::getServer( void )
+Server			* Client::getServer( void )
 {
 	return ( this->_server );
 }
 
+std::vector< Server * >	& Client::getServerList( void )
+{
+	return ( this->_serverList );
+}
 
 Response		& Client::getResponse( Server & serv, Request & req)
 {

@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/24 13:29:20 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/31 16:18:51 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ void	clearEpollProcess( std::vector<Server> & servers, std::vector<Client> & cli
 {
 	for (std::size_t i = 0; i < servers.size(); i++ )
 	{
+		if ( clients[i].getSock() == -1)
+			continue ;
 		epoll_ctl(epollVar.epollFd, EPOLL_CTL_DEL, servers[i].getSock(), NULL);
 		close( servers[i].getSock() );
 	}

@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/28 16:08:16 by meudier          ###   ########.fr       */
+/*   Updated: 2022/10/31 16:19:17 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ void	readData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, i
 
 void	sendData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, int i )
 {
-		const char	*buffer_write = it->getResponse(it->getServer(), it->getRequest()).getStringResponse().c_str();
+		const char	*buffer_write = it->getResponse(*(it->getServerList()[0]), it->getRequest()).getStringResponse().c_str();
 		
 		if ( send( epollVar.events[i].data.fd, buffer_write, strlen(buffer_write), 0 ) < 0 )
 		{
@@ -90,7 +90,7 @@ bool	ioData( std::vector<Client> & clients, t_epoll & epollVar, int i)
 	return ( false );
 }	
 
-void	addConnection( std::vector<Client> & clients, Server & server, t_epoll & epollVar )
+void	addConnection( std::vector<Client> & clients, std::vector< Server > & servers, t_epoll & epollVar, int fdServer )
 {
 	struct sockaddr_in	temp;
 	int					addrlen = sizeof(temp);
@@ -98,7 +98,7 @@ void	addConnection( std::vector<Client> & clients, Server & server, t_epoll & ep
 
 	memset( (char *)&temp, 0, sizeof(temp) );
 
-	if ( ( newConnection = accept( server.getSock(), reinterpret_cast< struct sockaddr *>(&temp),
+	if ( ( newConnection = accept( fdServer, reinterpret_cast< struct sockaddr *>(&temp),
 					reinterpret_cast< socklen_t * >(&addrlen) ) ) < 0 )
 	{
 		if ( errno != EWOULDBLOCK )
@@ -108,6 +108,15 @@ void	addConnection( std::vector<Client> & clients, Server & server, t_epoll & ep
 
 	else if ( newConnection >= 0 )
 	{
+		for ( int i = 3, bit = 0; i >= 0; i-- )
+		{
+			int addr = ( temp.sin_addr.s_addr >> bit) & 255;
+			std::cout << addr;
+			if ( i )
+				std::cout << ".";
+			bit += 8;
+		}
+		std::cout << std::endl;
 		std::cout << YELLOW << "Connection accepted" << SET << std::endl;
 		nonBlockSock( newConnection );
 
@@ -115,19 +124,20 @@ void	addConnection( std::vector<Client> & clients, Server & server, t_epoll & ep
 		epollVar.new_event.events = EPOLLIN;
 		epoll_ctl( epollVar.epollFd, EPOLL_CTL_ADD, newConnection, &(epollVar.new_event ));
 		
-		clients.push_back( Client( newConnection, server ) );
+		clients.push_back( Client( newConnection ) );
+		whichAddrServer( servers, temp, clients.back() );
 	}
 }
 
 bool	newConnection( std::vector<Client> & clients, std::vector<Server> & servers, t_epoll & epollVar, int i )
 {
-	Server	* server;
+	int	fdServer;
 
 	if ( epollVar.events[i].events & EPOLLIN &&
-		( server = isServer( servers, epollVar.events[i].data.fd ) ) )
+		( fdServer = isServer( servers, epollVar.events[i].data.fd ) >= 0 ) )
 	
 	{
-		addConnection( clients, *server, epollVar );
+		addConnection( clients, servers, epollVar, fdServer );
 		return ( true );
 	}
 	return ( false );
@@ -140,7 +150,7 @@ bool	errorEpoll( std::vector<Server> & servers, std::vector<Client> & clients, t
 		int	fdToClear = epollVar.events[i].data.fd;
 
 		epoll_ctl( epollVar.maxNbFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
-		if ( isServer( servers, fdToClear ) )
+		if ( isServer( servers, fdToClear ) >= 0 )
 			clients.erase( find( clients, fdToClear ) );
 		else
 			servers.erase( find( servers, fdToClear ) );
