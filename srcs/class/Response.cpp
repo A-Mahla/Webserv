@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/27 11:47:43 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/31 08:40:17 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,9 @@ Response::Response(Server serv, Request req)
 	//use the request to replace index.html
 	filename =  serv.get_root() + req.getStringRequest();
     if ((fd = open(filename.c_str(), O_RDONLY)) < 0)
-        cerr << "bad file\n";
-		// return the good error html page
+		cerr << "bad file\n";
+
+	// return the good error html page
 	if (fd > 0)
 	{
 		ret = read(fd, &buff, 1023);
