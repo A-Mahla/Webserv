@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   serv_process_mac.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/27 11:22:24 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/31 08:45:54 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

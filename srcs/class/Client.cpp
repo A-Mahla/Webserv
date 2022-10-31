@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/27 11:17:25 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/31 18:03:22 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,13 @@ Client::Client( void ) : _clientSock(0)
 		std::cout << "Client Default Constructor" << std::endl;
 }
 
-Client::Client( const int socket ) : _clientSock( socket )
+Client::Client( const int sock ) : _clientSock( sock )
 {
-	if ( DEBUG )
-		std::cout << "Client Default Constructor" << std::endl;
+}
+
+Client::Client(const int socket, const Server & serv) : _clientSock( socket ), _server( serv )
+{
+	
 }
 
 Client::Client( const Client & rhs )
@@ -46,6 +49,7 @@ Client &	Client::operator=( const Client & rhs )
 		this->_clientSock = rhs._clientSock;
 		this->_request = rhs._request;
 		this->_response = rhs._response;
+		this->_server = rhs._server;
 	}
 	return ( *this );
 }
@@ -70,31 +74,31 @@ const Request	& Client::getRequest( void ) const
 	return ( this->_request );
 }
 
+void	Client::setRequest(char * str)
+{
+	_request.getStringRequest() = str;
+	_request.parseRequest();
+}
+
 Response		& Client::getResponse( void )
 {
 	return ( this->_response );
 }
 
-/*=================================*/
-/*         MAX TEST                */
-/*=================================*/
-
-Response		& Client::getResponse( Server serv, Request req)
-{
-	this->_response =  Response(serv, req);
-	return (_response);
-}
-
-Server	&Client::getServer(void)
-{
-	return (_server);
-}
-
-Client::Client(const int socket, const Server serv) : _clientSock(socket), _server(serv) {}
-/*=================================*/
-
-
 const Response	& Client::getResponse( void ) const
 {
 	return ( this->_response );
 }
+
+Server			&Client::getServer( void )
+{
+	return ( this->_server );
+}
+
+
+Response		& Client::getResponse( Server & serv, Request & req)
+{
+	this->_response =  Response( serv, req );
+	return ( this->_response );
+}
+

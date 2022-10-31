@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/27 11:17:55 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/31 18:03:13 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,21 +15,22 @@
 
 # include "Request.hpp"
 # include "Response.hpp"
+# include "Server.hpp"
 
 class Client
 {
-
 	private:
 
 		int			_clientSock;
+		Server		_server;
 		Request		_request;
 		Response	_response;
-		Server		_server;
 
 	public:
 
 		Client( void );
 		Client( const int socket );
+		Client( const int socket, const Server & serv );
 		Client( const Client & rhs );
 
 		~Client( void );
@@ -41,14 +42,10 @@ class Client
 		Request			& getRequest( void );
 		const Request	& getRequest( void ) const;
 		Response		& getResponse( void );
+		Response		&getResponse( Server & serv, Request & req );
 		const Response	& getResponse( void ) const;
-
-		/*=========================*/
-		/*       max test          */
-		/*=========================*/
-		Response		&getResponse( Server serv, Request req);
-		Server			&getServer(void);
-		Client(const int socket, const Server serv);
+		Server			&getServer( void );
+		void			setRequest(char * str);
 
 };
 

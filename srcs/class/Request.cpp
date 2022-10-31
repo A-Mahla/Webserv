@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/22 17:29:13 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/31 18:10:50 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "defines.h"
 #include <iostream>
 #include "Request.hpp"
+#include "ParseFile.hpp"
 
 Request::Request( void )
 {
@@ -38,6 +39,10 @@ Request &	Request::operator=( const Request & rhs )
 	if ( this != &rhs )
 	{
 		this->_request = rhs._request;
+		this->_path = rhs._path;
+		this->_port = rhs._port;
+		this->_addr = rhs._addr;
+		this->_method = rhs._method;
 	}
 	return ( *this );
 }
@@ -50,5 +55,101 @@ std::string			& Request::getStringRequest( void )
 const std::string	& Request::getStringRequest( void ) const
 {
 	return ( this->_request );
+}
+
+//max
+
+int			Request::getMethode() {return (_method);}
+std::string	Request::getPath() {return (_path);}
+std::string	Request::getPort() {return (_port);}
+std::string	Request::getAddr() {return (_addr);}
+
+bool		Request::_parseMethod(std::string &request)
+{
+	size_t pos = 0;
+
+	if ((pos = request.find("GET")) != std::string::npos)
+	{
+		_method = GET;
+		request.erase(pos, 3);
+	}
+	else if ((pos = request.find("POST")) != std::string::npos)
+	{
+		_method = POST;
+		request.erase(pos, 4);
+	}
+	else if ((pos = request.find("DELETE")) != std::string::npos)
+	{
+		_method = DELETE;
+		request.erase(pos, 6);
+	}
+	else
+	{
+		_method = BAD_REQUEST;
+		return (false);
+	}
+	return (true);
+}
+
+bool	Request::_parseHost( const std::string str_const )
+{
+	int				i = 0;
+	std::string	str = str_const;
+
+	if ( !str.compare(0, 6, "Host: ") )
+	{
+		i += 6;
+		if ( !checkSyntax( str.c_str() + i ) )
+			return ( false );
+		str.erase(0, 6);
+		if (checkOccurance(str, ":") == 1)
+		{
+			_addr = str.substr(0, str.find(":", 0));
+			_port = str.substr((str.find(":", 0) + 1), ( (str.find(";", 0)) - (str.find(":", 0) + 1) ));
+			return (true);
+		}
+		else
+			return (false);
+	}
+	return (false);
+}
+
+void		Request::parseRequest(void)
+{
+	std::string request = _request;
+	size_t pos = 0;
+
+	if (!_parseMethod(request))
+		return ;
+	
+	if ((pos = request.find("HTTP/1.1")) != std::string::npos)
+	{
+		request.erase(0, 1);
+		_path = string(request.begin(), request.begin() + pos - 1);
+		pos =  request.find("\n");
+	 	request.erase(0, pos);
+	}
+	else
+		return ;
+
+	if ((pos = request.find("\n")) != std::string::npos)
+	 	request.erase(pos, 1);
+		
+	if ((pos = request.find("\n")) != std::string::npos)
+	 	request.erase(pos, request.size() - pos);
+		
+	if ((pos = request.find("\r")) != std::string::npos)
+	 	request.erase(pos, 1);
+		
+	request.push_back(';');
+
+	if (!_parseHost(request))
+		return ;
+		
+	/*===========================================================*/
+	std::cout << RED << "request: " << SET << "method: " << _method <<  "\n";
+	std::cout << "port: " << _port << "\n" << "addr: " <<  _addr << "\n" ;
+	std::cout << "path: " << _path  <<  std::endl;
+	
 }
 

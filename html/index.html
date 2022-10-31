@@ -4,10 +4,39 @@
         <meta charset="utf-8">
         <title>index.html</title>
         <link rel="icon" href="https://cdn.intra.42.fr/users/279a6ebab9ca714cb183c75921ab3332/slahlou.JPG" />
+        <style>
+            .container
+            {
+                display: fex;
+                justify-content: center;
+                text-align: center;
+                margin-left: 100px;
+            }
+            .title
+            {
+                border: black solid 2px;
+                font-size: 50px;
+                color: rgb(80, 184, 111);
+                background-color: rgb(140, 141, 99);
+                width: 50%;
+                border-radius: 20px;
+                box-shadow: 20px 20px 20px rgb(124, 121, 121);
+            }
+            .login
+            {
+                height: 400px;
+            }
+        </style>
     </head>
     <body>
-        <div style="display:flex; justify-content: center; border: solid 2px blue; border-radius: 20px;">
-            <h1 style="color: plum;">Index.html</h1>
+        <div class="container">
+            <h1 class="title">welcome to webserv</h1>
+        </div>
+        <div class="login">
+            <form action="" method="post">
+                <input type="text" id="name" name="hello" required minlength="4" maxlength="8" size="10">
+                <button type ="submit" name="Yo" value="hey">login</button>
+            </form>
         </div>
     </body>
 </html>

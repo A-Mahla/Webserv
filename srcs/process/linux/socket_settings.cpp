@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   socket_settings.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/23 23:59:18 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/28 18:04:56 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include <iostream>
+
 # include <cstring>
 # include <sys/socket.h>
 # include <sys/types.h>
@@ -57,7 +58,7 @@ void	nameSock( int & servSock, Server & server )
 	struct sockaddr_in	address;
 	memset( (char *)&address, 0, sizeof(address) );
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = htonl( INADDR_ANY );
+	address.sin_addr.s_addr = server.getInetAddr();
 	address.sin_port = htons( server.getPort() );
 
 	if ( bind( servSock, reinterpret_cast< struct sockaddr * >(&address),

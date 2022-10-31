@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/21 18:54:23 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/25 16:10:15 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/31 08:46:53 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,23 @@
 # include "Server.hpp"
 # include "Client.hpp"
 # include <vector>
+# include "ParseFile.hpp"
 
+#define MAX_PORT 65535
+#define MIN_PORT 1024
 
 			/*	socket_settings.cpp		*/
 void		nonBlockSock( int & servSock );
 void		setServerSockets( std::vector<Server> & servers );
 
 			/*	weserv.cpp				*/
-void		webServ( void );
+void		webServ( const char *av );
 
 			/*	serv_process_epoll.cpp	*/
 void		appServ( std::vector<Server> & servers );
 
 			/*	serv_process_epoll_utils.cpp	*/
 void		signal_handler(int sig);
-int			isServer( std::vector<Server> & servers, int fd );
+Server		* isServer( std::vector<Server> & servers, int fd );
 
 #endif

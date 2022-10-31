@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/24 12:58:22 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/27 19:21:24 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,12 +63,12 @@ void	setEpollQueue( t_epoll & epollVar, std::vector<Server> & servers )
 
 }
 
-int	isServer( std::vector<Server> & servers, int fd )
+Server	*isServer( std::vector<Server> & servers, int fd )
 {
 	for ( std::size_t i(0); i < servers.size(); i++ )
 	{
 		if ( servers[i].getSock() == fd )
-			return ( servers[i].getSock() );
+			return ( &servers[i] );
 	}
-	return ( -1 );
+	return ( NULL );
 }

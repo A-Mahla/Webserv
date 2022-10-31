@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/23 20:31:52 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/31 17:57:13 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,16 @@ class Request
 	private:
 
 		std::string	_request;
+		e_method	_method;
+		std::string	_path;
+		std::string	_port;
+		std::string	_addr;
+
+
+		//max
+		bool	_parseMethod(std::string &request);
+		bool	_parseHost( const std::string str_const );
+
 
 	public:
 
@@ -32,6 +42,14 @@ class Request
 		std::string			& getStringRequest( void );
 		const std::string	& getStringRequest( void ) const;
 
+
+		//max
+		int			getMethode();
+		std::string	getPath();
+		std::string	getPort();
+		std::string	getAddr();
+
+		void		parseRequest(void);
 };
 
 

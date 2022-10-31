@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   serv_process_epoll_loop.cpp                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/24 14:28:09 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/31 18:03:48 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,20 +47,20 @@ void	readData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, i
 	{
 		buffer_read[rd] = '\0';
 		// (*it).getRequest().getStringRequest() += buffer_read; For concatenate recv
-		(*it).getRequest().getStringRequest() = buffer_read;
+		it->setRequest(buffer_read);
 
 		epollVar.new_event.events = EPOLLOUT;
 		epollVar.new_event.data.fd = epollVar.events[i].data.fd;
 		epoll_ctl( epollVar.epollFd, EPOLL_CTL_MOD, epollVar.events[i].data.fd, &epollVar.new_event);
 
-		std::cout << GREEN << "Server side receive from client : " << (*it).getRequest().getStringRequest() << SET << std::endl;
+		std::cout <<  "Server side receive from client : \n" << GREEN << (*it).getRequest().getStringRequest() << SET << std::endl;
 	}
 }
 
 void	sendData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, int i )
 {
-		const char	*buffer_write = (*it).getResponse().getStringResponse().c_str();
-
+		const char	*buffer_write = it->getResponse(it->getServer(), it->getRequest()).getStringResponse().c_str();
+		
 		if ( send( epollVar.events[i].data.fd, buffer_write, strlen(buffer_write), 0 ) < 0 )
 		{
 			std::cout << RED << "Connexion client lost" << SET << std::endl;
@@ -89,9 +89,9 @@ bool	ioData( std::vector<Client> & clients, t_epoll & epollVar, int i)
 		return ( true );
 	}
 	return ( false );
-}	
+}
 
-void	addConnection( std::vector<Client> & clients, int server_fd, t_epoll & epollVar )
+void	addConnection( std::vector<Client> & clients, Server & server, t_epoll & epollVar )
 {
 	struct sockaddr_in	temp;
 	int					addrlen = sizeof(temp);
@@ -99,12 +99,13 @@ void	addConnection( std::vector<Client> & clients, int server_fd, t_epoll & epol
 
 	memset( (char *)&temp, 0, sizeof(temp) );
 
-	if ( ( newConnection = accept( server_fd, reinterpret_cast< struct sockaddr *>(&temp),
+	if ( ( newConnection = accept( server.getSock(), reinterpret_cast< struct sockaddr *>(&temp),
 					reinterpret_cast< socklen_t * >(&addrlen) ) ) < 0 )
 	{
 		if ( errno != EWOULDBLOCK )
 			throw WebServException( "serv_process_epoll_loop.cpp", "newConnection", "accept() failed" );
 	}
+	
 
 	else if ( newConnection >= 0 )
 	{
@@ -114,19 +115,19 @@ void	addConnection( std::vector<Client> & clients, int server_fd, t_epoll & epol
 		epollVar.new_event.data.fd = newConnection;
 		epollVar.new_event.events = EPOLLIN;
 		epoll_ctl( epollVar.epollFd, EPOLL_CTL_ADD, newConnection, &(epollVar.new_event ));
-
-		clients.push_back( Client( newConnection ) );
+		
+		clients.push_back( Client( newConnection, server ) );
 	}
 }
 
 bool	newConnection( std::vector<Client> & clients, std::vector<Server> & servers, t_epoll & epollVar, int i )
 {
-	int		server_fd;
+	Server	* server;
 
 	if ( epollVar.events[i].events & EPOLLIN &&
-		( server_fd = isServer( servers, epollVar.events[i].data.fd ) ) >= 0 )
+		( server = isServer( servers, epollVar.events[i].data.fd ) ) )
 	{
-		addConnection( clients, server_fd, epollVar );
+		addConnection( clients, *server, epollVar );
 		return ( true );
 	}
 	return ( false );
@@ -139,7 +140,7 @@ bool	errorEpoll( std::vector<Server> & servers, std::vector<Client> & clients, t
 		int	fdToClear = epollVar.events[i].data.fd;
 
 		epoll_ctl( epollVar.maxNbFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
-		if ( isServer( servers, fdToClear ) < 0 )
+		if ( isServer( servers, fdToClear ) )
 			clients.erase( find( clients, fdToClear ) );
 		else
 			servers.erase( find( servers, fdToClear ) );
@@ -157,7 +158,6 @@ void	servProcess( std::vector<Server> & servers, std::vector<Client> & clients, 
 		waitRequest( epollVar );
 		for ( int i(0); i < epollVar.maxNbFd; i++)
 		{
-			std::cout << "test " << epollVar.maxNbFd << std::endl;
 			if ( errorEpoll( servers, clients, epollVar, i ) )
 				continue ;
 			if ( !newConnection( clients, servers, epollVar, i ) )

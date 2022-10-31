@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/26 17:37:25 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/10/31 18:12:58 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,17 +15,22 @@
 # include "Request.hpp"
 #include "Server.hpp"
 
+# include "Server.hpp"
+# include "Request.hpp"
+
 class Response
 {
 
 	private:
 
 		std::string	_response;
+		Server		*_server;
+		int			_status;
 
 	public:
 
 		Response( void );
-		Response(Server serv, Request req);
+		Response( Server & serv, Request & req);
 		Response( const Response & rhs );
 
 		~Response( void );
@@ -34,6 +39,12 @@ class Response
 
 		std::string			& getStringResponse( void );
 		const std::string	& getStringResponse( void ) const;
+		Server				*getServer(void);
+		int					&getStatus(void);
+		void				get_good_Root(std::string path, Server *serv);
+		void				readFile(std::string path, Server &serv);
+
+		//void				setResponse(void);
 
 };
 
