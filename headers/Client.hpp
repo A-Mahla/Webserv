@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 18:03:13 by meudier          ###   ########.fr       */
+/*   Updated: 2022/10/31 18:24:50 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,31 +21,34 @@ class Client
 {
 	private:
 
-		int			_clientSock;
-		Server		_server;
-		Request		_request;
-		Response	_response;
+		int						_clientSock;
+		std::vector< Server * >	_serverList;
+		Server					* _server;
+		Request					_request;
+		Response				_response;
 
 	public:
 
 		Client( void );
 		Client( const int socket );
-		Client( const int socket, const Server & serv );
 		Client( const Client & rhs );
 
 		~Client( void );
 
 		Client &	operator=( const Client & rhs );
 
-		int				& getSock( void );
-		const int		& getSock( void ) const;
-		Request			& getRequest( void );
-		const Request	& getRequest( void ) const;
-		Response		& getResponse( void );
-		Response		&getResponse( Server & serv, Request & req );
-		const Response	& getResponse( void ) const;
-		Server			&getServer( void );
-		void			setRequest(char * str);
+		
+		int						& getSock( void );
+		const int				& getSock( void ) const;
+		Request					& getRequest( void );
+		const Request			& getRequest( void ) const;
+		void					setRequest(char * str);
+		Response				& getResponse( void );
+		Response				&getResponse( Server & serv, Request & req );
+		const Response			& getResponse( void ) const;
+		Server					* getServer( void );
+		//Server					&getServer( void );
+		std::vector< Server * >	& getServerList( void );
 
 };
 

@@ -1,9 +1,9 @@
 
 server	{
 
-	server_name					YO;
+	server_name					YO.com;
 
-	listen						172.17.0.1:8080;
+	listen						0.0.0.0:8080;
 
 	autoindex					on;
 

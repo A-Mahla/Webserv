@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 08:48:04 by meudier          ###   ########.fr       */
+/*   Updated: 2022/10/31 19:34:55 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class Server
 
 		std::vector< std::string >			_serverName;
 		int									_servSock;
-		int									_port;
+		short								_port;
 		int									_addr;
 		in_addr_t							_inetAddr;
 		int									_clientBody;
@@ -59,8 +59,10 @@ class Server
 		std::vector< std::string >				& getServerName( void );
 		std::map< std::string, std::string >	& get_error_pages(void);
 		std::map< std::string, Server >			& getLocation( void );
-		const int								& getPort( void ) const;
+		const short								& getPort( void ) const;
+		short									& getPort( void );
 		const in_addr_t							& getInetAddr( void ) const;
+		in_addr_t								& getInetAddr( void );
 		int										get_clientBody( void ) const;
 		std::string								get_root( void ) const;
 		std::vector< std::string >				& get_index( void );

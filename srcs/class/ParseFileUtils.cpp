@@ -240,7 +240,7 @@ bool	addrIsGood(Server & serv, std::string addr)
 	size_t	i = 0;
 
 	if (!addr.compare("localhost") || !addr.compare("*")){
-		serv.setAddr(INADDR_ANY);
+		serv.setAddr(inet_addr("127.0.0.1"));
 		return (true);
 	} else if (checkOccurance(addr, ".") == 3 && addrIsValid(addr)) {
 		while (i < addr.size()){

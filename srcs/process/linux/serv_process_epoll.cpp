@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   serv_process_epoll.cpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/24 13:29:20 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/31 19:01:11 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ void	clearEpollProcess( std::vector<Server> & servers, std::vector<Client> & cli
 {
 	for (std::size_t i = 0; i < servers.size(); i++ )
 	{
+		if ( clients[i].getSock() == -1)
+			continue ;
 		epoll_ctl(epollVar.epollFd, EPOLL_CTL_DEL, servers[i].getSock(), NULL);
 		close( servers[i].getSock() );
 	}
@@ -41,6 +43,7 @@ void	appServ( std::vector<Server> & servers )
 	std::cout << std::endl << "\r" << YELLOW;
 	std::cout << "-------------- Server is on ---------------" << std::endl;
 	std::cout << SET << std::endl;
+
 	try
 	{
 		servProcess( servers, clients, epollVar );
@@ -48,6 +51,6 @@ void	appServ( std::vector<Server> & servers )
 	catch ( std::exception & e )
 	{
 		clearEpollProcess( servers, clients, epollVar );
-		throw ( WebServException( e.what() ) ); 
+		throw ( WebServException( e.what() ) );	 
 	}
 }

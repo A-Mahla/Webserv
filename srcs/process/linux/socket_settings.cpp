@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/28 18:04:56 by meudier          ###   ########.fr       */
+/*   Updated: 2022/10/31 18:54:15 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ void	nameSock( int & servSock, Server & server )
 	struct sockaddr_in	address;
 	memset( (char *)&address, 0, sizeof(address) );
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = server.getInetAddr();
+	address.sin_addr.s_addr = htonl( INADDR_ANY );
 	address.sin_port = htons( server.getPort() );
 
 	if ( bind( servSock, reinterpret_cast< struct sockaddr * >(&address),
@@ -74,10 +74,24 @@ void	nameSock( int & servSock, Server & server )
 
 void	setServerSockets( std::vector<Server> & servers )
 {
+	bool	check;
 	try
 	{
 		for ( std::size_t i(0); i < servers.size(); i++ )
 		{
+			check = false;
+			for ( std::size_t j(0); j < i; j++ )
+			{
+				if ( servers[j].getPort() == servers[i].getPort() )
+				{
+					servers[i].getSock() = -1;
+					check = true;
+					break ;
+				}
+				
+			}
+			if ( check )
+				continue ;
 			createSock( servers[i].getSock() );
 			nonBlockSock( servers[i].getSock() );
 			nameSock( servers[i].getSock(), servers[i] );
@@ -87,7 +101,10 @@ void	setServerSockets( std::vector<Server> & servers )
 	catch ( std::exception & e )
 	{
 		for ( std::size_t i(0); i < servers.size(); i++ )
-			close( servers[i].getSock() );
+		{
+			if ( servers[i].getSock() >= 0 )
+				close( servers[i].getSock() );
+		}
 		throw WebServException( e.what() );
 	}
 }

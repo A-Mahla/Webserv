@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 08:49:31 by meudier          ###   ########.fr       */
+/*   Updated: 2022/10/31 19:36:10 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,12 +101,22 @@ std::map< std::string, Server >			& Server::getLocation( void )
 	return ( this->_location );
 }
 
-const int								& Server::getPort( void ) const
+const short								& Server::getPort( void ) const
+{
+	return ( this->_port );
+}
+
+short									& Server::getPort( void )
 {
 	return ( this->_port );
 }
 
 const in_addr_t							& Server::getInetAddr( void ) const
+{
+	return (this->_inetAddr);
+}
+
+in_addr_t								& Server::getInetAddr( void )
 {
 	return (this->_inetAddr);
 }
