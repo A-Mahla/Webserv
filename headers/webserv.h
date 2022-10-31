@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/21 18:54:23 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 18:21:56 by meudier          ###   ########.fr       */
+/*   Updated: 2022/10/31 22:45:23 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,8 @@ void		appServ( std::vector<Server> & servers );
 
 			/*	serv_process_epoll_utils.cpp	*/
 void		signal_handler(int sig);
-int			isServer( std::vector<Server> & servers, int fd );
-void		whichAddrServer( std::vector<Server> & servers,
-				struct sockaddr_in addr, Client & client );
+Server		* isServer( std::vector<Server> & servers, int fd );
+bool		whichAddrServer( std::vector<Server> & servers, Client & client, 
+				uint32_t addr, short port );
 
 #endif

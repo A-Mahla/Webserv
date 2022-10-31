@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 19:45:46 by meudier          ###   ########.fr       */
+/*   Updated: 2022/10/31 22:45:03 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,31 +66,31 @@ void	setEpollQueue( t_epoll & epollVar, std::vector<Server> & servers )
 
 }
 
-int	isServer( std::vector<Server> & servers, int fd )
+Server	* isServer( std::vector<Server> & servers, int fd )
 {
 	for ( std::size_t i(0); i < servers.size(); i++ )
 	{
 		if ( servers[i].getSock() == -1 )
 			continue ;
 		if ( servers[i].getSock() == fd )
-			return ( servers[i].getSock() );
+			return ( &servers[i] );
 	}
-	return ( -1 );
+	return ( NULL );
 }
-#include <iostream>
-void	whichAddrServer( std::vector<Server> & servers, struct sockaddr_in addr, Client & client )
+
+bool	whichAddrServer( std::vector<Server> & servers, Client & client,
+			uint32_t addr, short port )
 {
 	bool	checkAddr = false;
 
-
 	for ( std::size_t i(0); i < servers.size(); i++ )
 	{
-		if ( servers[i].getInetAddr() == addr.sin_addr.s_addr  && servers[i].getPort() == addr.sin_port )
+		if ( servers[i].getInetAddr() == addr  && servers[i].getPort() == port )
 		{
 			checkAddr = true;
 			client.getServerList().push_back( &servers[i] );
 		}
-		else if ( !checkAddr && servers[i].getInetAddr() == INADDR_ANY /* && servers[i].getPort() == addr.sin_port */)
+		else if ( !checkAddr && servers[i].getInetAddr() == INADDR_ANY && servers[i].getPort() == port )
 			client.getServerList().push_back( &servers[i] ); 
 	}
 
@@ -99,5 +99,9 @@ void	whichAddrServer( std::vector<Server> & servers, struct sockaddr_in addr, Cl
 		if ( client.getServerList()[i]->getInetAddr() == INADDR_ANY )
 			client.getServerList().erase( client.getServerList().begin() + i );
 	}
+
+	if ( client.getServerList().empty() )
+		return ( false );
+	return ( true );
 
 }

@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 19:44:51 by meudier          ###   ########.fr       */
+/*   Updated: 2022/10/31 22:53:55 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,28 +91,26 @@ bool	ioData( std::vector<Client> & clients, t_epoll & epollVar, int i)
 	return ( false );
 }
 
-void	addConnection( std::vector<Client> & clients, std::vector< Server > & servers, t_epoll & epollVar, int fdServer )
+void	addConnection( std::vector<Client> & clients, std::vector< Server > & servers, t_epoll & epollVar,
+			Server & serverToConnect )
 {
 	struct sockaddr_in	temp;
 	int					addrlen = sizeof(temp);
 	int					newConnection;
 
 	memset( (char *)&temp, 0, sizeof(temp) );
-	temp.sin_port = htons(8080);
 
-	if ( ( newConnection = accept( fdServer, reinterpret_cast< struct sockaddr *>(&temp),
+	if ( ( newConnection = accept( serverToConnect.getSock(), reinterpret_cast< struct sockaddr *>(&temp),
 					reinterpret_cast< socklen_t * >(&addrlen) ) ) < 0 )
 	{
 		if ( errno != EWOULDBLOCK )
 			throw WebServException( "serv_process_epoll_loop.cpp", "newConnection", "accept() failed" );
 	}
 	
-	
 	else if ( newConnection >= 0 )
 	{
 
 		std::cout << std::endl;
-		std::cout << YELLOW << "Connection accepted" << SET << std::endl;
 		nonBlockSock( newConnection );
 		
 		epollVar.new_event.data.fd = newConnection;
@@ -120,19 +118,26 @@ void	addConnection( std::vector<Client> & clients, std::vector< Server > & serve
 		epoll_ctl( epollVar.epollFd, EPOLL_CTL_ADD, newConnection, &(epollVar.new_event ));
 		
 		clients.push_back( Client( newConnection ) );
-
-		whichAddrServer( servers, temp, clients.back() );
+		if ( !whichAddrServer( servers, clients.back(), temp.sin_addr.s_addr, serverToConnect.getPort() ) )
+		{
+			std::cout << YELLOW << "Connection refused" << SET << std::endl;
+			epoll_ctl( epollVar.maxNbFd, EPOLL_CTL_DEL, newConnection, NULL);
+			clients.pop_back();
+			close( newConnection );
+		}
+		else
+			std::cout << YELLOW << "Connection accepted" << SET << std::endl;
 	}
 }
 
 bool	newConnection( std::vector<Client> & clients, std::vector<Server> & servers, t_epoll & epollVar, int i )
 {
-	int	fdServer;
+	Server	* serverToConnect;
 
 	if ( epollVar.events[i].events & EPOLLIN &&
-		( fdServer = isServer( servers, epollVar.events[i].data.fd ) ) >= 0  )
+		( serverToConnect = isServer( servers, epollVar.events[i].data.fd ) ) != NULL  )
 	{
-		addConnection( clients, servers, epollVar, fdServer );
+		addConnection( clients, servers, epollVar, *serverToConnect );
 		return ( true );
 	}
 	return ( false );
@@ -145,8 +150,8 @@ bool	errorEpoll( std::vector<Server> & servers, std::vector<Client> & clients, t
 		int	fdToClear = epollVar.events[i].data.fd;
 
 		epoll_ctl( epollVar.maxNbFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
-		if ( isServer( servers, fdToClear ) >= 0 )
-			clients.erase( find( clients, fdToClear ) );
+		if ( isServer( servers, fdToClear ) != NULL )
+			clients.erase( find( clients, fdToClear ) ); // error to handle
 		else
 			servers.erase( find( servers, fdToClear ) );
 		close( fdToClear );
