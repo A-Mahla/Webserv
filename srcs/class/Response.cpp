@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 10:58:18 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/01 14:18:45 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "Response.hpp"
 #include "webserv.h"
 #include <fstream>
-#include <sstream>  
+#include <sstream>
 
 
 /*=====================*/
@@ -77,11 +77,11 @@ std::string	Response::readFile(std::string path, Server &serv)
 	get_good_Root(path, &serv);
 	if (!this->_server)
 		this->_server = &serv;
-	
+
 	filename = this->_server->get_root()+ path.erase(0, 1);
 
 	ifs.open(filename.c_str(), std::ifstream::in);
-	
+
 	if ( !ifs.is_open() )
 	{
 		this->_status = 404;
@@ -93,6 +93,8 @@ std::string	Response::readFile(std::string path, Server &serv)
 
 	buff = new char[length + 1];
 	ifs.read(buff, length);
+	if (ifs.fail())
+		this->_status = 403;
 	ifs.close();
 	buff[length] = '\0';
 	file_content = buff;
@@ -104,7 +106,7 @@ std::string	Response::readFile(std::string path, Server &serv)
 void	Response::GET_response(Server & serv, Request & req)
 {
 	std::string content_str;
-	
+
 	if (*req.getPath().rbegin() != '/')
 	{
 		content_str = readFile(req.getPath(), serv);
@@ -115,8 +117,7 @@ void	Response::GET_response(Server & serv, Request & req)
 		//juste for see if it works
 		content_str = "autoindex";
 	}
-	
-	
+
 	std::stringstream ss;
 	ss << content_str.size();
 
@@ -136,13 +137,11 @@ Response::Response(Server & serv, Request & req) : _server(NULL), _status(0)
 {
 	if ( DEBUG )
 		std::cout << "Response request Constructor" << std::endl;
-		
+
 	_response.clear();
 
 	if (req.getMethode() == GET)
-	{
 		GET_response(serv, req);
-	}
 	else if ( req.getMethode() == POST)
 	{
 		_response += "HTTP/1.1 200 OK\n";
@@ -165,7 +164,7 @@ Response::Response(Server & serv, Request & req) : _server(NULL), _status(0)
 	}
 	else
 		_status = 400;
-	
+
 	if (_status)
 	{
 		std::stringstream ss;
@@ -179,7 +178,7 @@ Response::Response(Server & serv, Request & req) : _server(NULL), _status(0)
 		_response += "error " + ss.str();
 		_response += "\r\n\r\n";
 	}
-	
+
 }
 
 //				test MAX
