@@ -6,13 +6,14 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 14:12:06 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/01 14:21:20 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 #include "defines.h"
 #include "ParseFile.hpp"
+#include "sstream"
 
 Request::Request( void )
 {
