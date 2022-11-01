@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 11:08:35 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/01 14:54:01 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <iostream>
 #include "Request.hpp"
 #include "ParseFile.hpp"
+#include <sstream>
 
 Request::Request( void )
 {
