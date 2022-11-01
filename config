@@ -3,7 +3,7 @@ server	{
 
 	server_name					YO.com;
 
-	listen						0.0.0.0:8080;
+	listen						0.0.0.0:2020;
 
 	autoindex					on;
 
@@ -11,7 +11,7 @@ server	{
 
 	index						index.html index.php test.html ;
 
-	root						./html/;
+	root						./srcs;
 
 	client_body_buffer_size		8k; 
 
@@ -41,11 +41,11 @@ server	{
 
 	client_body_buffer_size		8k; 
 
-	location		ifs	{
+	location		./config	{
 
 				autoindex		off;
 				
-
+				root			.;
 			
 
 	}

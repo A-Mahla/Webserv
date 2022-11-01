@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 18:10:50 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/01 08:31:01 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,20 +125,17 @@ void		Request::parseRequest(void)
 	if ((pos = request.find("HTTP/1.1")) != std::string::npos)
 	{
 		request.erase(0, 1);
-		_path = string(request.begin(), request.begin() + pos - 1);
+		_path = string(request.begin(), request.begin() + pos - 2);
 		pos =  request.find("\n");
-	 	request.erase(0, pos);
+	 	request.erase(0, pos + 1);
 	}
 	else
 		return ;
-
-	if ((pos = request.find("\n")) != std::string::npos)
-	 	request.erase(pos, 1);
 		
 	if ((pos = request.find("\n")) != std::string::npos)
 	 	request.erase(pos, request.size() - pos);
 		
-	if ((pos = request.find("\r")) != std::string::npos)
+	while ((pos = request.find("\r")) != std::string::npos)
 	 	request.erase(pos, 1);
 		
 	request.push_back(';');

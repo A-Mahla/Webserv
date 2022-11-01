@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 18:12:58 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/01 08:46:00 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,12 +39,12 @@ class Response
 
 		std::string			& getStringResponse( void );
 		const std::string	& getStringResponse( void ) const;
-		Server				*getServer(void);
-		int					&getStatus(void);
-		void				get_good_Root(std::string path, Server *serv);
-		void				readFile(std::string path, Server &serv);
+		Server				* getServer(void);
+		int					& getStatus(void);
+		void				  get_good_Root(std::string path, Server *serv);
+		std::string			  readFile(std::string path, Server &serv);
 
-		//void				setResponse(void);
+		void				GET_response(Server &serv, Request &req);
 
 };
 
