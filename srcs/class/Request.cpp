@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 18:10:50 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/01 10:18:28 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ void		Request::parseRequest(void)
 
 	if (!_parseMethod(request))
 		return ;
-	
+
 	if ((pos = request.find("HTTP/1.1")) != std::string::npos)
 	{
 		request.erase(0, 1);
@@ -134,22 +134,21 @@ void		Request::parseRequest(void)
 
 	if ((pos = request.find("\n")) != std::string::npos)
 	 	request.erase(pos, 1);
-		
+
 	if ((pos = request.find("\n")) != std::string::npos)
 	 	request.erase(pos, request.size() - pos);
-		
+
 	if ((pos = request.find("\r")) != std::string::npos)
 	 	request.erase(pos, 1);
-		
+
 	request.push_back(';');
 
 	if (!_parseHost(request))
 		return ;
-		
+
 	/*===========================================================*/
 	std::cout << RED << "request: " << SET << "method: " << _method <<  "\n";
 	std::cout << "port: " << _port << "\n" << "addr: " <<  _addr << "\n" ;
 	std::cout << "path: " << _path  <<  std::endl;
-	
 }
 
