@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 22:45:03 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/01 14:10:51 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,6 @@ itServer	find( std::vector<Server> & servers, int serverFd )
 	}
 	return ( it );
 }
-
 void	setEpollQueue( t_epoll & epollVar, std::vector<Server> & servers )
 {
 

@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 22:53:55 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/01 14:15:16 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,10 +150,10 @@ bool	errorEpoll( std::vector<Server> & servers, std::vector<Client> & clients, t
 		int	fdToClear = epollVar.events[i].data.fd;
 
 		epoll_ctl( epollVar.maxNbFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
-		if ( isServer( servers, fdToClear ) != NULL )
-			clients.erase( find( clients, fdToClear ) ); // error to handle
+		if ( isServer( servers, fdToClear ) == NULL )
+			clients.erase( find( clients, fdToClear ) );
 		else
-			servers.erase( find( servers, fdToClear ) );
+			servers.erase( find( servers, fdToClear ) );// error to handle
 		close( fdToClear );
 		return ( true );
 	}
@@ -169,7 +169,6 @@ void	servProcess( std::vector<Server> & servers, std::vector<Client> & clients, 
 	{
 	
 		waitRequest( epollVar );
-		
 		for ( int i(0); i < epollVar.maxNbFd; i++)
 		{
 			if ( errorEpoll( servers, clients, epollVar, i ) )
