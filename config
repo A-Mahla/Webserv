@@ -29,7 +29,7 @@ server	{
 
 	server_name					YO;
 
-	listen						8080;
+	listen						23.32.43.43:8080;
 
 	autoindex					on;
 
