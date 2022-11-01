@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 14:24:25 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/01 16:07:46 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,6 @@ void		Request::_parseMethodAndPath(std::string request)
 			_method = DELETE;
 	}
 }
-
 
 void		Request::parseRequest(void)
 {
