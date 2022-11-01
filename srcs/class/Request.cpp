@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 11:08:35 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/01 13:01:25 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include <iostream>
 #include "Request.hpp"
 #include "ParseFile.hpp"
+#include "sstream"
 
 Request::Request( void )
 {
@@ -122,22 +123,22 @@ void		Request::parseRequest(void)
 	std::stringstream 	ss;
 	ss << _request;
 	
-	while (ss.eof)
+	while (ss.eof())
 		std::getline(ss, line);
 	size_t pos = 0;
 
-	while ((pos = request.find("\r")) != std::string::npos)
-	 	request.erase(pos, 1);
+	while ((pos = _request.find("\r")) != std::string::npos)
+	 	_request.erase(pos, 1);
 
-	if (!_parseMethod(request))
+	if (!_parseMethod(_request))
 		return ;
 	
-	if ((pos = request.find("HTTP/1.1")) != std::string::npos)
+	if ((pos = _request.find("HTTP/1.1")) != std::string::npos)
 	{
-		request.erase(0, 1);
-		_path = string(request.begin(), request.begin() + pos - 2);
-		pos =  request.find("\n");
-	 	request.erase(0, pos + 1);
+		_request.erase(0, 1);
+		_path = string(_request.begin(), _request.begin() + pos - 2);
+		pos =  _request.find("\n");
+	 	_request.erase(0, pos + 1);
 	}
 	else
 		return ;
@@ -145,9 +146,9 @@ void		Request::parseRequest(void)
 		
 	
 		
-	request.push_back(';');
+	_request.push_back(';');
 
-	if (!_parseHost(request))
+	if (!_parseHost(_request))
 		return ;
 		
 	/*===========================================================
