@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 09:25:41 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/01 10:58:18 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ Response::Response( void ) : _server(NULL)
 # include <string>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdlib.h>
+
 
 Server	*Response::getServer(void)
 {
@@ -54,7 +56,6 @@ void	Response::get_good_Root(std::string path, Server *serv)
 {
 	for (std::map<std::string, Server>::iterator it = serv->getLocation().begin(); it != serv->getLocation().end(); it++)
 	{
-		std::cout << it->first << std::endl;
 		if (it->first == path || (it->first[0] == '.' && it->first.substr(1, it->first.size()) == path))
 		{
 			this->_server = &it->second;
@@ -90,9 +91,10 @@ std::string	Response::readFile(std::string path, Server &serv)
 	length = ifs.tellg();
 	ifs.seekg (0, ifs.beg);
 
-	buff = new char[length];
+	buff = new char[length + 1];
 	ifs.read(buff, length);
 	ifs.close();
+	buff[length] = '\0';
 	file_content = buff;
 	delete [] buff;
 
@@ -111,7 +113,7 @@ void	Response::GET_response(Server & serv, Request & req)
 	{
 		//autoindex();
 		//juste for see if it works
-		_status = 333;
+		content_str = "autoindex";
 	}
 	
 	
@@ -132,11 +134,11 @@ void	Response::GET_response(Server & serv, Request & req)
 
 Response::Response(Server & serv, Request & req) : _server(NULL), _status(0)
 {
-	(void)serv;
-	
 	if ( DEBUG )
 		std::cout << "Response request Constructor" << std::endl;
-	
+		
+	_response.clear();
+
 	if (req.getMethode() == GET)
 	{
 		GET_response(serv, req);
@@ -176,7 +178,6 @@ Response::Response(Server & serv, Request & req) : _server(NULL), _status(0)
 		_response += "\n\n";
 		_response += "error " + ss.str();
 		_response += "\r\n\r\n";
-		std::cout << _response << std::endl;
 	}
 	
 }

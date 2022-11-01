@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 08:31:01 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/01 11:08:35 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,10 +114,20 @@ bool	Request::_parseHost( const std::string str_const )
 	return (false);
 }
 
+
+
 void		Request::parseRequest(void)
 {
-	std::string request = _request;
+	std::string			line;
+	std::stringstream 	ss;
+	ss << _request;
+	
+	while (ss.eof)
+		std::getline(ss, line);
 	size_t pos = 0;
+
+	while ((pos = request.find("\r")) != std::string::npos)
+	 	request.erase(pos, 1);
 
 	if (!_parseMethod(request))
 		return ;
@@ -132,21 +142,18 @@ void		Request::parseRequest(void)
 	else
 		return ;
 		
-	if ((pos = request.find("\n")) != std::string::npos)
-	 	request.erase(pos, request.size() - pos);
 		
-	while ((pos = request.find("\r")) != std::string::npos)
-	 	request.erase(pos, 1);
+	
 		
 	request.push_back(';');
 
 	if (!_parseHost(request))
 		return ;
 		
-	/*===========================================================*/
+	/*===========================================================
 	std::cout << RED << "request: " << SET << "method: " << _method <<  "\n";
 	std::cout << "port: " << _port << "\n" << "addr: " <<  _addr << "\n" ;
-	std::cout << "path: " << _path  <<  std::endl;
+	std::cout << "path: " << _path  <<  std::endl;*/
 	
 }
 
