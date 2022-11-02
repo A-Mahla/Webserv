@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 20:06:24 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/02 13:04:46 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,8 +145,8 @@ Response::Response(Server & serv, Request & req) : _server(NULL), _status(0)
 	else if ( req.getMethode() == POST)
 	{
 		/*SACHANT QUE C'EST UNE METHODE POST, ON CHECK SI IL Y A UN CGI ET SI IL EST UTILISABLE*/
-		if (_cgiCheck(req.getPath))
-			execCGI(buildEnvVar(serv, req));
+//		if (_cgiCheck(req.getPath))
+//			execCGI(buildEnvVar(serv, req));
 		/*SI OUI, LS FONCTION execCGI PREND UN CHAR** POUR EXEC LE CGI,
 		 char** RENVOYE PAR LA FONCTION buildEnvVar() */
 		 /*VOIR FICHIER test/environnementVarCGI.cpp pour les prototype des fonctions*/

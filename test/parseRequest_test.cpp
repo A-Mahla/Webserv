@@ -79,11 +79,21 @@ void		_parseMethodAndPath(std::string request)
 # include <cstdlib>
 # include <map>
 
+// post request
 size_t									_contentLength = 0;
 std::string								_contentType;
 std::string								_boundary;
-std::map< std::string, std::string >	_contentDisposition;
+std::string								_origin;
 //std::string	
+
+// post boundary
+std::map< std::string, std::string >	_contentDisposition;
+
+void		_parseOrigin( std::string request )
+{
+	if ( !request.compare( 0, 8, "Origin: ") )
+		_origin = request.substr( 8, ( request.size() - 8 ) );
+}
 
 void		_parseContentLength( std::string request )
 {
@@ -113,7 +123,7 @@ void		_parseContentDisposition( std::string request )
 			( (request.find_last_of( ";" ) - 1) - (request.find( "=", 0 ) + 2 )) );
 
 		_contentDisposition["filename"] = request.substr( request.find_last_of( "=" ) + 2,
-			 ( request.find_last_of( "\"" ) ) - ( request.find_last_of( "=" ) + 2  ) );
+			 ( request.size() - 1 ) - ( request.find_last_of( "=" ) + 2  ) );
 	}
 }
 
@@ -138,6 +148,7 @@ void		parseRequest(std::string request)
 		_parseContentLength( line );
 		_parseContentType( line );
 		_parseContentDisposition( line );
+		_parseOrigin( line );
 		std::cout << line << "\n";
 	}
 	std::cout << "\n\n*********VARIABLES**********\n\n";
@@ -149,6 +160,7 @@ void		parseRequest(std::string request)
 		std::cout << "_contentLength = " << _contentLength << "\n";
 		std::cout << "_contentType = " << _contentType << "\n";
 		std::cout << "_boundary = " << _boundary << "\n";
+		std::cout << "_origin = " << _origin << "\n";
 		std::cout << "_contentDisposition = " << "\n";
 		for( std::map< std::string, std::string >::iterator it = _contentDisposition.begin();
 				it != _contentDisposition.end(); it++ )
@@ -168,9 +180,9 @@ int main()
 	std::string request = "GET /index.html HTTP/1.1\nHost: localhost:8080\nConnection: keep-alive\nCache-Control: max-age=0\nsec-ch-ua: \"Google Chrome\";v=\"107\", \"Chromium\";v=\"107\", \"Not=A?Brand\";v=\"24\"\nsec-ch-ua-mobile: ?0\nsec-ch-ua-platform: \"Linux\"\nUpgrade-Insecure-Requests: 1\nUser-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9\nSec-Fetch-Site: none\nSec-Fetch-Mode: navigate\nSec-Fetch-User: ?1\nSec-Fetch-Dest: document\nAccept-Encoding: gzip, deflate, br\nAccept-Language: fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7";
 
 	std::string	postRequest1 = "Host: localhost:8080\nUser-Agent: curl/7.81.0\nAccept: */*\nContent-Length: 40\nContent-Type: application/x-www-form-urlencoded\nname=linuxize&email=linuxize@example.com;";
-	std::string	postRequestFile = "POST / HTTP/1.1\nHost: 127.0.0.1:8080\nUser-Agent: curl/7.81.0\nAccept: */*\nContent-Length: 6712\nContent-Type: multipart/form-data; boundary=------------------------dfea8bdf67e372e1";
+	std::string	postRequestFile = "POST / HTTP/1.1\nHost: 127.0.0.1:8080\nUser-Agent: curl/7.81.0\nAccept: */*\nContent-Length: 6712\nOrigin: http://localhost:8080\nContent-Type: multipart/form-data; boundary=------------------------dfea8bdf67e372e1";
 	std::string	postRequestFile2 = "--------------------------dfea8bdf67e372e1\nContent-Disposition: form-data; name=\"file1\"; filename=\"Makefile\"\nContent-Type: application/octet-stream\ncontent-file";
-    parseRequest(postRequestFile2);
+    parseRequest(postRequestFile);
     return (0);
 
 }
