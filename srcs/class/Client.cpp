@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 18:21:49 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/01 18:17:12 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,10 +70,28 @@ const Request	& Client::getRequest( void ) const
 	return ( this->_request );
 }
 
+void	Client::_chooseServer(void)
+{
+	_server = _serverList[0];
+	for (std::vector<Server *>::iterator it = _serverList.begin(); it != _serverList.end(); it++)
+	{
+		for (std::vector<std::string>::iterator it2 = (*it)->getServerName().begin(); it2 != (*it)->getServerName().end(); it2++)
+		{
+			if (*it2 == _request.getAddr())
+			{
+				_server = *it;
+				return ;
+			}
+		}
+	}
+}
+
 void	Client::setRequest(char * str)
 {
 	_request.getStringRequest() = str;
 	_request.parseRequest();
+	if (!_server)
+		_chooseServer();	
 }
 
 Response		& Client::getResponse( void )

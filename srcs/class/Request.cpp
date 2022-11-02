@@ -6,13 +6,12 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 14:54:01 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/01 17:35:35 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "defines.h"
-#include <iostream>
 #include "Request.hpp"
+#include "defines.h"
 #include "ParseFile.hpp"
 #include <sstream>
 
@@ -58,103 +57,128 @@ const std::string	& Request::getStringRequest( void ) const
 	return ( this->_request );
 }
 
-//max
+int			Request::getMethode()
+{
+	return (_method);
+}
 
-int			Request::getMethode() {return (_method);}
-std::string	Request::getPath() {return (_path);}
-std::string	Request::getPort() {return (_port);}
-std::string	Request::getAddr() {return (_addr);}
+std::string	Request::getPath()
+{
+	return (_path);
+}
 
-bool		Request::_parseMethod(std::string &request)
+std::string	Request::getPort()
+{
+	return (_port);
+}
+
+std::string	Request::getAddr()
+{
+	return (_addr);
+}
+
+void	Request::_parseHost( const std::string request )
+{
+	if ( !request.compare(0, 6, "Host: ") )
+	{
+			_addr = request.substr(6, request.find(":",6) - 6);
+			_port = request.substr((request.find(":", 6) + 1), ( (request.find("\0", 0)) - (request.find(":", 6) + 1) ));
+	}
+}
+
+void	Request::_checkUserAgent( const std::string request )
+{
+	if (!request.compare(0, 12, "User-Agent: "))
+	{
+		if (request.find("Chrome", 0) == std::string::npos)
+			_method = BAD_REQUEST;
+	}
+}
+
+void	Request::_parseAccept( const std::string request )
+{
+	size_t  pos = 0;
+	size_t  posTmp = 0;
+
+
+	if ( !request.compare(0, 8, "Accept: ") )
+	{
+		_accept.clear();
+		posTmp = 8;
+		while ((pos = request.find(",", pos)) != std::string::npos)
+		{
+			_accept.push_back(request.substr(posTmp, pos - posTmp));
+			pos++;
+			posTmp = pos;
+		}
+		_accept.push_back(request.substr(posTmp, request.size() - posTmp));
+	}
+}
+
+bool    Request::_getPath(std::string request)
+{
+	size_t	pos = 0;
+	if ((pos = request.find("HTTP/1.1")) != std::string::npos)
+	{
+		_path = request.substr( 0, request.find(" ", 0) );
+		return (true);
+	}
+	return (false);
+}
+
+void		Request::_parseMethodAndPath(std::string request)
 {
 	size_t pos = 0;
 
 	if ((pos = request.find("GET")) != std::string::npos)
 	{
-		_method = GET;
-		request.erase(pos, 3);
+		if (_getPath(request.substr(4, request.find("\0", 0) - 4)))
+			_method = GET;
 	}
 	else if ((pos = request.find("POST")) != std::string::npos)
 	{
-		_method = POST;
-		request.erase(pos, 4);
+		if (_getPath(request.substr(5, request.find("\0", 0) - 5)))
+			_method = POST;
 	}
 	else if ((pos = request.find("DELETE")) != std::string::npos)
 	{
-		_method = DELETE;
-		request.erase(pos, 6);
+		if (_getPath(request.substr(7, request.find("\0", 0) - 7)))
+			_method = DELETE;
 	}
-	else
-	{
-		_method = BAD_REQUEST;
-		return (false);
-	}
-	return (true);
 }
-
-bool	Request::_parseHost( const std::string str_const )
-{
-	int				i = 0;
-	std::string	str = str_const;
-
-	if ( !str.compare(0, 6, "Host: ") )
-	{
-		i += 6;
-		if ( !checkSyntax( str.c_str() + i ) )
-			return ( false );
-		str.erase(0, 6);
-		if (checkOccurance(str, ":") == 1)
-		{
-			_addr = str.substr(0, str.find(":", 0));
-			_port = str.substr((str.find(":", 0) + 1), ( (str.find(";", 0)) - (str.find(":", 0) + 1) ));
-			return (true);
-		}
-		else
-			return (false);
-	}
-	return (false);
-}
-
 
 
 void		Request::parseRequest(void)
 {
 	std::string			line;
 	std::stringstream 	ss;
-	ss << _request;
-	
-	while (ss.eof)
-		std::getline(ss, line);
-	size_t pos = 0;
+	size_t				pos;
 
-	while ((pos = request.find("\r")) != std::string::npos)
-	 	request.erase(pos, 1);
-
-	if (!_parseMethod(request))
-		return ;
-	
-	if ((pos = request.find("HTTP/1.1")) != std::string::npos)
+	ss << this->_request;
+	while ((pos = _request.find("\r")) != std::string::npos)
+	  	_request.erase(pos, 1);
+	while (!ss.eof())
 	{
-		request.erase(0, 1);
-		_path = string(request.begin(), request.begin() + pos - 2);
-		pos =  request.find("\n");
-	 	request.erase(0, pos + 1);
+		std::getline(ss, line);
+		_parseMethodAndPath(line);
+		_parseHost(line);
+		_parseAccept(line);
+		_checkUserAgent(line);
+		//std::cout << line << "\n";
 	}
-	else
-		return ;
-		
-		
-	
-		
-	request.push_back(';');
+	std::cout << "*******************************************\n\n";
+	std::cout << "\n\n*********PRINTING THE PARSING**********\n\n";
 
-	if (!_parseHost(request))
-		return ;
-		
-	/*===========================================================
-	std::cout << RED << "request: " << SET << "method: " << _method <<  "\n";
-	std::cout << "port: " << _port << "\n" << "addr: " <<  _addr << "\n" ;
-	std::cout << "path: " << _path  <<  std::endl;*/
-	
+		std::cout << "method = " << _method << "\n";
+		std::cout << "_addr = " << _addr << "\n";
+		std::cout << "port = " << _port << "\n";
+		std::cout << "_path = " << _path << "\n";
+
+		std::cout << "accept options :\n";
+		std::cout << "<<\n";
+		for (std::vector<std::string>::iterator it = _accept.begin(); it != _accept.end(); it++){
+			std::cout << *it << "\n";
+		}
+		std::cout << ">>" << "\n";
+		std::cout << "\n\n***********************************\n\n";
 }
-

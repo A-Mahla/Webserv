@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 18:24:50 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/01 17:58:05 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class Client
 		Server					* _server;
 		Request					_request;
 		Response				_response;
+		void					_chooseServer(void);
 
 	public:
 

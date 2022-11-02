@@ -13,23 +13,20 @@ server	{
 
 	root						./srcs;
 
-	client_body_buffer_size		8k; 
+	client_body_buffer_size		8k;
 
 	location		ifs	{
 
 				autoindex		off;
-				
-
-			
 
 	}
 }
 
 server	{
 
-	server_name					YO;
+	server_name					localhost;
 
-	listen						8080;
+	listen						0.0.0.0:8080;
 
 	autoindex					on;
 
@@ -39,14 +36,14 @@ server	{
 
 	root						./html;
 
-	client_body_buffer_size		8k; 
+	client_body_buffer_size		8k;
 
 	location		./config	{
 
 				autoindex		off;
-				
+
 				root			.;
-			
+
 
 	}
 }

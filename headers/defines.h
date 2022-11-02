@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   defines.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/17 21:38:09 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 11:24:47 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/01 13:49:09 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,6 @@
 # define YELLOW "\033[0;33m"
 # define SET "\033[0m"
 
-enum e_method
-{
-    GET,
-    POST,
-    DELETE,
-    BAD_REQUEST
-};
+
 
 #endif

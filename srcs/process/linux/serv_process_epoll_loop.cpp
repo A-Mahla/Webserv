@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 22:53:55 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/01 17:25:08 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,10 @@ void	readData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, i
 	else
 	{
 		buffer_read[rd] = '\0';
+
 		// (*it).getRequest().getStringRequest() += buffer_read; For concatenate recv
 		it->setRequest(buffer_read);
+
 
 		epollVar.new_event.events = EPOLLOUT;
 		epollVar.new_event.data.fd = epollVar.events[i].data.fd;
@@ -150,10 +152,10 @@ bool	errorEpoll( std::vector<Server> & servers, std::vector<Client> & clients, t
 		int	fdToClear = epollVar.events[i].data.fd;
 
 		epoll_ctl( epollVar.maxNbFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
-		if ( isServer( servers, fdToClear ) != NULL )
-			clients.erase( find( clients, fdToClear ) ); // error to handle
+		if ( isServer( servers, fdToClear ) == NULL )
+			clients.erase( find( clients, fdToClear ) );
 		else
-			servers.erase( find( servers, fdToClear ) );
+			servers.erase( find( servers, fdToClear ) );// error to handle
 		close( fdToClear );
 		return ( true );
 	}
@@ -169,7 +171,6 @@ void	servProcess( std::vector<Server> & servers, std::vector<Client> & clients, 
 	{
 	
 		waitRequest( epollVar );
-		
 		for ( int i(0); i < epollVar.maxNbFd; i++)
 		{
 			if ( errorEpoll( servers, clients, epollVar, i ) )
