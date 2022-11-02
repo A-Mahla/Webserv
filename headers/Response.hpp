@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 12:30:23 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/02 15:24:53 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Response
 		Server		*_server;
 		int			_status;
 
-		void		_initVar(std::string *var, Request const & req, Server const & serv);
+		void	_initVar(std::string *var, Request const & req, Server const & serv);
 	public:
 
 		Response( void );
@@ -47,7 +47,7 @@ class Response
 
 		void				GET_response(Server &serv, Request &req);
 		/*----------BUILDING CGI ENVIRONNEMENT---------------------*/
-		char**				buildCGIenv(Request & req, Server & serv);
+		char**				buildCGIenv(Request const & req, Server const & serv);
 		char**				ft_split(char const *s, char c);
 
 };

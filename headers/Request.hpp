@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 14:29:39 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/02 15:49:01 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ class Request
 		bool						_isSetBoundary;
 
 		size_t						_contentLength;
+		std::string					_contentLenghtStr;
 		std::string					_contentType;
 		std::string					_boundary;
 		std::string					_origin;
@@ -84,6 +85,7 @@ class Request
 		std::string		getAddr() const;
 
 		size_t			getContentLength( void ) const;
+		std::string const & getContentLengthStr( void ) const;
 		std::string		getContentType( void ) const;
 		std::string		getBoundary( void ) const;
 		std::string		getOrigin( void ) const;

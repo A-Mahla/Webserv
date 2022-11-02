@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 14:29:51 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/02 15:48:54 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,6 +163,12 @@ size_t			Request::getContentLength( void ) const
 	return ( this->_contentLength );
 }
 
+std::string const & Request::getContentLengthStr( void ) const
+{
+	return ( this->_contentLenghtStr );
+}
+
+
 std::string		Request::getContentType( void ) const
 {
 	return ( this->_contentType );
@@ -192,7 +198,10 @@ void		Request::_parseOrigin( std::string request )
 void		Request::_parseContentLength( std::string request )
 {
 	if ( !request.compare( 0, 16, "Content-Length: ") )
+	{
 		this->_contentLength = std::strtoul( request.substr( 16, ( request.find( "\0", 0 ) - 16 ) ).c_str() , NULL, 0 );
+		this->_contentLenghtStr = request.substr( 16, ( request.find( "\0", 0 ) - 16 ) );
+	}
 }
 
 void		Request::_parseContentType( std::string request )
@@ -249,7 +258,7 @@ void		Request::parseRequest(void)
 			_parseOrigin( line );
 			_parseContentLength( line );
 			_parseContentType( line );
-		}	
+		}
 		//std::cout << line << "\n";
 	}
 	/*std::cout << "*******************************************\n\n";

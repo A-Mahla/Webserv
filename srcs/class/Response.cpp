@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 14:26:42 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/02 15:45:58 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,7 +225,7 @@ const std::string	& Response::getStringResponse( void ) const
 
 /*------------BUILDING CGI ENVIRONNEMENT--------------------*/
 
-char**	Response::buildCGIenv(Request & req, Server & serv)
+char**	Response::buildCGIenv(Request const & req, Server const & serv)
 {
 	int i = 0;
 	size_t pos = 0;
@@ -238,23 +238,18 @@ char**	Response::buildCGIenv(Request & req, Server & serv)
 		pos += var[i].size() + 1;
 		i++;
 	}
-	// std::cout << "\n\n************PRINTING TEST*************\n\n";
-	// std::cout << starter << std::endl;
-	// //. . . the function take information from server and request to insert into
-	// //       starter string.
-	// // when everything is set, we split and return the char**
-
 	return (ft_split(starter.c_str(), ' '));
 }
 
 void	Response::_initVar(std::string *var, Request const & req, Server const & serv){
-	var[0] = "content_lenght"; //req.content_lenght;
-	var[1] = "content_type"; //req.content_type;
+
+	var[0] = req.getContentLengthStr();
+	var[1] = req.getContentType();
 	var[2] = "CGI/1.1";
 	var[3] = req.getPath();
-	var[4] = serv.get_root() + req.getPath().substr(1, (req.getPath().size() - 1));
-	var[5] = "queryString";//req.querySting;
-	var[6] = "originString";//req.origin;
+	var[4] = "./cgi/" + req.getPath().substr(1, (req.getPath().size() - 1));
+	var[5] = "Name=Sacha&Name2=Amir&Name3=Maxence";//req.querySting;
+	var[6] = req.getOrigin();
 	var[7] = "NULL";
 	var[8] =  "NULL"; // client_login;
 	var[9] = "NULL"; //user_login;
@@ -264,8 +259,8 @@ void	Response::_initVar(std::string *var, Request const & req, Server const & se
 		var[10] = "POST";
 	else if (req.getMethode() == DELETE)
 		var[10] = "DELETE";
-	var[11]= "test.cgi";//req.scriptName;
-	var[12] = req.getAddr();
+	var[11]= req.getPath();
+	var[12] = (static_cast<Server>(serv)).getServerName()[0];
 	var[13] = serv.getPortStr();
 	var[14] = "HTTP/1.1";
 	var[15] = "SAMserver/1.0";
