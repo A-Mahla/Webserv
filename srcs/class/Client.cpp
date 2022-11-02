@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 13:15:14 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/02 19:39:36 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,13 @@
 #include <iostream>
 #include "Client.hpp"
 
-Client::Client( void ) : _clientSock(0), _server(NULL)
+Client::Client( void ) : _clientSock(0), _readStatus(1), _server(NULL)
 {
 	if ( DEBUG )
 		std::cout << "Client Default Constructor" << std::endl;
 }
 
-Client::Client( const int sock ) : _clientSock( sock ), _server(NULL)
+Client::Client( const int sock ) : _clientSock( sock ), _readStatus(1), _server(NULL)
 {
 }
 
@@ -46,6 +46,7 @@ Client &	Client::operator=( const Client & rhs )
 		this->_response = rhs._response;
 		this->_serverList = rhs._serverList;
 		this->_server = rhs._server;
+		this->_readStatus = rhs._readStatus;
 	}
 	return ( *this );
 }
@@ -70,7 +71,21 @@ const Request	& Client::getRequest( void ) const
 	return ( this->_request );
 }
 
-void	Client::_chooseServer(void)
+void	Client::_get_good_Root(std::string path, Server *serv)
+{
+	for (std::map<std::string, Server>::iterator it = serv->getLocation().begin(); it != serv->getLocation().end(); it++)
+	{
+		if (it->first == path || (it->first[0] == '.' && it->first.substr(1, it->first.size()) == path))
+		{
+			this->_server = &it->second;
+			break ;
+		}
+		if (!it->second.getLocation().empty())
+			_get_good_Root(path, &it->second);
+	}
+}
+
+void	Client::_chooseServer( std::string path )
 {
 	_server = _serverList[0];
 	for (std::vector<Server *>::iterator it = _serverList.begin(); it != _serverList.end(); it++)
@@ -79,19 +94,34 @@ void	Client::_chooseServer(void)
 		{
 			if (*it2 == _request.getAddr())
 			{
-				_server = *it;
+				_get_good_Root( path, *it );
+				if ( !this->_server )
+					_server = *it;
 				return ;
 			}
 		}
 	}
+	_get_good_Root( path, this->_serverList[0] );
+	if ( !this->_server )
+		_server = this->_serverList[0];
 }
 
-void	Client::setRequest(char * str)
+
+void	Client::setRequest( t_epoll & epollVar, int i )
 {
-	_request.getStringRequest() = str;
-	_request.parseRequest();
-	if (!_server)
-		_chooseServer();	
+	if ( !this->_request.getIsSetRequest() )
+	{
+		if ( ( this->_readStatus = this->_request.readData( this->_clientSock, 1023, 1 ) ) <= 0 )
+			return ;
+		if ( this->_request.getIsSetRequest() )
+		{
+			this->_request.parseRequest( epollVar, i );
+			_chooseServer( this->_request.getPath() );
+		}
+	}
+	else if ( !this->_request.getIsSetBoundary() )
+	{
+	}
 }
 
 Response		& Client::getResponse( void )
@@ -120,3 +150,7 @@ Response		& Client::getResponse( Server & serv, Request & req, int fd)
 	return ( this->_response );
 }
 
+int				Client::getReadStatus( void )
+{
+	return ( this->_readStatus );
+}

@@ -6,18 +6,19 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 16:00:52 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/02 19:43:25 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __REQUEST_HPP__
 # define __REQUEST_HPP__
 
-#include <vector>
-#include <iostream>
-#include <sstream>
+# include <vector>
+# include <iostream>
+# include <sstream>
 # include <cstdlib>
 # include <map>
+# include "epoll.h"
 
 enum e_method
 {
@@ -68,7 +69,6 @@ class Request
 	public:
 
 		Request( void );
-	//	Request( itClient it, int readFd );
 		Request( const Request & rhs );
 
 		~Request( void );
@@ -78,6 +78,8 @@ class Request
 		std::string			& getStringRequest( void );
 		const std::string	& getStringRequest( void ) const;
 
+		bool			getIsSetRequest( void ) const;
+		bool			getIsSetBoundary( void ) const;
 
 		//max
 		int				getMethode() const;
@@ -93,7 +95,8 @@ class Request
 
 		std::map< std::string, std::string >	& getContentDisposition( void );
 
-		void		parseRequest(void);
+		void		parseRequest( t_epoll & epollVar, int i );
+		int			readData( int readFd, size_t bufferSize, int flag );
 };
 
 
