@@ -42,7 +42,7 @@ bool	check_end_line(std::string &line)
 			{
 				line.erase(ite, line.end());
 				return (true);
-			}   
+			}
 			return (false);
 		}
 	}
@@ -161,7 +161,7 @@ bool	get_value_map_error(std::string &rslt, std::map<std::string, std::string> &
 			while (i--)
 			{
 				if (rslt[i] == 'x')
-					rslt[i] = it->first[i]; 
+					rslt[i] = it->first[i];
 			}
 			it->second = rslt;
 			it++;
@@ -274,6 +274,7 @@ bool	portIsGood(Server & serv, std::string port)
 	if (!onlyDiggit(port) || (test = atoi(port.c_str())) > MAX_PORT || (test = atoi(port.c_str())) < MIN_PORT)
 		return (false);
 	serv.setPort(test);
+	serv.setPort(port);
 	return (true);
 }
 

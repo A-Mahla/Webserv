@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 14:24:25 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/02 12:40:41 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,22 +57,22 @@ const std::string	& Request::getStringRequest( void ) const
 	return ( this->_request );
 }
 
-int			Request::getMethode()
+int			Request::getMethode() const
 {
 	return (_method);
 }
 
-std::string	Request::getPath()
+std::string	Request::getPath() const
 {
 	return (_path);
 }
 
-std::string	Request::getPort()
+std::string	Request::getPort() const
 {
 	return (_port);
 }
 
-std::string	Request::getAddr()
+std::string	Request::getAddr() const
 {
 	return (_addr);
 }

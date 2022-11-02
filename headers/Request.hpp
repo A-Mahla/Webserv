@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 14:10:13 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/02 12:40:28 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,10 +59,10 @@ class Request
 
 
 		//max
-		int			getMethode();
-		std::string	getPath();
-		std::string	getPort();
-		std::string	getAddr();
+		int			getMethode() const;
+		std::string	getPath() const;
+		std::string	getPort() const;
+		std::string	getAddr() const;
 
 		void		parseRequest(void);
 };
