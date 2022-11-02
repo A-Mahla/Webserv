@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "iosfwd": "cpp",
+        "functional": "cpp",
+        "map": "cpp",
+        "string": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "iostream": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
+}

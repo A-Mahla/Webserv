@@ -1,5 +1,8 @@
 # include "ParseFile.hpp"
 # include <cstdlib>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <iostream>
 
 /*					Code Max		*/
 
@@ -237,7 +240,7 @@ bool	addrIsGood(Server & serv, std::string addr)
 	size_t	i = 0;
 
 	if (!addr.compare("localhost") || !addr.compare("*")){
-		serv.setAddr(INADDR_ANY);
+		serv.setAddr(inet_addr("127.0.0.1"));
 		return (true);
 	} else if (checkOccurance(addr, ".") == 3 && addrIsValid(addr)) {
 		while (i < addr.size()){
@@ -252,7 +255,7 @@ bool	addrIsGood(Server & serv, std::string addr)
 			i++;
 		}
 
-		serv.setAddr(res);
+		serv.setAddr(inet_addr(addr.c_str()));
 		return (true);
 	} else {
 		return (false);

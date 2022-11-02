@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   serv_process_mac.cpp                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/27 19:18:09 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/31 08:45:54 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,7 +128,13 @@ void	ioData( fd_set* readFds, std::vector<Client> & clients )
 				// clients[i].getRequest().getStringRequest() += buffer_read; For concatenate recv
 				clients[i].getRequest().getStringRequest() = buffer_read;
 
-				buffer_write = clients[i].getResponse().getStringResponse().c_str();
+				/*=========================*/
+				/*       max               */
+				/*=========================*/
+				buffer_write = clients[i].getResponse(clients[i].getServer(), clients[i].getRequest()).getStringResponse().c_str();
+				/*=========================*/
+
+				
 				std::cout << GREEN << "Server side receive from client : " << clients[i].getRequest().getStringRequest() << SET << std::endl;
 				if ( send( clients[i].getSock(), buffer_write, strlen(buffer_write), 0 ) < 0 )
 					std::cout << RED << "Connexion client lost" << SET << std::endl;

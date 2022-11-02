@@ -6,14 +6,16 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/28 11:49:17 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/02 12:04:21 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <netinet/in.h>
-#include "defines.h"
+#include "../../headers/defines.h"
 #include <iostream>
 #include "Server.hpp"
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
 /*									Value Default:									*/
 /*																					*/
@@ -25,7 +27,7 @@
 /*	index		(index.html)	=> parse :	index	index.html				/ none	*/
 /*	root		(html/)			=> parse :	root	html/					/ none	*/
 
-Server::Server( void ) : _servSock(0), _port(8080), _addr(INADDR_ANY), _clientBody(16000), _autoindex( false ), _root("html/")
+Server::Server( void ) : _servSock(0), _port(8080), _inetAddr(INADDR_ANY), _clientBody(16000), _autoindex( false ), _root("html/")
 {
 	if ( DEBUG )
 		std::cout << "Server Default Constructor" << std::endl;
@@ -62,7 +64,6 @@ Server &			Server::operator=( const Server & rhs )
 		this->_serverName = rhs._serverName;
 		this->_servSock = rhs._servSock;
 		this->_port = rhs._port;
-		this->_addr = rhs._addr;
 		this->_clientBody = rhs._clientBody;
 		this->_root = rhs._root;
 		this->_index = rhs._index;
@@ -70,6 +71,7 @@ Server &			Server::operator=( const Server & rhs )
 		this->_is_set = rhs._is_set;
 		this->_location = rhs._location;
 		this->_autoindex = rhs._autoindex;
+		this->_inetAddr = rhs._inetAddr;
 	}
 	return ( *this );
 }
@@ -99,14 +101,24 @@ std::map< std::string, Server >			& Server::getLocation( void )
 	return ( this->_location );
 }
 
-const int								& Server::getPort( void ) const
+const short								& Server::getPort( void ) const
 {
 	return ( this->_port );
 }
 
-const int								& Server::getAddr( void ) const
+short									& Server::getPort( void )
 {
-	return( this->_addr );
+	return ( this->_port );
+}
+
+const in_addr_t							& Server::getInetAddr( void ) const
+{
+	return (this->_inetAddr);
+}
+
+in_addr_t								& Server::getInetAddr( void )
+{
+	return (this->_inetAddr);
 }
 
 std::map< std::string, std::string >	& Server::get_error_pages(void)
@@ -155,9 +167,9 @@ void									Server::setSock( const int servSock )
 	this->_servSock = servSock;
 }
 
-void									Server::setAddr( const int addr )
+void									Server::setAddr(in_addr_t addr)
 {
-	this->_addr = addr;
+	this->_inetAddr = addr;
 }
 
 void									Server::setPort( const int port )
@@ -188,13 +200,13 @@ std::ostream	& operator<<( std::ostream & o, Server rhs )
 	o << "	socket_fd :	" << rhs.getSock() << std::endl;
 	o << "	port:		" << rhs.getPort() << std::endl;
 	o << "	addr:		";
-	for ( int i = 3, bit = 24; i >= 0; i-- )
+	for ( int i = 3, bit = 0; i >= 0; i-- )
 	{
-		int addr = (rhs.getAddr() >> bit) & 255;
+		int addr = ( rhs.getInetAddr() >> bit) & 255;
 		o << addr;
 		if ( i )
 			o << ".";
-		bit -= 8;
+		bit += 8;
 	}
 	o << std::endl << "	clientbody:	" << rhs.get_clientBody() << std::endl;
 	o << "	autoindex:	" << (rhs.getAutoindex() ? "true" : "false") << std::endl;

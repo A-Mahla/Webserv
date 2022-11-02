@@ -3,22 +3,47 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/23 20:31:52 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/01 14:10:13 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __REQUEST_HPP__
 # define __REQUEST_HPP__
 
+#include <vector>
+#include <iostream>
+#include <sstream>
+
+enum e_method
+{
+    BAD_REQUEST,
+    GET,
+    POST,
+    DELETE
+};
+
 class Request
 {
 
 	private:
 
-		std::string	_request;
+		std::string					_request;
+		e_method					_method;
+		std::string					_path;
+		std::string					_port;
+		std::string					_addr;
+		std::vector<std::string>	_accept;
+
+
+		//max
+		void	_parseMethodAndPath(std::string request);
+		void	_parseAccept( std::string request );
+		void	_parseHost( std::string str_const );
+		bool	_getPath(std::string request);
+
 
 	public:
 
@@ -32,6 +57,14 @@ class Request
 		std::string			& getStringRequest( void );
 		const std::string	& getStringRequest( void ) const;
 
+
+		//max
+		int			getMethode();
+		std::string	getPath();
+		std::string	getPort();
+		std::string	getAddr();
+
+		void		parseRequest(void);
 };
 
 

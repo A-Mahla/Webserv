@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseFile.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:38:07 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/27 17:14:43 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/01 08:32:39 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ class ParseFile
 		std::vector<Server>	& getServers( void );
 
 		void	readContent( std::ifstream & ifs, std::string temp,
-			const std::string file, Server *parent );
+		const std::string file, Server *parent );
 		void	FormatFile( std::ifstream & ifs, std::string temp );
 		void	readFile( const char *file );
 

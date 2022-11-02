@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseFile.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/27 20:26:07 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/01 08:33:31 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # include "ParseFile.hpp"
 # include <fstream>
 # include "WebServException.hpp"
+
 
 ParseFile::ParseFile( const char *av )
 {
@@ -84,7 +85,7 @@ void	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::s
 				it != server.getMap().end(); it++ )
 			it->second = false;
 	}
-	
+
 	while ( std::getline( ifs, temp ).good() )
 	{
 		i = 0;
@@ -108,8 +109,12 @@ void	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::s
 		}
 
 		for ( j = 0; j < 7 ; j++ )
+		{
+			if ( parent && ( j == 5 || j == 0 || j == 2 ))
+				continue ;
 			if ( (this->*_ft[j])( temp.c_str() + i, server ) )
 				break ;
+		}
 		if ( j == 7 && !setLocation( ifs, temp.c_str() + i, server ) )
 			throw WebServException( "ParseFile.cpp", "readFile", "Invalid format config file" );
 	}
@@ -119,7 +124,7 @@ void	ParseFile::FormatFile( std::ifstream & ifs, std::string temp )
 {
 	int	i;
 
-	do 
+	do
 	{
 		i = 0;
 		i += whileSpace( temp.c_str() + i );
@@ -127,7 +132,7 @@ void	ParseFile::FormatFile( std::ifstream & ifs, std::string temp )
 			continue ;
 		if ( temp[i] && temp.compare( i, 6, "server" ) != 0 )
 			throw WebServException( "ParseFile.cpp", "readFile", "Invalid format config file" );
-		else 
+		else
 		{
 			i += 6;
 			i += whileSpace( temp.c_str() + i );
@@ -151,7 +156,7 @@ void	ParseFile::readFile( const char *file )
 {
 	std::ifstream		ifs( file, std::ifstream::in );
 	std::string			temp;
-	
+
 	if ( !ifs.is_open() )
 		throw WebServException( "ParseFile.cpp", "readFile", "File not found" );
 	std::getline( ifs, temp );
@@ -175,7 +180,7 @@ bool	ParseFile::setServerName( const std::string str, Server & server )
 		while ( str[i] && str[i] != ';' )
 		{
 			i += whileSpace( str.c_str() + i );
-			if ( str.compare( i, 3, "\"\"" ) == 0 ) 
+			if ( str.compare( i, 3, "\"\"" ) == 0 )
 				i += 2;
 			if ( str[i] == ';' )
 				break ;
@@ -193,13 +198,13 @@ bool	ParseFile::setServerName( const std::string str, Server & server )
 
 	server.getMap()["server_name"] = true;
 	return ( true );
-}	
+}
 
 bool	ParseFile::setLocation( std::ifstream & ifs, std::string temp, Server & server )
 {
 	std::string	file;
 	int			i = 0;
-	
+
 	try
 	{
 		if ( temp.compare( i, 8, "location" ) != 0 )
@@ -297,7 +302,7 @@ bool	ParseFile::root(const std::string line_const, Server &server)
 
 	server.set_is_set("root");
 
-	if ( *(rslt.rend()) != '/' )
+	if ( *(rslt.rbegin()) != '/' )
 		back_slash = "/";
 	server.set_root(rslt + back_slash);
 
@@ -315,7 +320,6 @@ bool	ParseFile::index(const std::string line_const, Server &server)
 
 	if (!get_the_info_i_need(line, "index", rslt))
 		return (false);
-
 	it = rslt.begin();
 	while (it != rslt.end())
 	{
@@ -338,12 +342,9 @@ bool	ParseFile::index(const std::string line_const, Server &server)
 	}
 	if ( server.get_is_set("index") )
 		return (false);
-
 	std::vector<std::string> &index_vector = server.get_index();
 	index_vector.insert(index_vector.end(), temp.begin(), temp.end());
-
 	server.set_is_set("index");
-
 	//default value: index.html
 	return (true);
 }
@@ -374,7 +375,7 @@ bool	ParseFile::listenParse( const std::string str_const, Server & serv )
 				return (true);
 			}
 		}
-		else 
+		else
 		{
 			if ( addrIsGood(serv, str.substr(i, str.find(";", 0) - i)) ){
 				serv.setPort(8080);
@@ -382,14 +383,14 @@ bool	ParseFile::listenParse( const std::string str_const, Server & serv )
 				return (true);
 			} else if ( portIsGood(serv, str.substr(i, str.find(";", 0) - i)) ) {
 				serv.set_is_set( "listen" );
-				serv.setAddr(INADDR_ANY);
+				serv.setAddr((in_addr_t) INADDR_ANY);
 				return (true);
 			} else {
 				return (false);
 			}
 		}
 	}
-
+	serv.setAddr((in_addr_t) INADDR_ANY);
 	return (false);
 }
 
