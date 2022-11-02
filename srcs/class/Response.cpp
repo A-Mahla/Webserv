@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 14:24:33 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/02 14:26:42 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,7 @@ Response::Response(Server & serv, Request & req) : _server(NULL), _status(0)
 		for (int i = 0; *(test + i); i++)
 			std::cout << *(test + i) << std::endl;
 		std::cout << "\n\n-----------------------------------\n\n";
+
 		_response += "HTTP/1.1 200 OK\n";
 		_response += "Content-Type: text/html\r\n";
 		_response += "Content-Length: ";
