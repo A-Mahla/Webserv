@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 14:10:13 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/02 14:05:44 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
+# include <cstdlib>
+# include <map>
 
 enum e_method
 {
@@ -31,11 +33,21 @@ class Request
 	private:
 
 		std::string					_request;
+
+		bool						_isSetRequest;
+		bool						_isSetBoundary;
+
+		size_t						_contentLength;
+		std::string					_contentType;
+		std::string					_boundary;
+		std::string					_origin;
 		e_method					_method;
 		std::string					_path;
 		std::string					_port;
 		std::string					_addr;
 		std::vector<std::string>	_accept;
+
+		std::map< std::string, std::string >	_contentDisposition;
 
 
 		//max
@@ -43,6 +55,12 @@ class Request
 		void	_parseAccept( std::string request );
 		void	_parseHost( std::string str_const );
 		bool	_getPath(std::string request);
+
+		//amir
+		void		_parseOrigin( std::string request );
+		void		_parseContentLength( std::string request );
+		void		_parseContentType( std::string request );
+		void		_parseContentDisposition( std::string request );
 
 
 	public:
@@ -59,10 +77,17 @@ class Request
 
 
 		//max
-		int			getMethode();
-		std::string	getPath();
-		std::string	getPort();
-		std::string	getAddr();
+		int				getMethode() const;
+		std::string		getPath() const;
+		std::string		getPort() const;
+		std::string		getAddr() const;
+
+		size_t			getContentLength( void ) const;
+		std::string		getContentType( void ) const;
+		std::string		getBoundary( void ) const;
+		std::string		getOrigin( void ) const;
+
+		std::map< std::string, std::string >	& getContentDisposition( void );
 
 		void		parseRequest(void);
 };

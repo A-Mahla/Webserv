@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 19:36:10 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/02 13:22:36 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ Server &			Server::operator=( const Server & rhs )
 		this->_location = rhs._location;
 		this->_autoindex = rhs._autoindex;
 		this->_inetAddr = rhs._inetAddr;
+		this->_portStr = rhs._portStr;
 	}
 	return ( *this );
 }
@@ -109,6 +110,11 @@ const short								& Server::getPort( void ) const
 short									& Server::getPort( void )
 {
 	return ( this->_port );
+}
+
+std::string const 						& Server::getPortStr(void) const
+{
+	return (this->_portStr);
 }
 
 const in_addr_t							& Server::getInetAddr( void ) const
@@ -177,12 +183,18 @@ void									Server::setPort( const int port )
 	this->_port = port;
 }
 
+void									Server::setPort( std::string const & port )
+{
+	this->_portStr = port;
+}
+
+
 void									Server::setAutoindex( bool onOff )
 {
 	this->_autoindex = onOff;
 }
 
-bool									Server::getAutoindex( void ) const 
+bool									Server::getAutoindex( void ) const
 {
 	return ( this->_autoindex);
 }

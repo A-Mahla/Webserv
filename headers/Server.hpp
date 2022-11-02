@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 19:34:55 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/02 13:16:02 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class Server
 		std::vector< std::string >			_serverName;
 		int									_servSock;
 		short								_port;
+		std::string							_portStr;
 		int									_addr;
 		in_addr_t							_inetAddr;
 		int									_clientBody;
@@ -61,6 +62,7 @@ class Server
 		std::map< std::string, Server >			& getLocation( void );
 		const short								& getPort( void ) const;
 		short									& getPort( void );
+		std::string const 						& getPortStr(void) const;
 		const in_addr_t							& getInetAddr( void ) const;
 		in_addr_t								& getInetAddr( void );
 		int										get_clientBody( void ) const;
@@ -74,6 +76,7 @@ class Server
 		void									setSock( const int sock );
 		void									setAddr( in_addr_t addr );
 		void									setPort( const int port );
+		void									setPort( std::string const & port);
 
 
 };
