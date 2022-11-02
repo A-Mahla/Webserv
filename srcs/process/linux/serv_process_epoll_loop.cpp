@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 15:23:39 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/02 19:37:14 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ void	sendData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, i
 {
 		const char	*buffer_write = it->getResponse(*(it->getServer()), it->getRequest(), epollVar.events[i].data.fd).getStringResponse().c_str();
 		
-		if (strcmp(buffer_write, "POST") == 0 ||  send( epollVar.events[i].data.fd, buffer_write, strlen(buffer_write), 0 ) < 0 )
+		if (strcmp(buffer_write, "POST") != 0 &&  send( epollVar.events[i].data.fd, buffer_write, strlen(buffer_write), 0 ) < 0 )
 		{
 			std::cout << RED << "Connexion client lost" << SET << std::endl;
 			clients.erase( it );
@@ -71,7 +71,6 @@ void	sendData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, i
 			close( epollVar.events[i].data.fd );
 		}
 		
-
 		epollVar.new_event.events = EPOLLIN;
 		epollVar.new_event.data.fd = epollVar.events[i].data.fd;
 		epoll_ctl(epollVar.epollFd, EPOLL_CTL_MOD, epollVar.events[i].data.fd, &epollVar.new_event);
@@ -178,6 +177,7 @@ void	servProcess( std::vector<Server> & servers, std::vector<Client> & clients, 
 				continue ;
 			if ( !newConnection( clients, servers, epollVar, i ) )
 				ioData( clients, epollVar, i );
+
 		}
 	}
 }

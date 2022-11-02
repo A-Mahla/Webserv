@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 13:04:05 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/02 18:47:26 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,10 @@ class Response
 		int			_status;
 		char    	**_getArgv(std::string script);
 		void    	_clear_argv(char **argv);
-		void    	_execCGI(void);
+		void    	_execCGI(char **env);
 		
 
+		void	_initVar(std::string *var, Request const & req, Server const & serv);
 	public:
 
 		Response( void );
@@ -61,7 +62,15 @@ class Response
 
 		void				GET_response(Server &serv, Request &req);
 		void				POST_response(Server &serv, Request &req);
+		/*----------BUILDING CGI ENVIRONNEMENT---------------------*/
+		char**				buildCGIenv(Request const & req, Server const & serv);
+		char**				ft_split(char const *s, char c);
+
 };
 
+char	*ft_find_wrd(char const *s, char set, int wordneeded);
+char	*ft_get_wrd(char const *s, int e);
+int		ft_count_wrd(char const *s, char c);
+int		ft_o(char c1, char c2);
 
 #endif

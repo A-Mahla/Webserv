@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 17:35:35 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/02 17:10:19 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,22 @@
 #include "ParseFile.hpp"
 #include <sstream>
 
-Request::Request( void )
+Request::Request( void ) : _isSetRequest(false), _isSetBoundary(false),
+	_contentLength(0)
 {
 	if ( DEBUG )
 		std::cout << "Request Default Constructor" << std::endl;
 }
 
-Request::Request( const Request & rhs )
+/*Request::Request( itClient it, int readFd ) : _isSetRequest(false), _isSetBoundary(false),
+	_contentLength(0)
+{
+	if ( DEBUG )
+		std::cout << "Request Default Constructor" << std::endl;
+}*/
+
+Request::Request( const Request & rhs ) : _isSetRequest(false),
+	_isSetBoundary(false), _contentLength(0)
 {
 	if ( DEBUG )
 		std::cout << "Request copy Constructor" << std::endl;
@@ -39,6 +48,18 @@ Request &	Request::operator=( const Request & rhs )
 	if ( this != &rhs )
 	{
 		this->_request = rhs._request;
+		this->_isSetRequest = rhs._isSetRequest;
+		this->_isSetBoundary = rhs._isSetBoundary;
+		this->_contentLength = rhs._contentLength;
+		this->_contentType = rhs._contentType;
+		this->_boundary = rhs._boundary;
+		this->_method = rhs._method;
+		this->_path = rhs._path;
+		this->_port = rhs._port;
+		this->_addr = rhs._addr;
+		this->_accept = rhs._accept;
+		this->_contentDisposition = rhs._contentDisposition;
+		this->_origin = rhs._origin;
 		this->_path = rhs._path;
 		this->_port = rhs._port;
 		this->_addr = rhs._addr;
@@ -57,22 +78,22 @@ const std::string	& Request::getStringRequest( void ) const
 	return ( this->_request );
 }
 
-int			Request::getMethode()
+int			Request::getMethode() const
 {
 	return (_method);
 }
 
-std::string	Request::getPath()
+std::string	Request::getPath() const
 {
 	return (_path);
 }
 
-std::string	Request::getPort()
+std::string	Request::getPort() const
 {
 	return (_port);
 }
 
-std::string	Request::getAddr()
+std::string	Request::getAddr() const
 {
 	return (_addr);
 }
@@ -147,6 +168,77 @@ void		Request::_parseMethodAndPath(std::string request)
 	}
 }
 
+size_t			Request::getContentLength( void ) const
+{
+	return ( this->_contentLength );
+}
+
+std::string const & Request::getContentLengthStr( void ) const
+{
+	return ( this->_contentLenghtStr );
+}
+
+
+std::string		Request::getContentType( void ) const
+{
+	return ( this->_contentType );
+}
+
+std::string		Request::getBoundary( void ) const
+{
+	return ( this->_boundary );
+}
+
+std::string		Request::getOrigin( void ) const
+{
+	return ( this->_origin );
+}
+
+std::map< std::string, std::string >	& Request::getContentDisposition( void )
+{
+	return ( this->_contentDisposition );
+}
+
+void		Request::_parseOrigin( std::string request )
+{
+	if ( !request.compare( 0, 8, "Origin: ") )
+		this->_origin = request.substr( 8, ( request.size() - 8 ) );
+}
+
+void		Request::_parseContentLength( std::string request )
+{
+	if ( !request.compare( 0, 16, "Content-Length: ") )
+	{
+		this->_contentLength = std::strtoul( request.substr( 16, ( request.find( "\0", 0 ) - 16 ) ).c_str() , NULL, 0 );
+		this->_contentLenghtStr = request.substr( 16, ( request.find( "\0", 0 ) - 16 ) );
+	}
+}
+
+void		Request::_parseContentType( std::string request )
+{
+	if ( !request.compare( 0, 14, "Content-Type: ") && request.find( "boundary=", 0 ) != std::string::npos )
+	{
+		this->_contentType = request.substr( 14, ( request.find( ";", 0 ) - 14 ) );
+		this->_boundary = request.substr( request.find_last_of( "-" ) + 1,
+			request.find( "\0", 0 ) - request.find_last_of( "-" ) + 1 );
+	}
+	else if ( !request.compare( 0, 14, "Content-Type: ") )
+		this->_contentType = request.substr( 14, ( request.find( "\0", 0 ) - 14 ) );
+}
+
+void		Request::_parseContentDisposition( std::string request )
+{
+	if ( !request.compare( 0, 21, "Content-Disposition: ") )
+	{
+		this->_contentDisposition["content-type"] = request.substr( 21, ( request.find( ";", 0 ) - 21 ) );
+
+		this->_contentDisposition["name"] = request.substr( request.find( "=", 0 ) + 2,
+			( (request.find_last_of( ";" ) - 1) - (request.find( "=", 0 ) + 2 )) );
+
+		this->_contentDisposition["filename"] = request.substr( request.find_last_of( "=" ) + 2,
+			 ( request.size() - 1 ) - ( request.find_last_of( "=" ) + 2  ) );
+	}
+}
 
 void		Request::parseRequest(void)
 {
@@ -161,10 +253,23 @@ void		Request::parseRequest(void)
 	{
 		std::getline(ss, line);
 		_parseMethodAndPath(line);
-		_parseHost(line);
-		_parseAccept(line);
-		_checkUserAgent(line);
-		//std::cout << line << "\n";
+		if ( this->_method == GET )
+		{
+			_parseHost(line);
+			_parseAccept(line);
+			_parseOrigin( line );
+		}
+		else if ( this->_method == DELETE )
+			_parseHost(line);
+		else if ( this->_method == POST )
+		{
+			_parseHost(line);
+			_parseAccept(line);
+			_parseOrigin( line );
+			_parseContentLength( line );
+			_parseContentType( line );
+		}
+		std::cout << line << "\n";
 	}
 	std::cout << "*******************************************\n\n";
 	std::cout << "\n\n*********PRINTING THE PARSING**********\n\n";
@@ -182,3 +287,4 @@ void		Request::parseRequest(void)
 		std::cout << ">>" << "\n";
 		std::cout << "\n\n***********************************\n\n";
 }
+

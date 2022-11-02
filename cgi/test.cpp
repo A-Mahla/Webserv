@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 09:33:17 by meudier           #+#    #+#             */
-/*   Updated: 2022/11/02 15:20:09 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/02 19:36:46 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,17 +49,37 @@ std::string readFile(std::string path)
 	return (file_content);
 }
 
+std::string getNames(std::string qs)
+{
+    size_t pos = 0;
+    size_t temp_pos = 0;
+    
+    while ( (pos = qs.find("=", temp_pos - pos) ) != std::string::npos )
+    {
+        pos++;
+        qs.erase(temp_pos,  pos - temp_pos);
+        temp_pos = pos;
+    }
+    return (qs);
+}
+
 int main()
 {
+    char *qs =  getenv("QUERY_STRING");
+    if (!qs)
+        return (0);
+    std::string queryString = qs;
+    std::string names = getNames(queryString);
+
+    
     std::string content_body = readFile("./html/test.html");
-    std::string name = "MAXENCE";
     std::string insertNameHere = "Bienvenue sur notre webserv ";
     std::string line;
     size_t      pos = 0;
     size_t      pos_temp = 0;
     size_t      insert_pos = 0;
     std::stringstream ss;
-    ss << content_body.size() + name.size();
+    ss << content_body.size() + names.size();
     
     /*==========================*/     
     /*    make header whith env */     
@@ -80,8 +100,8 @@ int main()
         line = content_body.substr(pos_temp, pos - pos_temp);
         if ((insert_pos = line.find(insertNameHere, 0)) != std::string::npos)
         {
-            content_body.insert(pos_temp + insert_pos + insertNameHere.size(), name);
-            pos += name.size();
+            content_body.insert(pos_temp + insert_pos + insertNameHere.size(), names);
+            pos += names.size();
         }
         std::cout << content_body.substr(pos_temp, pos - pos_temp);
         pos_temp = pos;

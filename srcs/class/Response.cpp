@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 15:52:40 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/02 19:37:08 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 #include "webserv.h"
 #include <fstream>
 #include <sstream>
+#include <cstdlib>
+#include <cstring>
 
 
 /*=====================*/
@@ -41,7 +43,7 @@ Response::Response( void ) : _server(NULL), _status(0)
 #include <fcntl.h>
 #include <stdlib.h>
 
-
+#define NB_ELEMENTS 17
 Server	*Response::getServer(void)
 {
 	return (_server);
@@ -137,9 +139,12 @@ void	Response::GET_response(Server & serv, Request & req)
 
 void	Response::POST_response(Server &serv, Request &req)
 {
-	(void) serv;
-	(void) req;
-	_execCGI();
+	char **env = buildCGIenv(req, serv);
+	/*std::cout << "\n\n--------------ENV------------------\n\n";
+	for (int i = 0; *(test + i); i++)
+		std::cout << *(test + i) << std::endl;
+	std::cout << "\n\n-----------------------------------\n\n";*/
+	_execCGI(env);
 }
 
 Response::Response(Server & serv, Request & req, int fd) : _server(NULL), _status(0)
@@ -147,20 +152,12 @@ Response::Response(Server & serv, Request & req, int fd) : _server(NULL), _statu
 	if ( DEBUG )
 		std::cout << "Response request Constructor" << std::endl;
 
-	_response.clear();
+//	_response.clear();
 	_fd = fd;
 	if (req.getMethode() == GET)
 		GET_response(serv, req);
 	else if ( req.getMethode() == POST)
-	{
-		/*SACHANT QUE C'EST UNE METHODE POST, ON CHECK SI IL Y A UN CGI ET SI IL EST UTILISABLE*/
-		//if (_cgiCheck(req.getPath()))
-		//	execCGI(buildEnvVar(serv, req));
-		/*SI OUI, LS FONCTION execCGI PREND UN CHAR** POUR EXEC LE CGI,
-		 char** RENVOYE PAR LA FONCTION buildEnvVar() */
-		 /*VOIR FICHIER test/environnementVarCGI.cpp pour les prototype des fonctions*/
 		POST_response(serv, req);
-	}
 	else if ( req.getMethode() == DELETE)
 	{
 		_response += "HTTP/1.1 200 OK\n";
@@ -230,8 +227,9 @@ const std::string	& Response::getStringResponse( void ) const
 //cgi
 char    **Response::_getArgv(std::string script)
 {
-    char**  argv = new char*[1];
+    char**  argv = new char*[2];
     argv[0] = strdup(script.c_str());
+	argv[1] = NULL;
     return (argv);
 }
 
@@ -241,7 +239,9 @@ void    Response::_clear_argv(char **argv)
     delete [] argv;
 }
 
-void    Response::_execCGI(void)
+# include <stdio.h>
+
+void    Response::_execCGI(char **env)
 {
     int pid;
     std::string     script = "./cgi/test.cgi";
@@ -257,8 +257,17 @@ void    Response::_execCGI(void)
     if (pid == 0)
     {
         dup2(this->_fd, STDOUT_FILENO);
-        execve(script.c_str(), argv, NULL );
-        std::cout << "error execve" << std::endl;
+
+        execve(script.c_str(), argv, env );
+		
+		std::cout << "HTTP/1.1 200 OK\n";
+		std::cout << "Content-Type: text/html\r\n";
+		std::cout << "Content-Length: ";
+		std::cout << "12";
+		std::cout << "\n\n";
+		std::cout << "error execve";
+		std::cout << "\r\n\r\n";
+    
         close(this->_fd);
         _clear_argv(argv);
 		exit(1);
@@ -266,4 +275,135 @@ void    Response::_execCGI(void)
     wait(NULL);
     _clear_argv(argv);
 	_response = "POST";
+	
 }
+
+/*------------BUILDING CGI ENVIRONNEMENT--------------------*/
+
+char**	Response::buildCGIenv(Request const & req, Server const & serv)
+{
+	int i = 0;
+	size_t pos = 0;
+	std::string	starter = "CONTENT_LENGTH= CONTENT_TYPE= GATEWAY_INTERFACE= PATH_INFO= PATH_TRANSLATED= QUERY_STRING= REMOTE_ADDR= REMOTE_HOST= REMOTE_IDENT= REMOTE_USER= REQUEST_METHOD= SCRIPT_NAME= SERVER_NAME= SERVER_PORT= SERVER_PROTOCOL= SERVER_SOFTWARE= HTTP_COOKIE= ";
+	std::string	var[NB_ELEMENTS];
+
+	_initVar(var, req, serv);
+	while ((pos = starter.find(" ", pos)) != std::string::npos){
+		starter.insert(pos, var[i]);
+		pos += var[i].size() + 1;
+		i++;
+	}
+	return (ft_split(starter.c_str(), ' '));
+}
+
+void	Response::_initVar(std::string *var, Request const & req, Server const & serv){
+
+	var[0] = req.getContentLengthStr();
+	var[1] = req.getContentType();
+	var[2] = "CGI/1.1";
+	var[3] = req.getPath();
+	var[4] = "./cgi/" + req.getPath().substr(1, (req.getPath().size() - 1));
+	var[5] = "Name=Sacha&Name2=Amir&Name3=Maxence";//req.querySting;
+	var[6] = req.getOrigin();
+	var[7] = "NULL";
+	var[8] =  "NULL"; // client_login;
+	var[9] = "NULL"; //user_login;
+	if (req.getMethode() == GET)
+		var[10] = "GET";
+	else if (req.getMethode() == POST)
+		var[10] = "POST";
+	else if (req.getMethode() == DELETE)
+		var[10] = "DELETE";
+	var[11]= req.getPath();
+	var[12] = (static_cast<Server>(serv)).getServerName()[0];
+	var[13] = serv.getPortStr();
+	var[14] = "HTTP/1.1";
+	var[15] = "SAMserver/1.0";
+	var[16] = "COOKIE";//req.cookieString;
+}
+
+/*---------------------- split --------------------*/
+
+int	ft_o(char c1, char c2)
+{
+	if (c1 == c2)
+		return (1);
+	else
+		return (0);
+}
+
+int	ft_count_wrd(char const *s, char c)
+{
+	int	wrdcount;
+	int	i;
+
+	i = 1;
+	wrdcount = 0;
+	if (!s[0])
+		return (wrdcount);
+	while (1)
+	{
+		if ((ft_o(s[i], c) && !ft_o(s[i - 1], c))
+			|| (!s[i] && !ft_o(s[i - 1], c)))
+			wrdcount++;
+		if (!s[i])
+			break ;
+		i++;
+	}
+	return (wrdcount);
+}
+
+char	*ft_get_wrd(char const *s, int e)
+{
+	char	*str;
+	int		i;
+
+	i = -1;
+	str = reinterpret_cast<char *>(malloc(sizeof(char) * (e + 1)));
+	if (!str)
+		return (NULL);
+	while (++i < e)
+		str[i] = s[i];
+	str[i] = 0;
+	return (str);
+}
+
+char	*ft_find_wrd(char const *s, char set, int wordneeded)
+{
+	int	i;
+	int	e;
+
+	i = 0;
+	e = 0;
+	while (i <= wordneeded)
+	{
+		while (ft_o(*s, set))
+			s++;
+		while (!ft_o(s[e], set) && s[e])
+			e++;
+		if (i == wordneeded)
+			return (ft_get_wrd(s, e));
+		s += e;
+		e = 0;
+		i++;
+	}
+	return (NULL);
+}
+
+char**	Response::ft_split(char const *s, char c)
+{
+	char	**strs;
+	int		nbwrd;
+	int		i;
+
+	nbwrd = ft_count_wrd(s, c);
+	strs = reinterpret_cast<char **>(malloc(sizeof(char *) * (nbwrd + 1)));
+	if (!strs)
+		return (NULL);
+	i = -1;
+	while (++i < nbwrd)
+		*(strs + i) = ft_find_wrd(s, c, i);
+	*(strs + i) = NULL;
+	return (strs);
+}
+
