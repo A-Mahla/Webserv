@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 14:05:44 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/02 14:29:39 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ class Request
 	public:
 
 		Request( void );
+	//	Request( itClient it, int readFd );
 		Request( const Request & rhs );
 
 		~Request( void );

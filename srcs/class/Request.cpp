@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 14:14:12 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/02 14:29:51 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,13 @@ Request::Request( void ) : _isSetRequest(false), _isSetBoundary(false),
 	if ( DEBUG )
 		std::cout << "Request Default Constructor" << std::endl;
 }
+
+/*Request::Request( itClient it, int readFd ) : _isSetRequest(false), _isSetBoundary(false),
+	_contentLength(0)
+{
+	if ( DEBUG )
+		std::cout << "Request Default Constructor" << std::endl;
+}*/
 
 Request::Request( const Request & rhs ) : _isSetRequest(false),
 	_isSetBoundary(false), _contentLength(0)
@@ -41,6 +48,18 @@ Request &	Request::operator=( const Request & rhs )
 	if ( this != &rhs )
 	{
 		this->_request = rhs._request;
+		this->_isSetRequest = rhs._isSetRequest;
+		this->_isSetBoundary = rhs._isSetBoundary;
+		this->_contentLength = rhs._contentLength;
+		this->_contentType = rhs._contentType;
+		this->_boundary = rhs._boundary;
+		this->_method = rhs._method;
+		this->_path = rhs._path;
+		this->_port = rhs._port;
+		this->_addr = rhs._addr;
+		this->_accept = rhs._accept;
+		this->_contentDisposition = rhs._contentDisposition;
+		this->_origin = rhs._origin;
 		this->_path = rhs._path;
 		this->_port = rhs._port;
 		this->_addr = rhs._addr;
@@ -139,54 +158,6 @@ void		Request::_parseMethodAndPath(std::string request)
 	}
 }
 
-void		Request::parseRequest(void)
-{
-	std::string			line;
-	std::stringstream 	ss;
-	size_t				pos;
-
-	ss << this->_request;
-	while ((pos = _request.find("\r")) != std::string::npos)
-	  	_request.erase(pos, 1);
-	while (!ss.eof())
-	{
-		std::getline(ss, line);
-		_parseMethodAndPath(line);
-		if ( this->_method == GET )
-		{
-			_parseHost(line);
-			_parseAccept(line);
-			_parseOrigin( line );
-		}
-		else if ( this->_method == DELETE )
-			_parseHost(line);
-		else if ( this->_method == POST )
-		{
-			_parseHost(line);
-			_parseAccept(line);
-			_parseOrigin( line );
-			_parseContentLength( line );
-			_parseContentType( line );
-		}	
-		//std::cout << line << "\n";
-	}
-	/*std::cout << "*******************************************\n\n";
-	std::cout << "\n\n*********PRINTING THE PARSING**********\n\n";
-
-		std::cout << "method = " << _method << "\n";
-		std::cout << "_addr = " << _addr << "\n";
-		std::cout << "port = " << _port << "\n";
-		std::cout << "_path = " << _path << "\n";
-
-		std::cout << "accept options :\n";
-		std::cout << "<<\n";
-		for (std::vector<std::string>::iterator it = _accept.begin(); it != _accept.end(); it++){
-			std::cout << *it << "\n";
-		}
-		std::cout << ">>" << "\n";
-		std::cout << "\n\n***********************************\n\n";*/
-}
-
 size_t			Request::getContentLength( void ) const
 {
 	return ( this->_contentLength );
@@ -249,3 +220,52 @@ void		Request::_parseContentDisposition( std::string request )
 			 ( request.size() - 1 ) - ( request.find_last_of( "=" ) + 2  ) );
 	}
 }
+
+void		Request::parseRequest(void)
+{
+	std::string			line;
+	std::stringstream 	ss;
+	size_t				pos;
+
+	ss << this->_request;
+	while ((pos = _request.find("\r")) != std::string::npos)
+	  	_request.erase(pos, 1);
+	while (!ss.eof())
+	{
+		std::getline(ss, line);
+		_parseMethodAndPath(line);
+		if ( this->_method == GET )
+		{
+			_parseHost(line);
+			_parseAccept(line);
+			_parseOrigin( line );
+		}
+		else if ( this->_method == DELETE )
+			_parseHost(line);
+		else if ( this->_method == POST )
+		{
+			_parseHost(line);
+			_parseAccept(line);
+			_parseOrigin( line );
+			_parseContentLength( line );
+			_parseContentType( line );
+		}	
+		//std::cout << line << "\n";
+	}
+	/*std::cout << "*******************************************\n\n";
+	std::cout << "\n\n*********PRINTING THE PARSING**********\n\n";
+
+		std::cout << "method = " << _method << "\n";
+		std::cout << "_addr = " << _addr << "\n";
+		std::cout << "port = " << _port << "\n";
+		std::cout << "_path = " << _path << "\n";
+
+		std::cout << "accept options :\n";
+		std::cout << "<<\n";
+		for (std::vector<std::string>::iterator it = _accept.begin(); it != _accept.end(); it++){
+			std::cout << *it << "\n";
+		}
+		std::cout << ">>" << "\n";
+		std::cout << "\n\n***********************************\n\n";*/
+}
+
