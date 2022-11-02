@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 13:18:16 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/02 14:24:33 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -265,7 +265,6 @@ void	Response::_initVar(std::string *var, Request const & req, Server const & se
 		var[10] = "DELETE";
 	var[11]= "test.cgi";//req.scriptName;
 	var[12] = req.getAddr();
-	std::cout << "TESSSSSSSSSSSSSSSSSSSSSSSSSST " << serv.getPortStr() << std::endl;
 	var[13] = serv.getPortStr();
 	var[14] = "HTTP/1.1";
 	var[15] = "SAMserver/1.0";
