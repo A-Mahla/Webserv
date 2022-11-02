@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 18:24:50 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/02 19:10:27 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,14 @@ class Client
 	private:
 
 		int						_clientSock;
+		int						_readStatus;
 		std::vector< Server * >	_serverList;
 		Server					* _server;
 		Request					_request;
 		Response				_response;
+
+		void	_get_good_Root(std::string path, Server *serv);
+		void	_chooseServer( std::string path );
 
 	public:
 
@@ -40,15 +44,17 @@ class Client
 		
 		int						& getSock( void );
 		const int				& getSock( void ) const;
+		int						getReadStatus( void );
 		Request					& getRequest( void );
 		const Request			& getRequest( void ) const;
-		void					setRequest(char * str);
+		void					setRequest( t_epoll & epollVar, int i );
 		Response				& getResponse( void );
-		Response				&getResponse( Server & serv, Request & req );
+		Response				& getResponse( Server & serv, Request & req );
 		const Response			& getResponse( void ) const;
 		Server					* getServer( void );
 		//Server					&getServer( void );
 		std::vector< Server * >	& getServerList( void );
+
 
 };
 

@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 14:29:51 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/02 19:17:59 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,6 @@ Request::Request( void ) : _isSetRequest(false), _isSetBoundary(false),
 	if ( DEBUG )
 		std::cout << "Request Default Constructor" << std::endl;
 }
-
-/*Request::Request( itClient it, int readFd ) : _isSetRequest(false), _isSetBoundary(false),
-	_contentLength(0)
-{
-	if ( DEBUG )
-		std::cout << "Request Default Constructor" << std::endl;
-}*/
 
 Request::Request( const Request & rhs ) : _isSetRequest(false),
 	_isSetBoundary(false), _contentLength(0)
@@ -107,7 +100,16 @@ void	Request::_parseHost( const std::string request )
 	}
 }
 
-void	Request::_parseAccept( const std::string request )
+void	Request::_checkUserAgent( const std::string request )
+{
+	if (!request.compare(0, 12, "User-Agent: "))
+	{
+		if (request.find("Chrome", 0) == std::string::npos)
+			_method = BAD_REQUEST;
+	}
+}
+
+void	Request::_parseAccept( std::string request )
 {
 	size_t  pos = 0;
 	size_t  posTmp = 0;
@@ -178,6 +180,16 @@ std::string		Request::getOrigin( void ) const
 	return ( this->_origin );
 }
 
+bool			Request::getIsSetRequest( void ) const
+{
+	return ( this->_isSetRequest );
+}
+
+bool			Request::getIsSetBoundary( void ) const
+{
+	return ( this->_isSetBoundary );
+}
+
 std::map< std::string, std::string >	& Request::getContentDisposition( void )
 {
 	return ( this->_contentDisposition );
@@ -221,7 +233,14 @@ void		Request::_parseContentDisposition( std::string request )
 	}
 }
 
-void		Request::parseRequest(void)
+void		changeEpollEvent( t_epoll & epollVar, int i )
+{
+	epollVar.new_event.events = EPOLLOUT;
+	epollVar.new_event.data.fd = epollVar.events[i].data.fd;
+	epoll_ctl( epollVar.epollFd, EPOLL_CTL_MOD, epollVar.events[i].data.fd, &epollVar.new_event);
+}
+
+void		Request::parseRequest( t_epoll & epollVar, int i )
 {
 	std::string			line;
 	std::stringstream 	ss;
@@ -234,14 +253,13 @@ void		Request::parseRequest(void)
 	{
 		std::getline(ss, line);
 		_parseMethodAndPath(line);
-		if ( this->_method == GET )
+		_checkUserAgent( line );
+		if ( this->_method == GET || this->_method == DELETE )
 		{
 			_parseHost(line);
 			_parseAccept(line);
 			_parseOrigin( line );
 		}
-		else if ( this->_method == DELETE )
-			_parseHost(line);
 		else if ( this->_method == POST )
 		{
 			_parseHost(line);
@@ -252,7 +270,13 @@ void		Request::parseRequest(void)
 		}	
 		//std::cout << line << "\n";
 	}
-	/*std::cout << "*******************************************\n\n";
+	if ( this->_method == GET || this->_method == DELETE
+			|| this->_method == POST || this->_method == BAD_REQUEST)
+	{
+		changeEpollEvent( epollVar, i );
+		this->_isSetRequest = false;
+	}
+/*	std::cout << "*******************************************\n\n";
 	std::cout << "\n\n*********PRINTING THE PARSING**********\n\n";
 
 		std::cout << "method = " << _method << "\n";
@@ -266,6 +290,20 @@ void		Request::parseRequest(void)
 			std::cout << *it << "\n";
 		}
 		std::cout << ">>" << "\n";
-		std::cout << "\n\n***********************************\n\n";*/
-}
+		std::cout << "\n\n***********************************\n\n";
+*/}
 
+int			Request::readData( int readFd, size_t bufferSize, int flag )
+{
+	char	bufferRead[ bufferSize ];
+	int		rd;
+
+	if ( (rd = recv( readFd , bufferRead, bufferSize, 0 )) <= 0 )
+		return ( rd );
+	bufferRead[rd] = '\0';
+	this->_request += bufferRead;
+	if ( flag == 1 && this->_request.find( "\r\n\r\n", 0 ) != std::string::npos )
+		this->_isSetRequest = true;
+
+	return ( rd );
+}

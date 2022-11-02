@@ -6,7 +6,7 @@
 /*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 12:55:28 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/31 15:20:48 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/02 14:37:58 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 # define MAXFD 100000
 
 # include <sys/epoll.h>
+class Server;
+class Client;
 
 typedef struct s_epoll
 {
