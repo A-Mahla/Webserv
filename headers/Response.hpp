@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 08:46:00 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/02 13:04:05 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,19 +18,34 @@
 # include "Server.hpp"
 # include "Request.hpp"
 
+# include <iostream>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <sys/wait.h>
+# include <fcntl.h>
+# include <unistd.h>
+# include <stdlib.h>
+# include <sstream>
+# include <cstring>
+
 class Response
 {
 
 	private:
 
+		int			_fd;
 		std::string	_response;
 		Server		*_server;
 		int			_status;
+		char    	**_getArgv(std::string script);
+		void    	_clear_argv(char **argv);
+		void    	_execCGI(void);
+		
 
 	public:
 
 		Response( void );
-		Response( Server & serv, Request & req);
+		Response( Server & serv, Request & req, int fd);
 		Response( const Response & rhs );
 
 		~Response( void );
@@ -45,7 +60,7 @@ class Response
 		std::string			  readFile(std::string path, Server &serv);
 
 		void				GET_response(Server &serv, Request &req);
-
+		void				POST_response(Server &serv, Request &req);
 };
 
 

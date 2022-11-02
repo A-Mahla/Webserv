@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 17:58:05 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/02 13:15:46 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class Client
 		const Request			& getRequest( void ) const;
 		void					setRequest(char * str);
 		Response				& getResponse( void );
-		Response				&getResponse( Server & serv, Request & req );
+		Response				&getResponse( Server & serv, Request & req, int fd);
 		const Response			& getResponse( void ) const;
 		Server					* getServer( void );
 		//Server					&getServer( void );

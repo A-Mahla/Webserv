@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 18:17:12 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/02 13:15:14 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,9 +114,9 @@ std::vector< Server * >	& Client::getServerList( void )
 	return ( this->_serverList );
 }
 
-Response		& Client::getResponse( Server & serv, Request & req)
+Response		& Client::getResponse( Server & serv, Request & req, int fd)
 {
-	this->_response =  Response( serv, req );
+	this->_response =  Response( serv, req, fd);
 	return ( this->_response );
 }
 
