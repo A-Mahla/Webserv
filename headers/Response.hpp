@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 15:24:53 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/02 18:47:26 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,20 +18,35 @@
 # include "Server.hpp"
 # include "Request.hpp"
 
+# include <iostream>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <sys/wait.h>
+# include <fcntl.h>
+# include <unistd.h>
+# include <stdlib.h>
+# include <sstream>
+# include <cstring>
+
 class Response
 {
 
 	private:
 
+		int			_fd;
 		std::string	_response;
 		Server		*_server;
 		int			_status;
+		char    	**_getArgv(std::string script);
+		void    	_clear_argv(char **argv);
+		void    	_execCGI(char **env);
+		
 
 		void	_initVar(std::string *var, Request const & req, Server const & serv);
 	public:
 
 		Response( void );
-		Response( Server & serv, Request & req);
+		Response( Server & serv, Request & req, int fd);
 		Response( const Response & rhs );
 
 		~Response( void );
@@ -46,6 +61,7 @@ class Response
 		std::string			  readFile(std::string path, Server &serv);
 
 		void				GET_response(Server &serv, Request &req);
+		void				POST_response(Server &serv, Request &req);
 		/*----------BUILDING CGI ENVIRONNEMENT---------------------*/
 		char**				buildCGIenv(Request const & req, Server const & serv);
 		char**				ft_split(char const *s, char c);

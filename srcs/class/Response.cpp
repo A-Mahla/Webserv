@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/03 08:58:23 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/03 08:59:59 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@
 using namespace std;
 /*=====================*/
 
-Response::Response( void ) : _server(NULL)
+Response::Response( void ) : _server(NULL), _status(0)
 {
 	if ( DEBUG )
 		std::cout << "Response Default Constructor" << std::endl;
@@ -93,6 +93,8 @@ std::string	Response::readFile(std::string path, Server &serv)
 	length = ifs.tellg();
 	ifs.seekg (0, ifs.beg);
 
+	//std::cout << "get lenght" << length << std::endl;
+
 	buff = new char[length + 1];
 	ifs.read(buff, length);
 	if (ifs.fail())
@@ -135,31 +137,27 @@ void	Response::GET_response(Server & serv, Request & req)
     _response += "\r\n\r\n";
 }
 
-Response::Response(Server & serv, Request & req) : _server(NULL), _status(0)
+void	Response::POST_response(Server &serv, Request &req)
+{
+	char **env = buildCGIenv(req, serv);
+	/*std::cout << "\n\n--------------ENV------------------\n\n";
+	for (int i = 0; *(test + i); i++)
+		std::cout << *(test + i) << std::endl;
+	std::cout << "\n\n-----------------------------------\n\n";*/
+	_execCGI(env);
+}
+
+Response::Response(Server & serv, Request & req, int fd) : _server(NULL), _status(0)
 {
 	if ( DEBUG )
 		std::cout << "Response request Constructor" << std::endl;
 
-	_response.clear();
-
+//	_response.clear();
+	_fd = fd;
 	if (req.getMethode() == GET)
 		GET_response(serv, req);
 	else if ( req.getMethode() == POST)
-	{
-		char **test = buildCGIenv(req, serv);
-		std::cout << "\n\n--------------ENV------------------\n\n";
-		for (int i = 0; *(test + i); i++)
-			std::cout << *(test + i) << std::endl;
-		std::cout << "\n\n-----------------------------------\n\n";
-
-		_response += "HTTP/1.1 200 OK\n";
-		_response += "Content-Type: text/html\r\n";
-		_response += "Content-Length: ";
-		_response += "12";
-		_response += "\n\n";
-		_response += "POST request";
-		_response += "\r\n\r\n";
-	}
+		POST_response(serv, req);
 	else if ( req.getMethode() == DELETE)
 	{
 		_response += "HTTP/1.1 200 OK\n";
@@ -209,6 +207,9 @@ Response &	Response::operator=( const Response & rhs )
 	if ( this != &rhs )
 	{
 		this->_response = rhs._response;
+		this->_fd = rhs._fd;
+		this->_server = rhs._server;
+		this->_status = rhs._status;
 	}
 	return ( *this );
 }
@@ -219,8 +220,64 @@ std::string			& Response::getStringResponse( void )
 }
 
 const std::string	& Response::getStringResponse( void ) const
-{
+{  std::cout << "\n"                             << std::endl;
 	return ( this->_response );
+}
+
+
+
+//cgi
+char    **Response::_getArgv(std::string script)
+{
+    char**  argv = new char*[2];
+    argv[0] = strdup(script.c_str());
+	argv[1] = NULL;
+    return (argv);
+}
+
+void    Response::_clear_argv(char **argv)
+{
+    free(argv[0]);
+    delete [] argv;
+}
+
+# include <stdio.h>
+
+void    Response::_execCGI(char **env)
+{
+    int pid;
+    std::string     script = "./cgi/test.cgi";
+    char            **argv = _getArgv(script);
+
+    pid = fork();
+    if (pid == -1)
+    {
+        std::cout << "error fork()" << std::endl;
+        return ;
+    }
+
+    if (pid == 0)
+    {
+        dup2(this->_fd, STDOUT_FILENO);
+
+        execve(script.c_str(), argv, env );
+
+		std::cout << "HTTP/1.1 200 OK\n";
+		std::cout << "Content-Type: text/html\r\n";
+		std::cout << "Content-Length: ";
+		std::cout << "12";
+		std::cout << "\n\n";
+		std::cout << "error execve";
+		std::cout << "\r\n\r\n";
+
+        close(this->_fd);
+        _clear_argv(argv);
+		exit(1);
+    }
+    wait(NULL);
+    _clear_argv(argv);
+	_response = "POST";
+
 }
 
 /*------------BUILDING CGI ENVIRONNEMENT--------------------*/
