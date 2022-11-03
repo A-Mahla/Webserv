@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/03 15:24:09 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 17:39:11 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,12 +204,13 @@ void	Response::GET_response(Server & serv, Request & req)
 	std::string content_str;
 	std::stringstream ss;
 
-	if (req.getPath() == "/")
-		req.setPath("/index.html");
 
-	if (*req.getPath().rbegin() != '/' )
+	if (req.getPath() == "/"  || *req.getPath().rbegin() != '/' )
 	{
-		content_str = _readFile(req.getPath(), serv);
+		if (req.getPath() == "/")
+			content_str = _readFile("./html/index.html");
+		else
+			content_str = _readFile(req.getPath(), serv);
 		ss << content_str.size();
 
 		if (ss.str().empty())
@@ -386,8 +387,9 @@ void	Response::_initVar(std::string *var, Request const & req, Server const & se
 	var[3] = req.getPath();
 	var[4] = serv.get_root() + req.getPath().substr(1, (req.getPath().size() - 1));
 	var[5] = "Name=Sacha&Name2=Amir&Name3=Maxence";//req.querySting;
+	std::cout << "ICI LE TEST -------------" << req.getAddr() << "\n";
 	var[6] = req.getOrigin();
-	var[7] = "NULL";
+	var[7] = req.getAddr();
 	var[8] =  "NULL"; // client_login;
 	var[9] = "NULL"; //user_login;
 	if (req.getMethode() == GET)

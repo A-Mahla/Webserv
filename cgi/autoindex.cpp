@@ -8,7 +8,57 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <vector>
+#include <sstream>
+#include <fstream>
 
+std::string readFile(std::string path)
+{
+	std::ifstream 	ifs;
+	std::string		file_content;
+	std::string		filename = path;
+	int				length;
+	char			*buff;
+
+
+	ifs.open(filename.c_str(), std::ifstream::in);
+
+	if ( !ifs.is_open() )
+		return ("");
+
+	ifs.seekg (0, ifs.end);
+	length = ifs.tellg();
+	ifs.seekg (0, ifs.beg);
+
+	buff = new char[length + 1];
+	ifs.read(buff, length);
+	if (ifs.fail())
+	{
+        ifs.close();
+        return ("");
+    }
+	ifs.close();
+	buff[length] = '\0';
+	file_content = buff;
+	delete [] buff;
+
+	return (file_content);
+}
+
+void	printErrorPage(std::string error)
+{
+	std::string error_page = "./html/error_page/" + error + ".html";
+	std::string content_str = readFile(error_page);
+	std::stringstream ss;
+	ss << content_str.size();
+
+	std::cout << "HTTP/1.1 200 OK\n";
+	std::cout << "Content-Type: text/html\r\n";
+	std::cout << "Content-Length: ";
+	std::cout << ss.str();
+	std::cout << "\n\n";
+	std::cout << content_str;
+	std::cout << "\r\n\r\n";
+}
 
 int	exec_ls(int *fds, char* const* ls_cmd){
 		close(fds[0]);
@@ -20,20 +70,22 @@ int	exec_ls(int *fds, char* const* ls_cmd){
 int get_ls_output(int *fds, std::string & ls_output){
 	char	buf[1024];
 	int		rd;
+	int		status;
 
 	close(fds[1]);
-	wait(NULL);
+	wait(&status);
 	while ((rd = read(fds[0], buf, 1023)) != 0){
 		buf[rd] = '\0';
 		ls_output += buf;
 	}
 	close(fds[0]);
-	return (0);
+	return (status >> 8);
 }
 
-void	listDir(std::string & ls_output, const char *path){
+int	listDir(std::string & ls_output, const char *path){
 	char *ls_cmd[4];
 	int pid = 0;
+	int	return_code = 0;
 	int fds[2];
 
 	ls_cmd[0] = static_cast<char *>(malloc(strlen("/bin/ls") + 1));
@@ -44,17 +96,18 @@ void	listDir(std::string & ls_output, const char *path){
 	strcpy(ls_cmd[2], path);
 	ls_cmd[3] = NULL;
 	if (pipe(fds) < 0)
-		return ;
+		return (1);
 	pid = fork();
 	if (pid == 0) {
 		if (exec_ls(fds, ls_cmd) < 0)
 			std::cout << "**error execve !!!**\n";
 	}
 	else if (pid)
-		get_ls_output(fds, ls_output);
+		return_code = get_ls_output(fds, ls_output);
 	free(ls_cmd[0]);
 	free(ls_cmd[1]);
 	free(ls_cmd[2]);
+	return (return_code);
 }
 
 int	find_path(std::string & path, char **env){
@@ -70,12 +123,6 @@ int	find_path(std::string & path, char **env){
 	equal = path.find("=", 0);
 	pathlen = path.size();
 	path = path.substr(equal + 1, pathlen - (equal + 2));
-	/*if (path.find("./", 0) == 0)
-		path.insert(0, ".");
-	else if (path.find("/", 0) == 0)
-		path.insert(0, "..");
-	else
-		path.insert(0, "../");*/
 	return (1);
 }
 
@@ -85,37 +132,98 @@ int main(int ac, char **av, char **env){
 	(void) av;
 	std::string path;
 	std::string ls_output;
-	std::vector<std::string> tab_output;
+	std::vector<std::string>	tab_output;
+	std::stringstream			ss;
+	std::string					content_body;
 
 	if (!find_path(path, env))
 		return (0);
 
-	listDir(ls_output, path.c_str());
-	tab_output.push_back(ls_output.substr(0, (ls_output.find("\n", 0) - (0))));
-	for (size_t pos = 0; (pos = ls_output.find("\n", pos)) != std::string::npos; ){
-		pos++;
-		tab_output.push_back(ls_output.substr(pos, (ls_output.find("\n", pos) - (pos))));
-	}
-	/*==========================*/
-    /*    make header whith env */
-    /*==========================*/
-
-    std::cout << "HTTP/1.1 200 OK\n";
-    std::cout << "Content-Type: text/html\r\n";
-    std::cout << "Content-Length: ";
-    std::cout <<  "100";
-    std::cout << "\n\n";
-
-	tab_output.pop_back();
-
-	for (std::vector<std::string>::iterator it = tab_output.begin(); it != tab_output.end(); it++)
+	if (!listDir(ls_output, path.c_str()))
 	{
-		std::cout << *it << std::endl;
-	}
+		tab_output.push_back(ls_output.substr(0, (ls_output.find("\n", 0) - (0))));
+		for (size_t pos = 0; (pos = ls_output.find("\n", pos)) != std::string::npos; ){
+			pos++;
+			tab_output.push_back(ls_output.substr(pos, (ls_output.find("\n", pos) - (pos))));
+		}
+		tab_output.pop_back();
 
-	/*============================*/
-    /*             footer          */
-    /*============================*/
-    std::cout << "\r\n\r\n";
+		/*============================*/
+		/*             body           */
+		/*============================*/
+
+		content_body += "<!DOCTYPE html>";
+		content_body += "<html>";
+		content_body += "	<head>";
+		content_body += "		<meta charset=\"utf-8\">";
+		content_body += "		<title>autoindex.html</title>";
+		content_body += "		<link rel=\"icon\" href=\"https://cdn.intra.42.fr/users/279a6ebab9ca714cb183c75921ab3332/slahlou.JPG\" />";
+		content_body += "		<style>";
+		content_body += "			body";
+		content_body += "			{";
+		content_body += "				width: 100%;";
+		content_body += "				height: 100%;";
+		content_body += "				background-color: rgba(66, 192, 150, 0.4);";
+		content_body += "			}";
+		content_body += "			.container";
+		content_body += "			{";
+		content_body += "				display: fex;";
+		content_body += "				justify-content: center;";
+		content_body += "				text-align: center;";
+		content_body += "				margin-left: 30%;";
+		content_body += "				margin-right: 30%;";
+		content_body += "				height: 60%;";
+		content_body += "			}";
+		content_body += "			.card";
+		content_body += "			{";
+		content_body += "				border: rgba(0, 0, 0, 0) solid 2px;";
+		content_body += "				border-radius: 20px;";
+		content_body += "				color: rgb(0, 0, 0);";
+		content_body += "				width: 300px;";
+		content_body += "				box-shadow: 5px 10px 0px 3px rgb(124, 121, 121);";
+		content_body += "				margin: 10%;";
+		content_body += "			}";
+		content_body += "	</head>";
+		content_body += "		</style>";
+		content_body += "	<body>";
+		content_body += "		<div class=\"container\">";
+		content_body += "			<h1 class=\"card\">" + std::string(getenv("PATH_INFO")) + "</h1>";
+		content_body += "			<ul>";
+
+		for (std::vector<std::string>::iterator it = tab_output.begin(); it != tab_output.end(); it++)
+		{
+			content_body += "<a href=\"http://" + std::string(getenv("REMOTE_HOST")) + ":" + std::string(getenv("SERVER_PORT")) + std::string(getenv("PATH_INFO")) + *it + "\"><li class=\"card\">" + *it + "</li></a>";
+			std::cerr << "<a href=\"http://" + std::string(getenv("REMOTE_HOST")) + ":" + std::string(getenv("SERVER_PORT")) + std::string(getenv("PATH_INFO")) + *it + "\"><li>" + *it + "</li></a>";
+
+			
+		}
+
+
+		content_body += "			</ul>";
+		content_body += "		</div>";
+		content_body += "	</body>";
+		content_body += "</html>";
+
+			
+		/*==========================*/
+		/*    make header whith env */
+		/*==========================*/
+		ss << content_body.size();
+
+		std::cout << "HTTP/1.1 200 OK\n";
+		std::cout << "Content-Type: text/html\r\n";
+		std::cout << "Content-Length: ";
+		std::cout <<  ss.str();
+		std::cout << "\n\n";
+
+		std::cout << content_body;
+
+		/*============================*/
+		/*             footer          */
+		/*============================*/
+		std::cout << "\r\n\r\n";
+	}
+	else
+		printErrorPage("400");
 	return (0);
 }

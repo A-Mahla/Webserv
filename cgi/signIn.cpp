@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 09:33:17 by meudier           #+#    #+#             */
-/*   Updated: 2022/11/03 13:26:35 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 16:11:04 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,6 @@ int main()
     std::string names = qs;
 
 
-    
     std::string content_body = readFile("./html/home.html");
     std::string insertNameHere = "Bienvenue sur notre webserv ";
     std::string line;

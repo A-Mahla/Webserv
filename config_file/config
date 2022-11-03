@@ -34,7 +34,7 @@ server	{
 
 	index						index.html index.php test.html ;
 
-	root						./html;
+	root						../;
 
 	client_body_buffer_size		8k;
 
