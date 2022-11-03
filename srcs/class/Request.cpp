@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/03 11:16:44 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 17:43:54 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ Request &	Request::operator=( const Request & rhs )
 		this->_accept = rhs._accept;
 		this->_contentDisposition = rhs._contentDisposition;
 		this->_origin = rhs._origin;
+		this->_queryString = rhs._queryString;
 		this->_path = rhs._path;
 		this->_port = rhs._port;
 		this->_addr = rhs._addr;
@@ -113,7 +114,6 @@ void	Request::_checkUserAgent( const std::string request )
 			_method = BAD_REQUEST;
 	}
 }
-
 
 void	Request::_parseAccept( std::string request )
 {
@@ -193,6 +193,11 @@ std::string		Request::getOrigin( void ) const
 	return ( this->_origin );
 }
 
+std::string		Request::getQueryString( void ) const
+{
+	return ( this->_queryString );
+}
+
 bool			Request::getIsSetRequest( void ) const
 {
 	return ( this->_isSetRequest );
@@ -249,22 +254,26 @@ void		Request::_parseContentDisposition( std::string request )
 	}
 }
 
-void		changeEpollEvent( t_epoll & epollVar, int i )
+void		Request::changeEpollEvent( t_epoll & epollVar, int i )
 {
 	epollVar.new_event.events = EPOLLOUT;
 	epollVar.new_event.data.fd = epollVar.events[i].data.fd;
 	epoll_ctl( epollVar.epollFd, EPOLL_CTL_MOD, epollVar.events[i].data.fd, &epollVar.new_event);
+	this->_isSetRequest = false;
+
 }
 
 void		Request::parseRequest( t_epoll & epollVar, int i )
 {
 	std::string			line;
 	std::stringstream 	ss;
+	std::string			temp;
 	size_t				pos;
 
-	ss << this->_request;
+	temp = this->_request.substr( this->_request.find( "\r\n\r\n", 0 ) + 4,  this->_request.size()- 1 );
 	while ((pos = _request.find("\r")) != std::string::npos)
 	  	_request.erase(pos, 1);
+	ss << this->_request;
 	while (!ss.eof())
 	{
 		std::getline(ss, line);
@@ -284,13 +293,20 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 			_parseContentLength( line );
 			_parseContentType( line );
 		}
-		std::cout << line << "\n";
+//		std::cout << line << "\n";
+	}
+	if ( this->_method == POST )
+	{
+		this->_request = temp;
+		if ( this->_contentType == "application/x-www-form-urlencoded" )
+			this->_queryString = this->_request;
+//		else if ( file )
 	}
 	if ( this->_method == GET || this->_method == DELETE
-			|| this->_method == POST || this->_method == BAD_REQUEST)
+			|| this->_method == BAD_REQUEST 
+			|| ( this->_method == POST && this->_request.size() == this->_contentLength ))
 	{
 		changeEpollEvent( epollVar, i );
-		this->_isSetRequest = false;
 	}
 /*	std::cout << "*******************************************\n\n";
 	std::cout << "\n\n*********PRINTING THE PARSING**********\n\n";
@@ -309,17 +325,30 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 		std::cout << "\n\n***********************************\n\n";
 */}
 
-int			Request::readData( int readFd, size_t bufferSize, int flag )
+int			Request::readData( int readFd, size_t bufferSize, int flag,
+				t_epoll & epollVar, int i )
 {
 	char	bufferRead[ bufferSize ];
 	int		rd;
 
 	if ( (rd = recv( readFd , bufferRead, bufferSize, 0 )) <= 0 )
+	{
+		if ( rd < 0 )
+			std::cout << RED << "Connexion client lost" << SET << std::endl;
+		else
+			std::cout << RED << "Connexion client is closed" << SET << std::endl;
+		epoll_ctl(epollVar.epollFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
+		close( epollVar.events[i].data.fd );	
 		return ( rd );
+	}
+
 	bufferRead[rd] = '\0';
 	this->_request += bufferRead;
 	if ( flag == 1 && this->_request.find( "\r\n\r\n", 0 ) != std::string::npos )
 		this->_isSetRequest = true;
+	if ( flag == 2 && this->_request.size() == this->_contentLength )
+		changeEpollEvent( epollVar, i );
+	std::cout << GREEN <<  "Server side receive from client : \n" << bufferRead << SET << std::endl;
 
 	return ( rd );
 }
