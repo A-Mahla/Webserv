@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 15:45:58 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/03 08:58:23 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,7 +189,7 @@ Response::Response(Server & serv, Request & req) : _server(NULL), _status(0)
 
 }
 
-//				test MAX
+/*------------test max--------------------*/
 
 Response::Response( const Response & rhs )
 {
