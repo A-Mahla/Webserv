@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 19:40:14 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 13:17:31 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,141 +18,21 @@
 #include <sstream>
 #include <cstdlib>
 #include <cstring>
-
-
-/*=====================*/
-#include <unistd.h>
-#include <fcntl.h>
-#include <memory>
-using namespace std;
-/*=====================*/
-
-Response::Response( void ) : _server(NULL), _status(0)
-{
-	if ( DEBUG )
-		std::cout << "Response Default Constructor" << std::endl;
-	this->_response = "HTTP/1.1 200 OK\n";
-	this->_response += "Content-Type: text/plain\n";
-	this->_response += "Content-Length: 12";
-	this->_response += "\n\nHello world!";
-}
-
-//			Test MAX
+# include <stdio.h>
 # include <string>
 #include <unistd.h>
-#include <fcntl.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <memory>
 
 #define NB_ELEMENTS 17
-Server	*Response::getServer(void)
-{
-	return (_server);
-}
 
-int	&Response::getStatus(void)
-{
-	return (_status);
-}
-
-void	Response::get_good_Root(std::string path, Server *serv)
-{
-	for (std::map<std::string, Server>::iterator it = serv->getLocation().begin(); it != serv->getLocation().end(); it++)
-	{
-		if (it->first == path || (it->first[0] == '.' && it->first.substr(1, it->first.size()) == path))
-		{
-			this->_server = &it->second;
-			break ;
-		}
-		if (!it->second.getLocation().empty())
-			get_good_Root(path, &it->second);
-	}
-}
-
-std::string	Response::readFile(std::string path, Server &serv)
-{
-	std::ifstream 	ifs;
-	std::string		file_content;
-	std::string		filename;
-	int				length;
-	char			*buff;
-
-	get_good_Root(path, &serv);
-	if (!this->_server)
-		this->_server = &serv;
-
-	filename = this->_server->get_root()+ path.erase(0, 1);
-
-	ifs.open(filename.c_str(), std::ifstream::in);
-
-	if ( !ifs.is_open() )
-	{
-		this->_status = 404;
-		return ("");
-	}
-	ifs.seekg (0, ifs.end);
-	length = ifs.tellg();
-	ifs.seekg (0, ifs.beg);
-
-	//std::cout << "get lenght" << length << std::endl;
-
-	buff = new char[length + 1];
-	ifs.read(buff, length);
-	if (ifs.fail())
-		this->_status = 403;
-	ifs.close();
-	buff[length] = '\0';
-	file_content = buff;
-	delete [] buff;
-
-	return (file_content);
-}
-
-void	Response::GET_response(Server & serv, Request & req)
-{
-	std::string content_str;
-
-	if (*req.getPath().rbegin() != '/')
-	{
-		content_str = readFile(req.getPath(), serv);
-	}
-	else if (*req.getPath().rbegin() == '/')
-	{
-		//autoindex();
-		//juste for see if it works
-		content_str = "autoindex";
-	}
-
-	std::stringstream ss;
-	ss << content_str.size();
-
-	if (ss.str().empty())
-		return ;
-
-    _response += "HTTP/1.1 200 OK\n";
-    _response += "Content-Type: text/html\r\n";
-    _response += "Content-Length: ";
-    _response += ss.str();
-    _response += "\n\n";
-    _response += content_str;
-    _response += "\r\n\r\n";
-}
-
-void	Response::POST_response(Server &serv, Request &req)
-{
-	char **env = buildCGIenv(req, serv);
-	/*std::cout << "\n\n--------------ENV------------------\n\n";
-	for (int i = 0; *(test + i); i++)
-		std::cout << *(test + i) << std::endl;
-	std::cout << "\n\n-----------------------------------\n\n";*/
-	_execCGI(env);
-}
 
 Response::Response(Server & serv, Request & req, int fd) : _server(NULL), _status(0)
 {
 	if ( DEBUG )
 		std::cout << "Response request Constructor" << std::endl;
 
-//	_response.clear();
 	_fd = fd;
 	if (req.getMethode() == GET)
 		GET_response(serv, req);
@@ -172,18 +52,7 @@ Response::Response(Server & serv, Request & req, int fd) : _server(NULL), _statu
 		_status = 400;
 
 	if (_status)
-	{
-		std::stringstream ss;
-		ss << _status;
-		_response.clear();
-		_response += "HTTP/1.1 200 OK\n";
-		_response += "Content-Type: text/html\r\n";
-		_response += "Content-Length: ";
-		_response += "9";
-		_response += "\n\n";
-		_response += "error " + ss.str();
-		_response += "\r\n\r\n";
-	}
+		_getErrorPage();
 
 }
 
@@ -222,6 +91,148 @@ const std::string	& Response::getStringResponse( void ) const
 	return ( this->_response );
 }
 
+Response::Response( void ) : _server(NULL), _status(0)
+{
+	if ( DEBUG )
+		std::cout << "Response Default Constructor" << std::endl;
+	this->_response = "HTTP/1.1 200 OK\n";
+	this->_response += "Content-Type: text/plain\n";
+	this->_response += "Content-Length: 12";
+	this->_response += "\n\nHello world!";
+}
+
+
+Server	*Response::getServer(void)
+{
+	return (_server);
+}
+
+int	&Response::getStatus(void)
+{
+	return (_status);
+}
+
+void	Response::_get_good_Root(std::string path, Server *serv)
+{
+	for (std::map<std::string, Server>::iterator it = serv->getLocation().begin(); it != serv->getLocation().end(); it++)
+	{
+		if (it->first == path || (it->first[0] == '.' && it->first.substr(1, it->first.size()) == path))
+		{
+			this->_server = &it->second;
+			break ;
+		}
+		if (!it->second.getLocation().empty())
+			_get_good_Root(path, &it->second);
+	}
+}
+
+std::string	Response::_readFile(std::string path)
+{
+	std::ifstream 	ifs;
+	std::string		file_content;
+	std::string		filename;
+	int				length;
+	char			*buff;
+
+	filename = path;
+	
+	ifs.open(filename.c_str(), std::ifstream::in);
+
+	if ( !ifs.is_open() )
+	{
+		this->_status = 404;
+		return ("");
+	}
+	ifs.seekg (0, ifs.end);
+	length = ifs.tellg();
+	ifs.seekg (0, ifs.beg);
+
+	buff = new char[length + 1];
+	ifs.read(buff, length);
+	if (ifs.fail())
+		this->_status = 403;
+	ifs.close();
+	buff[length] = '\0';
+	file_content = buff;
+	delete [] buff;
+
+	return (file_content);
+}
+
+std::string	Response::_readFile(std::string path, Server &serv)
+{
+	std::ifstream 	ifs;
+	std::string		file_content;
+	std::string		filename;
+	int				length;
+	char			*buff;
+
+
+	_get_good_Root(path, &serv);
+	if (!this->_server)
+		this->_server = &serv;
+
+	filename = this->_server->get_root()+ path.erase(0, 1);
+	
+	ifs.open(filename.c_str(), std::ifstream::in);
+
+	if ( !ifs.is_open() )
+	{
+		this->_status = 404;
+		return ("");
+	}
+	ifs.seekg (0, ifs.end);
+	length = ifs.tellg();
+	ifs.seekg (0, ifs.beg);
+
+	buff = new char[length + 1];
+	ifs.read(buff, length);
+	if (ifs.fail())
+		this->_status = 403;
+	ifs.close();
+	buff[length] = '\0';
+	file_content = buff;
+	delete [] buff;
+
+	return (file_content);
+}
+
+void	Response::GET_response(Server & serv, Request & req)
+{
+	std::string content_str;
+
+	if (req.getPath() == "/")
+		req.setPath("/index.html");
+
+	if (*req.getPath().rbegin() != '/' )
+		content_str = _readFile(req.getPath(), serv);
+	else if (*req.getPath().rbegin() == '/')
+	{
+		//autoindex();
+		content_str = "autoindex";
+	}
+
+	std::stringstream ss;
+	ss << content_str.size();
+
+	if (ss.str().empty())
+		return ;
+
+    _response += "HTTP/1.1 200 OK\n";
+    _response += "Content-Type: text/html\r\n";
+    _response += "Content-Length: ";
+    _response += ss.str();
+    _response += "\n\n";
+    _response += content_str;
+    _response += "\r\n\r\n";
+}
+
+void	Response::POST_response(Server &serv, Request &req)
+{
+	char **env = buildCGIenv(req, serv);
+	_execCGI(env);
+}
+
 
 
 //cgi
@@ -239,14 +250,81 @@ void    Response::_clear_argv(char **argv)
     delete [] argv;
 }
 
-# include <stdio.h>
+void		Response::_clear_env(char **env)
+{
+	int i = 0;
+
+	while (env[i])
+		free(env[i++]);
+	free(env);
+}
+
+
+
+std::string Response::_getEnv(std::string key, char **env)
+{
+	std::string	value;
+	std::string	temp;
+	int i = 0;
+	size_t	pos;
+
+	while (env[i])
+	{
+		temp = env[i];
+		if (temp.find(key, 0) != std::string::npos)
+		{
+			pos = temp.find("=", 0) + 1;
+			value = temp.substr(pos, temp.size() - pos);
+			break;
+		}
+		i++;
+	}
+	return (value);
+}
+
+void	Response::_printErrorPage()
+{
+	std::stringstream ss1;
+	ss1 << _status;
+	std::string error_page = "./html/error_page/" + ss1.str() + ".html";
+	std::string content_str = _readFile(error_page);
+	std::stringstream ss2;
+	ss2 << content_str.size();
+
+	std::cout << "HTTP/1.1 200 OK\n";
+	std::cout << "Content-Type: text/html\r\n";
+	std::cout << "Content-Length: ";
+	std::cout << ss2.str();
+	std::cout << "\n\n";
+	std::cout << content_str;
+	std::cout << "\r\n\r\n";
+}
+
+void	Response::_getErrorPage()
+{
+	std::stringstream ss1;
+	ss1 << _status;
+	std::string error_page = "./html/error_page/" + ss1.str() + ".html";
+	std::string content_str = _readFile(error_page);
+	std::stringstream ss2;
+	ss2 << content_str.size();
+
+	_response.clear();
+	_response += "HTTP/1.1 200 OK\n";
+	_response += "Content-Type: text/html\r\n";
+	_response += "Content-Length: ";
+	_response += ss2.str();
+	_response += "\n\n";
+	_response += content_str;
+	_response += "\r\n\r\n";
+}
 
 void    Response::_execCGI(char **env)
 {
     int pid;
-    std::string     script = "./cgi/test.cgi";
+    std::string     script = "./cgi" + _getEnv("PATH_INFO", env);
     char            **argv = _getArgv(script);
-        
+
     pid = fork();
     if (pid == -1)
     {
@@ -260,20 +338,17 @@ void    Response::_execCGI(char **env)
 
         execve(script.c_str(), argv, env );
 		
-		std::cout << "HTTP/1.1 200 OK\n";
-		std::cout << "Content-Type: text/html\r\n";
-		std::cout << "Content-Length: ";
-		std::cout << "12";
-		std::cout << "\n\n";
-		std::cout << "error execve";
-		std::cout << "\r\n\r\n";
-    
+		_status = 400;
+		_printErrorPage();
+	
         close(this->_fd);
         _clear_argv(argv);
+		_clear_env(env);
 		exit(1);
     }
     wait(NULL);
     _clear_argv(argv);
+	_clear_env(env);
 	_response = "POST";
 	
 }

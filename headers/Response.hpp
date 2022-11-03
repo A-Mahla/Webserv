@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 18:47:26 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 13:07:40 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,10 +39,16 @@ class Response
 		int			_status;
 		char    	**_getArgv(std::string script);
 		void    	_clear_argv(char **argv);
+		void		_clear_env(char **env);
 		void    	_execCGI(char **env);
-		
+		std::string _getEnv(std::string key, char **env);
+		std::string	_readFile(std::string path);
+		std::string	_readFile(std::string path, Server &serv);
+		void		_get_good_Root(std::string path, Server *serv);
+		void		_initVar(std::string *var, Request const & req, Server const & serv);
+		void		_printErrorPage(void);
+		void		_getErrorPage(void);
 
-		void	_initVar(std::string *var, Request const & req, Server const & serv);
 	public:
 
 		Response( void );
@@ -57,8 +63,8 @@ class Response
 		const std::string	& getStringResponse( void ) const;
 		Server				* getServer(void);
 		int					& getStatus(void);
-		void				  get_good_Root(std::string path, Server *serv);
-		std::string			  readFile(std::string path, Server &serv);
+		
+		
 
 		void				GET_response(Server &serv, Request &req);
 		void				POST_response(Server &serv, Request &req);

@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 19:43:09 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 11:16:44 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,11 @@ int			Request::getMethode() const
 std::string	Request::getPath() const
 {
 	return (_path);
+}
+
+void	Request::setPath(std::string path)
+{
+	_path = path;
 }
 
 std::string	Request::getPort() const

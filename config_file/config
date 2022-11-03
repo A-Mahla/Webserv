@@ -43,8 +43,10 @@ server	{
 				autoindex		off;
 
 				root			.;
+	}
 
-
+	location		./Client.cpp {
+				root srcs/class;
 	}
 }
 

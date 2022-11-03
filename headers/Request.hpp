@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 19:43:25 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 11:16:05 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,7 @@ class Request
 		//max
 		int				getMethode() const;
 		std::string		getPath() const;
+		void			setPath(std::string path);
 		std::string		getPort() const;
 		std::string		getAddr() const;
 

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   test.cpp                                           :+:      :+:    :+:   */
+/*   signIn.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 09:33:17 by meudier           #+#    #+#             */
-/*   Updated: 2022/11/02 19:36:46 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 12:56:21 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ int main()
     std::string names = getNames(queryString);
 
     
-    std::string content_body = readFile("./html/test.html");
+    std::string content_body = readFile("./html/home.html");
     std::string insertNameHere = "Bienvenue sur notre webserv ";
     std::string line;
     size_t      pos = 0;
