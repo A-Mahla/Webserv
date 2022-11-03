@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   test.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 09:33:17 by meudier           #+#    #+#             */
-/*   Updated: 2022/11/02 19:36:46 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 09:25:46 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ std::string getNames(std::string qs)
 {
     size_t pos = 0;
     size_t temp_pos = 0;
-    
+
     while ( (pos = qs.find("=", temp_pos - pos) ) != std::string::npos )
     {
         pos++;
@@ -69,9 +69,9 @@ int main()
     if (!qs)
         return (0);
     std::string queryString = qs;
-    std::string names = getNames(queryString);
+    std::string names = qs;
 
-    
+
     std::string content_body = readFile("./html/test.html");
     std::string insertNameHere = "Bienvenue sur notre webserv ";
     std::string line;
@@ -80,17 +80,17 @@ int main()
     size_t      insert_pos = 0;
     std::stringstream ss;
     ss << content_body.size() + names.size();
-    
-    /*==========================*/     
-    /*    make header whith env */     
+
     /*==========================*/
-    
+    /*    make header whith env */
+    /*==========================*/
+
     std::cout << "HTTP/1.1 200 OK\n";
     std::cout << "Content-Type: text/html\r\n";
     std::cout << "Content-Length: ";
     std::cout <<  ss.str();
     std::cout << "\n\n";
-    
+
     /*============================*/
     /*             body           */
     /*============================*/
@@ -112,6 +112,6 @@ int main()
     /*             footer          */
     /*============================*/
     std::cout << "\r\n\r\n";
-    
+
     return (0);
 }
