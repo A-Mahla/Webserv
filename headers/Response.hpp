@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/03 13:07:40 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 14:50:53 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ class Response
 		char    	**_getArgv(std::string script);
 		void    	_clear_argv(char **argv);
 		void		_clear_env(char **env);
-		void    	_execCGI(char **env);
+		void    	_execCGI(std::string script, char **env);
 		std::string _getEnv(std::string key, char **env);
 		std::string	_readFile(std::string path);
 		std::string	_readFile(std::string path, Server &serv);

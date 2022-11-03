@@ -9,7 +9,6 @@
 #include <sys/wait.h>
 #include <vector>
 
-char**	buildCGIenv(void);
 
 int	exec_ls(int *fds, char* const* ls_cmd){
 		close(fds[0]);
@@ -58,52 +57,65 @@ void	listDir(std::string & ls_output, const char *path){
 	free(ls_cmd[2]);
 }
 
-void	find_path(std::string & path, char **env){
+int	find_path(std::string & path, char **env){
 	int i = 0;
 	size_t equal;
 	size_t pathlen;
 
 	for (; *(env + i) && strncmp(*(env + i), "PATH_TRANSLATED=", strlen("PATH_TRANSLATED=")); i++);
-	if ( !*(env + i) )
-		return ;
+	if ( !*(env + i) ){
+		return (0);
+	}
 	path = *(env + i);
 	equal = path.find("=", 0);
 	pathlen = path.size();
 	path = path.substr(equal + 1, pathlen - (equal + 2));
-	if (path.find("./", 0) == 0)
+	/*if (path.find("./", 0) == 0)
 		path.insert(0, ".");
 	else if (path.find("/", 0) == 0)
 		path.insert(0, "..");
 	else
-		path.insert(0, "../");
+		path.insert(0, "../");*/
+	return (1);
 }
 
 
 int main(int ac, char **av, char **env){
 	(void) ac;
 	(void) av;
-	(void) env;
 	std::string path;
 	std::string ls_output;
 	std::vector<std::string> tab_output;
-	char **testenv = buildCGIenv();
 
-	find_path(path, testenv);
-	for (int i = 0; *(testenv + i); i++){
-		free(*(testenv + i));
-	}
+	if (!find_path(path, env))
+		return (0);
+
 	listDir(ls_output, path.c_str());
 	tab_output.push_back(ls_output.substr(0, (ls_output.find("\n", 0) - (0))));
 	for (size_t pos = 0; (pos = ls_output.find("\n", pos)) != std::string::npos; ){
 		pos++;
 		tab_output.push_back(ls_output.substr(pos, (ls_output.find("\n", pos) - (pos))));
 	}
+	/*==========================*/
+    /*    make header whith env */
+    /*==========================*/
+
+    std::cout << "HTTP/1.1 200 OK\n";
+    std::cout << "Content-Type: text/html\r\n";
+    std::cout << "Content-Length: ";
+    std::cout <<  "100";
+    std::cout << "\n\n";
+
 	tab_output.pop_back();
-	std::cout << "la taille de mon vecteur : " << tab_output.size() << "\n";
+
 	for (std::vector<std::string>::iterator it = tab_output.begin(); it != tab_output.end(); it++)
 	{
-		std::cout << *it << "\n";
+		std::cout << *it << std::endl;
 	}
-	free(testenv);
+
+	/*============================*/
+    /*             footer          */
+    /*============================*/
+    std::cout << "\r\n\r\n";
 	return (0);
 }

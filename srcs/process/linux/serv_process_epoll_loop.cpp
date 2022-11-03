@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 19:40:51 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 14:36:31 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void	sendData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, i
 {
 		const char	*buffer_write = it->getResponse(*(it->getServer()), it->getRequest(), epollVar.events[i].data.fd).getStringResponse().c_str();
 		
-		if (strcmp(buffer_write, "POST") != 0 &&  send( epollVar.events[i].data.fd, buffer_write, strlen(buffer_write), 0 ) < 0 )
+		if (strcmp(buffer_write, "CGI") != 0 &&  send( epollVar.events[i].data.fd, buffer_write, strlen(buffer_write), 0 ) < 0 )
 		{
 			std::cout << RED << "Connexion client lost" << SET << std::endl;
 			clients.erase( it );

@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/03 13:27:09 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 15:24:09 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,37 +202,42 @@ std::string	Response::_readFile(std::string path, Server &serv)
 void	Response::GET_response(Server & serv, Request & req)
 {
 	std::string content_str;
+	std::stringstream ss;
 
 	if (req.getPath() == "/")
 		req.setPath("/index.html");
 
 	if (*req.getPath().rbegin() != '/' )
+	{
 		content_str = _readFile(req.getPath(), serv);
+		ss << content_str.size();
+
+		if (ss.str().empty())
+			return ;
+
+		_response += "HTTP/1.1 200 OK\n";
+		_response += "Content-Type: text/html\r\n";
+		_response += "Content-Length: ";
+		_response += ss.str();
+		_response += "\n\n";
+		_response += content_str;
+		_response += "\r\n\r\n";
+	}
 	else if (*req.getPath().rbegin() == '/')
 	{
-		//autoindex();
-		content_str = "autoindex";
+		char **env = buildCGIenv(req, serv);
+		std::string	script = "./cgi/autoindex.cgi";
+		_execCGI(script, env);
+		_response = "CGI";
 	}
-
-	std::stringstream ss;
-	ss << content_str.size();
-
-	if (ss.str().empty())
-		return ;
-
-    _response += "HTTP/1.1 200 OK\n";
-    _response += "Content-Type: text/html\r\n";
-    _response += "Content-Length: ";
-    _response += ss.str();
-    _response += "\n\n";
-    _response += content_str;
-    _response += "\r\n\r\n";
+	
 }
 
 void	Response::POST_response(Server &serv, Request &req)
 {
 	char **env = buildCGIenv(req, serv);
-	_execCGI(env);
+	std::string     script = "./cgi" + _getEnv("PATH_INFO", env);
+	_execCGI(script, env);
 }
 
 
@@ -321,10 +326,9 @@ void	Response::_getErrorPage()
 	_response += "\r\n\r\n";
 }
 
-void    Response::_execCGI(char **env)
+void    Response::_execCGI(std::string script, char **env)
 {
     int pid;
-    std::string     script = "./cgi" + _getEnv("PATH_INFO", env);
     char            **argv = _getArgv(script);
 
     pid = fork();
@@ -336,6 +340,7 @@ void    Response::_execCGI(char **env)
 
     if (pid == 0)
     {
+		
         dup2(this->_fd, STDOUT_FILENO);
 
         execve(script.c_str(), argv, env );
@@ -351,7 +356,7 @@ void    Response::_execCGI(char **env)
     wait(NULL);
     _clear_argv(argv);
 	_clear_env(env);
-	_response = "POST";
+	_response = "CGI";
 
 }
 
@@ -379,7 +384,7 @@ void	Response::_initVar(std::string *var, Request const & req, Server const & se
 	var[1] = req.getContentType();
 	var[2] = "CGI/1.1";
 	var[3] = req.getPath();
-	var[4] = "./cgi/" + req.getPath().substr(1, (req.getPath().size() - 1));
+	var[4] = serv.get_root() + req.getPath().substr(1, (req.getPath().size() - 1));
 	var[5] = "Name=Sacha&Name2=Amir&Name3=Maxence";//req.querySting;
 	var[6] = req.getOrigin();
 	var[7] = "NULL";
@@ -467,6 +472,7 @@ char	*ft_find_wrd(char const *s, char set, int wordneeded)
 	return (NULL);
 }
 
+	
 char**	Response::ft_split(char const *s, char c)
 {
 	char	**strs;
