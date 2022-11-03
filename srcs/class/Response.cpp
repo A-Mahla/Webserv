@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/03 13:17:31 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 13:27:09 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,8 @@ Response::Response(Server & serv, Request & req, int fd) : _server(NULL), _statu
 		_getErrorPage();
 
 }
+
+/*------------test max--------------------*/
 
 Response::Response( const Response & rhs )
 {
@@ -350,7 +352,7 @@ void    Response::_execCGI(char **env)
     _clear_argv(argv);
 	_clear_env(env);
 	_response = "POST";
-	
+
 }
 
 /*------------BUILDING CGI ENVIRONNEMENT--------------------*/
