@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 09:33:17 by meudier           #+#    #+#             */
-/*   Updated: 2022/11/03 16:11:04 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 18:31:43 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,19 +49,7 @@ std::string readFile(std::string path)
 	return (file_content);
 }
 
-std::string getNames(std::string qs)
-{
-    size_t pos = 0;
-    size_t temp_pos = 0;
 
-    while ( (pos = qs.find("=", temp_pos - pos) ) != std::string::npos )
-    {
-        pos++;
-        qs.erase(temp_pos,  pos - temp_pos);
-        temp_pos = pos;
-    }
-    return (qs);
-}
 
 int main()
 {

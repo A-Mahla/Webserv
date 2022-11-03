@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/03 17:39:11 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 18:32:12 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -386,7 +386,7 @@ void	Response::_initVar(std::string *var, Request const & req, Server const & se
 	var[2] = "CGI/1.1";
 	var[3] = req.getPath();
 	var[4] = serv.get_root() + req.getPath().substr(1, (req.getPath().size() - 1));
-	var[5] = "Name=Sacha&Name2=Amir&Name3=Maxence";//req.querySting;
+	var[5] = req.getQueryString();
 	std::cout << "ICI LE TEST -------------" << req.getAddr() << "\n";
 	var[6] = req.getOrigin();
 	var[7] = req.getAddr();
