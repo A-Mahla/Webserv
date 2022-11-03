@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 19:40:51 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 14:41:36 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,19 +33,8 @@ void	readData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, i
 
 	it->setRequest( epollVar, i );
 	if ( it->getReadStatus() <= 0 )
-	{
-		if ( it->getReadStatus() < 0 )
-			std::cout << RED << "Connexion client lost" << SET << std::endl;
-		else
-			std::cout << RED << "Connexion client is closed" << SET << std::endl;
 		clients.erase( it );
-		epoll_ctl(epollVar.epollFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
-		close( epollVar.events[i].data.fd );
-	}
-	else
-	{
-		std::cout <<  "Server side receive from client : \n" << GREEN << (*it).getRequest().getStringRequest() << SET << std::endl;
-	}
+
 }
 
 void	sendData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, int i )

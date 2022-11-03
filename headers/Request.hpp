@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 19:43:25 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 14:54:12 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ class Request
 		std::string					_contentType;
 		std::string					_boundary;
 		std::string					_origin;
+		std::string					_queryString;
 		e_method					_method;
 		std::string					_path;
 		std::string					_port;
@@ -92,11 +93,14 @@ class Request
 		std::string		getContentType( void ) const;
 		std::string		getBoundary( void ) const;
 		std::string		getOrigin( void ) const;
+		std::string		getQueryString( void ) const;
 
 		std::map< std::string, std::string >	& getContentDisposition( void );
 
 		void		parseRequest( t_epoll & epollVar, int i );
-		int			readData( int readFd, size_t bufferSize, int flag );
+		int			readData( int readFd, size_t bufferSize, int flag,
+						t_epoll & epollVar, int i );
+		void		changeEpollEvent( t_epoll & epollVar, int i );
 };
 
 

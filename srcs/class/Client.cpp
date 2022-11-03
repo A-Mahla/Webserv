@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 19:39:36 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/03 15:01:26 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,12 +106,12 @@ void	Client::_chooseServer( std::string path )
 		_server = this->_serverList[0];
 }
 
-
 void	Client::setRequest( t_epoll & epollVar, int i )
 {
 	if ( !this->_request.getIsSetRequest() )
 	{
-		if ( ( this->_readStatus = this->_request.readData( this->_clientSock, 1023, 1 ) ) <= 0 )
+		if ( ( this->_readStatus = this->_request.readData( this->_clientSock,
+			10, 1, epollVar, i ) ) <= 0 )
 			return ;
 		if ( this->_request.getIsSetRequest() )
 		{
@@ -119,8 +119,12 @@ void	Client::setRequest( t_epoll & epollVar, int i )
 			_chooseServer( this->_request.getPath() );
 		}
 	}
-	else if ( !this->_request.getIsSetBoundary() )
+	else if ( this->_request.getIsSetRequest()
+		&& this->_request.getContentType() == "application/x-www-form-urlencoded" )
 	{
+		if ( ( this->_readStatus = this->_request.readData( this->_clientSock,
+			this->_server->get_clientBody(), 2, epollVar, i ) ) <= 0 )
+			return ;
 	}
 }
 
