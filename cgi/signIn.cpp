@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   signIn.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 09:33:17 by meudier           #+#    #+#             */
-/*   Updated: 2022/11/03 18:31:43 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/04 16:06:45 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,6 @@ std::string readFile(std::string path)
 	std::string		filename = path;
 	int				length;
 	char			*buff;
-
 
 	ifs.open(filename.c_str(), std::ifstream::in);
 
@@ -49,25 +48,33 @@ std::string readFile(std::string path)
 	return (file_content);
 }
 
+std::string getName(std::string qs)
+{
+    size_t  pos = 0;
 
+    pos = qs.find("=", 0);
+    qs.erase(0, pos + 1);
+    pos = qs.find("&", 0);
+    qs.erase(pos, qs.size() - pos);
+    return (qs);
+}
 
 int main()
 {
-    char *qs =  getenv("QUERY_STRING");
-    if (!qs)
-        return (0);
-    std::string queryString = qs;
-    std::string names = qs;
-
+    //char *qs = getenv("QUERY_STRING");
+    //if (!qs)
+    //    return (0);
+    std::string queryString = getenv("QUERY_STRING");
+    std::string name = getName(queryString);
 
     std::string content_body = readFile("./html/home.html");
-    std::string insertNameHere = "Bienvenue sur notre webserv ";
+    std::string insertNameHere = "Welcome in our webserv ";
     std::string line;
     size_t      pos = 0;
     size_t      pos_temp = 0;
     size_t      insert_pos = 0;
     std::stringstream ss;
-    ss << content_body.size() + names.size();
+    ss << content_body.size() + name.size();
 
     /*==========================*/
     /*    make header whith env */
@@ -88,8 +95,8 @@ int main()
         line = content_body.substr(pos_temp, pos - pos_temp);
         if ((insert_pos = line.find(insertNameHere, 0)) != std::string::npos)
         {
-            content_body.insert(pos_temp + insert_pos + insertNameHere.size(), names);
-            pos += names.size();
+            content_body.insert(pos_temp + insert_pos + insertNameHere.size(), name);
+            pos += name.size();
         }
         std::cout << content_body.substr(pos_temp, pos - pos_temp);
         pos_temp = pos;

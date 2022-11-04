@@ -11,6 +11,10 @@
                 height: 100%;
                 background-color: rgba(66, 192, 150, 0.4);
             }
+            h1
+            {
+                color: black;
+            }
             .container
             {
                 display: fex;
@@ -24,17 +28,45 @@
             {
                 border: rgba(0, 0, 0, 0) solid 2px;
                 border-radius: 20px;
-                color: rgb(0, 0, 0);
+                color: rgba(90, 26, 192, 0.5);
                 width: 300px;
                 box-shadow: 5px 10px 0px 3px rgb(124, 121, 121);
                 margin: 10%;
+                margin-bottom: 50px;
+                text-align: center;
+            }
+            .button
+            {
+                width: 30%;
+                height: 30px;
+                margin: 30px;
+                border: rgba(90, 26, 192, 0.4);
+                border-radius: 5px;
+                background-color: rgba(90, 26, 192, 0.4); 
+            }
+            .row
+            {
+                display: flex;
+                align-items: center;
             }
         </style>
     </head>
     <body>
         <div class="container">
-            <h1 class="card">This is our fucking webserv</h1>
-            <p>Bienvenue sur notre webserv  !!</p>
+            <h1 class="card">Welcome in our webserv   !!</h1>
+            <h2 class="card">TEST IT </h2>
+            <form action="" method="post" class="card">
+                <h3>Uplaod a file here :</h3>
+                <div class="row">
+                    <input type="file" id="myfile" name="myfile" />
+                    <button class="button" type ="submit" >upload</button>
+                </div>
+            </form>
+            <h3 class="card">Download the Makefile here :
+                <a href="../Makefile" download>
+                    <img src="../image/download.svg" height="25px" width="25px"/>
+                </a>
+            </h3>
         </div>
     </body>
 </html>
