@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   socket_settings.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/23 23:59:18 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/31 18:54:15 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include <iostream>
+
 # include <cstring>
 # include <sys/socket.h>
 # include <sys/types.h>
@@ -73,10 +74,24 @@ void	nameSock( int & servSock, Server & server )
 
 void	setServerSockets( std::vector<Server> & servers )
 {
+	bool	check;
 	try
 	{
 		for ( std::size_t i(0); i < servers.size(); i++ )
 		{
+			check = false;
+			for ( std::size_t j(0); j < i; j++ )
+			{
+				if ( servers[j].getPort() == servers[i].getPort() )
+				{
+					servers[i].getSock() = -1;
+					check = true;
+					break ;
+				}
+				
+			}
+			if ( check )
+				continue ;
 			createSock( servers[i].getSock() );
 			nonBlockSock( servers[i].getSock() );
 			nameSock( servers[i].getSock(), servers[i] );
@@ -86,7 +101,10 @@ void	setServerSockets( std::vector<Server> & servers )
 	catch ( std::exception & e )
 	{
 		for ( std::size_t i(0); i < servers.size(); i++ )
-			close( servers[i].getSock() );
+		{
+			if ( servers[i].getSock() >= 0 )
+				close( servers[i].getSock() );
+		}
 		throw WebServException( e.what() );
 	}
 }

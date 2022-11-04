@@ -1,0 +1,56 @@
+
+server	{
+
+	server_name					YO.com;
+
+	listen						0.0.0.0:2020;
+
+	autoindex					on;
+
+	error_page					500 502 503 504	/ 50x.html ;
+
+	index						index.html index.php test.html ;
+
+	root						./srcs;
+
+	client_body_buffer_size		8k;
+
+	location		ifs	{
+
+				autoindex		off;
+
+	}
+}
+
+server	{
+
+	server_name					localhost;
+
+	listen						0.0.0.0:8080;
+
+	autoindex					on;
+
+	error_page					500 502 503 504	/ 50x.html ;
+
+	index						index.html index.php test.html ;
+
+	root						../;
+
+	client_body_buffer_size		8k;
+
+	location		./config	{
+
+				autoindex		off;
+
+				root			.;
+	}
+
+	location		./Client.cpp {
+				root srcs/class;
+	}
+}
+
+
+
+
+

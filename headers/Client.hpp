@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/27 11:17:55 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/11/03 14:38:17 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,22 @@
 
 # include "Request.hpp"
 # include "Response.hpp"
+# include "Server.hpp"
 
 class Client
 {
-
 	private:
 
-		int			_clientSock;
-		Request		_request;
-		Response	_response;
-		Server		_server;
+		int						_clientSock;
+		int						_readStatus;
+		std::vector< Server * >	_serverList;
+		Server					* _server;
+		Request					_request;
+		Response				_response;
+		void					_chooseServer(void);
+
+		void	_get_good_Root(std::string path, Server *serv);
+		void	_chooseServer( std::string path );
 
 	public:
 
@@ -36,19 +42,20 @@ class Client
 
 		Client &	operator=( const Client & rhs );
 
-		int				& getSock( void );
-		const int		& getSock( void ) const;
-		Request			& getRequest( void );
-		const Request	& getRequest( void ) const;
-		Response		& getResponse( void );
-		const Response	& getResponse( void ) const;
+		
+		int						& getSock( void );
+		const int				& getSock( void ) const;
+		int						getReadStatus( void );
+		Request					& getRequest( void );
+		const Request			& getRequest( void ) const;
+		void					setRequest( t_epoll & epollVar, int i );
+		Response				& getResponse( void );
+		Response				&getResponse( Server & serv, Request & req, int fd);
+		const Response			& getResponse( void ) const;
+		Server					* getServer( void );
+		//Server					&getServer( void );
+		std::vector< Server * >	& getServerList( void );
 
-		/*=========================*/
-		/*       max test          */
-		/*=========================*/
-		Response		&getResponse( Server serv, Request req);
-		Server			&getServer(void);
-		Client(const int socket, const Server serv);
 
 };
 

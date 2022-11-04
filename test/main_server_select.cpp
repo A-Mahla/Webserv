@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main_server_select.cpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/21 18:50:50 by amahla           ###   ########.fr       */
+/*   Updated: 2022/10/22 09:05:13 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int		createSock( void )
 {
 	int	servSock;
 	int	on = 1;
-
+	
 	if (( servSock = socket(AF_INET, SOCK_STREAM, 0 )) < 0 )
 	{
 		std::cout << "socket() failed" << std::endl;
@@ -140,7 +140,7 @@ bool	newConnection( int & servSock, std::vector<int> & clientSocks, fd_set* read
 				throw WebServException( "serv_process.cpp", "newConnection", "accept() failed" );
 		}
 
-		if (newConnection > 0)			
+		if (newConnection > 0)
 		{
 			std::cout << "Connection accepted" << std::endl;
 			clientSocks.push_back(newConnection);
@@ -181,7 +181,7 @@ void		ioData( std::vector<int> & clientSocks, fd_set* readFds, int & servSock )
 			}
 		}
 	}
-}	
+}
 
 void	appServ( int & servSock )
 {
