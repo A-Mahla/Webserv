@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/03 14:38:17 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/04 09:43:16 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ class Client
 		int						getReadStatus( void );
 		Request					& getRequest( void );
 		const Request			& getRequest( void ) const;
-		void					setRequest( t_epoll & epollVar, int i );
+		//void					setRequest( t_epoll & epollVar, int i );
 		Response				& getResponse( void );
 		Response				&getResponse( Server & serv, Request & req, int fd);
 		const Response			& getResponse( void ) const;

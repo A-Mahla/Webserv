@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
+/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/02 15:31:26 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/04 09:48:55 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,6 @@
 #include "Server.hpp"
 #include <sys/socket.h>
 #include <arpa/inet.h>
-
-/*									Value Default:									*/
-/*																					*/
-/*	server_name	(vector empty)	=> parse : server_name "";					/ none	*/
-/*	port		(8080)			=> parse : listen default;					/ none	*/
-/*	addr		(INADDR_ANY)	=> parse : listen hostport;					/ none	*/
-/*	error_pages	(none)			=> parse :	none									*/
-/*	clientBody	(8k/16k)		=> parse :	client_body_buffer_size	8k/16k	/ none	*/
-/*	index		(index.html)	=> parse :	index	index.html				/ none	*/
-/*	root		(html/)			=> parse :	root	html/					/ none	*/
 
 Server::Server( void ) : _servSock(0), _port(8080), _inetAddr(INADDR_ANY), _clientBody(16000), _autoindex( false ), _root("html/")
 {

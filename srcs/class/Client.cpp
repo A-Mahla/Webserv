@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/03 15:03:37 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/04 09:45:03 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,7 @@ void	Client::_chooseServer( std::string path )
 		_server = this->_serverList[0];
 }
 
-void	Client::setRequest( t_epoll & epollVar, int i )
+/*void	Client::setRequest( t_epoll & epollVar, int i )
 {
 	if ( !this->_request.getIsSetRequest() )
 	{
@@ -126,7 +126,7 @@ void	Client::setRequest( t_epoll & epollVar, int i )
 			this->_server->get_clientBody(), 2, epollVar, i ) ) <= 0 )
 			return ;
 	}
-}
+}*/
 
 Response		& Client::getResponse( void )
 {

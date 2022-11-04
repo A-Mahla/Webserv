@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/03 18:32:12 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/04 09:35:37 by maxenceeudi      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,25 +39,15 @@ Response::Response(Server & serv, Request & req, int fd) : _server(NULL), _statu
 	else if ( req.getMethode() == POST)
 		POST_response(serv, req);
 	else if ( req.getMethode() == DELETE)
-	{
-		_response += "HTTP/1.1 200 OK\n";
-		_response += "Content-Type: text/html\r\n";
-		_response += "Content-Length: ";
-		_response += "14";
-		_response += "\n\n";
-		_response += "DELETE request";
-		_response += "\r\n\r\n";
-	}
+		DELETE_response(serv, req);
 	else
 		_status = 400;
 
 	if (_status)
 		_getErrorPage();
-
 }
 
-/*------------test max--------------------*/
-
+/*------------canonical form--------------------*/
 Response::Response( const Response & rhs )
 {
 	if ( DEBUG )
@@ -83,16 +73,6 @@ Response &	Response::operator=( const Response & rhs )
 	return ( *this );
 }
 
-std::string			& Response::getStringResponse( void )
-{
-	return ( this->_response );
-}
-
-const std::string	& Response::getStringResponse( void ) const
-{  std::cout << "\n"                             << std::endl;
-	return ( this->_response );
-}
-
 Response::Response( void ) : _server(NULL), _status(0)
 {
 	if ( DEBUG )
@@ -103,100 +83,32 @@ Response::Response( void ) : _server(NULL), _status(0)
 	this->_response += "\n\nHello world!";
 }
 
-
-Server	*Response::getServer(void)
+/*------------geter--------------------*/
+std::string			& Response::getStringResponse( void )
 {
-	return (_server);
+	return ( this->_response );
 }
 
-int	&Response::getStatus(void)
+const std::string	& Response::getStringResponse( void ) const
+{
+	return ( this->_response );
+}
+
+int		&Response::getStatus(void)
 {
 	return (_status);
 }
 
-void	Response::_get_good_Root(std::string path, Server *serv)
+/*------------public methode--------------------*/
+void	Response::DELETE_response(Server &serv, Request &req)
 {
-	for (std::map<std::string, Server>::iterator it = serv->getLocation().begin(); it != serv->getLocation().end(); it++)
-	{
-		if (it->first == path || (it->first[0] == '.' && it->first.substr(1, it->first.size()) == path))
-		{
-			this->_server = &it->second;
-			break ;
-		}
-		if (!it->second.getLocation().empty())
-			_get_good_Root(path, &it->second);
-	}
-}
-
-std::string	Response::_readFile(std::string path)
-{
-	std::ifstream 	ifs;
-	std::string		file_content;
-	std::string		filename;
-	int				length;
-	char			*buff;
-
-	filename = path;
-	
-	ifs.open(filename.c_str(), std::ifstream::in);
-
-	if ( !ifs.is_open() )
-	{
-		this->_status = 404;
-		return ("");
-	}
-	ifs.seekg (0, ifs.end);
-	length = ifs.tellg();
-	ifs.seekg (0, ifs.beg);
-
-	buff = new char[length + 1];
-	ifs.read(buff, length);
-	if (ifs.fail())
-		this->_status = 403;
-	ifs.close();
-	buff[length] = '\0';
-	file_content = buff;
-	delete [] buff;
-
-	return (file_content);
-}
-
-std::string	Response::_readFile(std::string path, Server &serv)
-{
-	std::ifstream 	ifs;
-	std::string		file_content;
-	std::string		filename;
-	int				length;
-	char			*buff;
-
-
-	_get_good_Root(path, &serv);
-	if (!this->_server)
-		this->_server = &serv;
-
-	filename = this->_server->get_root()+ path.erase(0, 1);
-	
-	ifs.open(filename.c_str(), std::ifstream::in);
-
-	if ( !ifs.is_open() )
-	{
-		this->_status = 404;
-		return ("");
-	}
-	ifs.seekg (0, ifs.end);
-	length = ifs.tellg();
-	ifs.seekg (0, ifs.beg);
-
-	buff = new char[length + 1];
-	ifs.read(buff, length);
-	if (ifs.fail())
-		this->_status = 403;
-	ifs.close();
-	buff[length] = '\0';
-	file_content = buff;
-	delete [] buff;
-
-	return (file_content);
+	_response += "HTTP/1.1 200 OK\n";
+	_response += "Content-Type: text/html\r\n";
+	_response += "Content-Length: ";
+	_response += "14";
+	_response += "\n\n";
+	_response += "DELETE request";
+	_response += "\r\n\r\n";
 }
 
 void	Response::GET_response(Server & serv, Request & req)
@@ -242,8 +154,73 @@ void	Response::POST_response(Server &serv, Request &req)
 }
 
 
+/*------------private methode--------------------*/
+std::string	Response::_readFile(std::string path)
+{
+	std::ifstream 	ifs;
+	std::string		file_content;
+	std::string		filename;
+	int				length;
+	char			*buff;
 
-//cgi
+	filename = path;
+	
+	ifs.open(filename.c_str(), std::ifstream::in);
+
+	if ( !ifs.is_open() )
+	{
+		this->_status = 404;
+		return ("");
+	}
+	ifs.seekg (0, ifs.end);
+	length = ifs.tellg();
+	ifs.seekg (0, ifs.beg);
+
+	buff = new char[length + 1];
+	ifs.read(buff, length);
+	if (ifs.fail())
+		this->_status = 403;
+	ifs.close();
+	buff[length] = '\0';
+	file_content = buff;
+	delete [] buff;
+
+	return (file_content);
+}
+
+std::string	Response::_readFile(std::string path, Server &serv)
+{
+	std::ifstream 	ifs;
+	std::string		file_content;
+	std::string		filename;
+	int				length;
+	char			*buff;
+
+	filename = serv.get_root()+ path.erase(0, 1);
+	
+	ifs.open(filename.c_str(), std::ifstream::in);
+
+	if ( !ifs.is_open() )
+	{
+		this->_status = 404;
+		return ("");
+	}
+	ifs.seekg (0, ifs.end);
+	length = ifs.tellg();
+	ifs.seekg (0, ifs.beg);
+
+	buff = new char[length + 1];
+	ifs.read(buff, length);
+	if (ifs.fail())
+		this->_status = 403;
+	ifs.close();
+	buff[length] = '\0';
+	file_content = buff;
+	delete [] buff;
+
+	return (file_content);
+}
+
 char    **Response::_getArgv(std::string script)
 {
     char**  argv = new char*[2];
@@ -266,8 +243,6 @@ void		Response::_clear_env(char **env)
 		free(env[i++]);
 	free(env);
 }
-
-
 
 std::string Response::_getEnv(std::string key, char **env)
 {
@@ -341,9 +316,8 @@ void    Response::_execCGI(std::string script, char **env)
 
     if (pid == 0)
     {
-		
         dup2(this->_fd, STDOUT_FILENO);
-
+		
         execve(script.c_str(), argv, env );
 		
 		_status = 400;
@@ -358,12 +332,11 @@ void    Response::_execCGI(std::string script, char **env)
     _clear_argv(argv);
 	_clear_env(env);
 	_response = "CGI";
-
 }
 
 /*------------BUILDING CGI ENVIRONNEMENT--------------------*/
 
-char**	Response::buildCGIenv(Request const & req, Server const & serv)
+char**	Response::_buildCGIenv(Request const & req, Server const & serv)
 {
 	int i = 0;
 	size_t pos = 0;
@@ -473,9 +446,8 @@ char	*ft_find_wrd(char const *s, char set, int wordneeded)
 	}
 	return (NULL);
 }
-
 	
-char**	Response::ft_split(char const *s, char c)
+char**	Response::_ft_split(char const *s, char c)
 {
 	char	**strs;
 	int		nbwrd;
