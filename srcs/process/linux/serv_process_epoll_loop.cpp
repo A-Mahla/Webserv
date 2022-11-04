@@ -41,7 +41,7 @@ void	sendData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, i
 {
 		const char	*buffer_write = it->getResponse(*(it->getServer()), it->getRequest(), epollVar.events[i].data.fd).getStringResponse().c_str();
 		
-		if (strcmp(buffer_write, "CGI") != 0 &&  send( epollVar.events[i].data.fd, buffer_write, strlen(buffer_write), 0 ) < 0 )
+		if (!(it->getResponse().getIsCGI()) &&  send( epollVar.events[i].data.fd, buffer_write, strlen(buffer_write), 0 ) < 0 )
 		{
 			std::cout << RED << "Connexion client lost" << SET << std::endl;
 			clients.erase( it );

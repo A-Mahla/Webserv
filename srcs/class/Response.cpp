@@ -28,7 +28,7 @@
 #define NB_ELEMENTS 17
 
 
-Response::Response(Server & serv, Request & req, int fd) : _server(NULL), _status(0)
+Response::Response(Server & serv, Request & req, int fd) : _isCGI(0), _status(0)
 {
 	if ( DEBUG )
 		std::cout << "Response request Constructor" << std::endl;
@@ -67,13 +67,13 @@ Response &	Response::operator=( const Response & rhs )
 	{
 		this->_response = rhs._response;
 		this->_fd = rhs._fd;
-		this->_server = rhs._server;
+		this->_isCGI = rhs._isCGI;
 		this->_status = rhs._status;
 	}
 	return ( *this );
 }
 
-Response::Response( void ) : _server(NULL), _status(0)
+Response::Response( void ) : _isCGI(0), _status(0)
 {
 	if ( DEBUG )
 		std::cout << "Response Default Constructor" << std::endl;
@@ -94,6 +94,11 @@ const std::string	& Response::getStringResponse( void ) const
 	return ( this->_response );
 }
 
+bool				Response::getIsCGI(void)
+{
+	return (this->_isCGI);
+}
+
 int		&Response::getStatus(void)
 {
 	return (_status);
@@ -102,6 +107,9 @@ int		&Response::getStatus(void)
 /*------------public methode--------------------*/
 void	Response::DELETE_response(Server &serv, Request &req)
 {
+	std::string script = std::string("/bin/rm ") + serv.get_root() + (req.getPath().substr(1, req.getPath().size() - 1));
+	std::cout << "------ DANS LA METHODE DELETE ------\n" << std::endl;
+
 	_response += "HTTP/1.1 200 OK\n";
 	_response += "Content-Type: text/html\r\n";
 	_response += "Content-Length: ";
@@ -109,13 +117,16 @@ void	Response::DELETE_response(Server &serv, Request &req)
 	_response += "\n\n";
 	_response += "DELETE request";
 	_response += "\r\n\r\n";
+	std::cout << "Le fichier que lon veut supprimer: " << script << std::endl;
+	_execCGI(script, _buildCGIenv(req, serv));
+	_isCGI = false;
+	std::cout << "\n------ SORTI DE LA METHODE DELETE ------\n" << std::endl;
 }
 
 void	Response::GET_response(Server & serv, Request & req)
 {
 	std::string content_str;
 	std::stringstream ss;
-
 
 	if (req.getPath() == "/"  || *req.getPath().rbegin() != '/' )
 	{
@@ -138,17 +149,16 @@ void	Response::GET_response(Server & serv, Request & req)
 	}
 	else if (*req.getPath().rbegin() == '/')
 	{
-		char **env = buildCGIenv(req, serv);
+		char **env = _buildCGIenv(req, serv);
 		std::string	script = "./cgi/autoindex.cgi";
 		_execCGI(script, env);
-		_response = "CGI";
 	}
 	
 }
 
 void	Response::POST_response(Server &serv, Request &req)
 {
-	char **env = buildCGIenv(req, serv);
+	char **env = _buildCGIenv(req, serv);
 	std::string     script = "./cgi" + _getEnv("PATH_INFO", env);
 	_execCGI(script, env);
 }
@@ -223,10 +233,7 @@ std::string	Response::_readFile(std::string path, Server &serv)
 
 char    **Response::_getArgv(std::string script)
 {
-    char**  argv = new char*[2];
-    argv[0] = strdup(script.c_str());
-	argv[1] = NULL;
-    return (argv);
+    return (_ft_split(script.c_str(), ' '));
 }
 
 void    Response::_clear_argv(char **argv)
@@ -308,7 +315,7 @@ void    Response::_execCGI(std::string script, char **env)
     char            **argv = _getArgv(script);
 
     pid = fork();
-    if (pid == -1)
+    if (pid == -1 || !argv)
     {
         std::cout << "error fork()" << std::endl;
         return ;
@@ -318,7 +325,7 @@ void    Response::_execCGI(std::string script, char **env)
     {
         dup2(this->_fd, STDOUT_FILENO);
 		
-        execve(script.c_str(), argv, env );
+        execve(argv[0], argv, env );
 		
 		_status = 400;
 		_printErrorPage();
@@ -329,9 +336,9 @@ void    Response::_execCGI(std::string script, char **env)
 		exit(1);
     }
     wait(NULL);
-    _clear_argv(argv);
+    _clear_env(argv);
 	_clear_env(env);
-	_response = "CGI";
+	_isCGI = true;
 }
 
 /*------------BUILDING CGI ENVIRONNEMENT--------------------*/
@@ -349,7 +356,7 @@ char**	Response::_buildCGIenv(Request const & req, Server const & serv)
 		pos += var[i].size() + 1;
 		i++;
 	}
-	return (ft_split(starter.c_str(), ' '));
+	return (_ft_split(starter.c_str(), ' '));
 }
 
 void	Response::_initVar(std::string *var, Request const & req, Server const & serv){

@@ -48,7 +48,7 @@ class Client
 		int						getReadStatus( void );
 		Request					& getRequest( void );
 		const Request			& getRequest( void ) const;
-		//void					setRequest( t_epoll & epollVar, int i );
+		void					setRequest( t_epoll & epollVar, int i );
 		Response				& getResponse( void );
 		Response				&getResponse( Server & serv, Request & req, int fd);
 		const Response			& getResponse( void ) const;

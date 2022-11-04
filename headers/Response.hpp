@@ -35,6 +35,7 @@ class Response
 
 		int			_fd;
 		std::string	_response;
+		bool		_isCGI;
 		int			_status;
 
 		char    	**_getArgv(std::string script);
@@ -58,6 +59,7 @@ class Response
 		Response &	operator=( const Response & rhs );
 
 		std::string			& getStringResponse( void );
+		bool				getIsCGI(void);
 		const std::string	& getStringResponse( void ) const;
 		int					& getStatus(void);
 		

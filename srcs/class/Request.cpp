@@ -46,7 +46,6 @@ Request &	Request::operator=( const Request & rhs )
 		this->_contentLength = rhs._contentLength;
 		this->_contentType = rhs._contentType;
 		this->_boundary = rhs._boundary;
-		this->_method = rhs._method;
 		this->_path = rhs._path;
 		this->_port = rhs._port;
 		this->_addr = rhs._addr;
@@ -110,8 +109,9 @@ void	Request::_checkUserAgent( const std::string request )
 {
 	if (!request.compare(0, 12, "User-Agent: "))
 	{
-		if (request.find("Chrome", 0) == std::string::npos)
-			_method = BAD_REQUEST;
+		if (request.find("Firefox", 0) == std::string::npos){
+			//_method = BAD_REQUEST;
+		}
 	}
 }
 
@@ -293,14 +293,12 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 			_parseContentLength( line );
 			_parseContentType( line );
 		}
-//		std::cout << line << "\n";
 	}
 	if ( this->_method == POST )
 	{
 		this->_request = temp;
 		if ( this->_contentType == "application/x-www-form-urlencoded" )
 			this->_queryString = this->_request;
-//		else if ( file )
 	}
 	if ( this->_method == GET || this->_method == DELETE
 			|| this->_method == BAD_REQUEST 
@@ -308,22 +306,7 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 	{
 		changeEpollEvent( epollVar, i );
 	}
-/*	std::cout << "*******************************************\n\n";
-	std::cout << "\n\n*********PRINTING THE PARSING**********\n\n";
-
-		std::cout << "method = " << _method << "\n";
-		std::cout << "_addr = " << _addr << "\n";
-		std::cout << "port = " << _port << "\n";
-		std::cout << "_path = " << _path << "\n";
-
-		std::cout << "accept options :\n";
-		std::cout << "<<\n";
-		for (std::vector<std::string>::iterator it = _accept.begin(); it != _accept.end(); it++){
-			std::cout << *it << "\n";
-		}
-		std::cout << ">>" << "\n";
-		std::cout << "\n\n***********************************\n\n";
-*/}
+}
 
 int			Request::readData( int readFd, size_t bufferSize, int flag,
 				t_epoll & epollVar, int i )

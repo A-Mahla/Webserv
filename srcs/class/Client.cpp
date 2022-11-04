@@ -106,7 +106,7 @@ void	Client::_chooseServer( std::string path )
 		_server = this->_serverList[0];
 }
 
-/*void	Client::setRequest( t_epoll & epollVar, int i )
+void	Client::setRequest( t_epoll & epollVar, int i )
 {
 	if ( !this->_request.getIsSetRequest() )
 	{
@@ -126,7 +126,7 @@ void	Client::_chooseServer( std::string path )
 			this->_server->get_clientBody(), 2, epollVar, i ) ) <= 0 )
 			return ;
 	}
-}*/
+}
 
 Response		& Client::getResponse( void )
 {
