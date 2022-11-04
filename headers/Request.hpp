@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/03 22:27:58 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/04 13:55:43 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,8 @@ class Request
 		std::vector<std::string>	_accept;
 
 		std::ofstream				_newFile;
-		std::string						_lastNewLineFile;
+		std::string					_lastNewLineFile;
+		size_t						_sizeFile;
 
 		std::map< std::string, std::string >	_contentDisposition;
 
@@ -93,6 +94,7 @@ class Request
 		std::string		getAddr() const;
 
 		size_t			getContentLength( void ) const;
+		size_t			getSizeFile( void ) const;
 		std::string 	const & getContentLengthStr( void ) const;
 		std::string		getContentType( void ) const;
 		std::string		getBoundary( void ) const;
