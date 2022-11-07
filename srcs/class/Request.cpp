@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/04 09:47:39 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/11/07 10:50:19 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,15 @@
 #include "ParseFile.hpp"
 #include <sstream>
 
-Request::Request( void ) : _isSetRequest(false), _isSetBoundary(false),
-	_contentLength(0)
+Request::Request( void ) : _isSetRequest(false), _isSetHeaderFile(false),
+	_contentLength(0), _sizeFile(0)
 {
 	if ( DEBUG )
 		std::cout << "Request Default Constructor" << std::endl;
 }
 
 Request::Request( const Request & rhs ) : _isSetRequest(false),
-	_isSetBoundary(false), _contentLength(0)
+	_isSetHeaderFile(false), _contentLength(0), _sizeFile(0)
 {
 	if ( DEBUG )
 		std::cout << "Request copy Constructor" << std::endl;
@@ -42,7 +42,7 @@ Request &	Request::operator=( const Request & rhs )
 	{
 		this->_request = rhs._request;
 		this->_isSetRequest = rhs._isSetRequest;
-		this->_isSetBoundary = rhs._isSetBoundary;
+		this->_isSetHeaderFile = rhs._isSetHeaderFile;
 		this->_contentLength = rhs._contentLength;
 		this->_contentType = rhs._contentType;
 		this->_boundary = rhs._boundary;
@@ -54,10 +54,8 @@ Request &	Request::operator=( const Request & rhs )
 		this->_contentDisposition = rhs._contentDisposition;
 		this->_origin = rhs._origin;
 		this->_queryString = rhs._queryString;
-		this->_path = rhs._path;
-		this->_port = rhs._port;
-		this->_addr = rhs._addr;
-		this->_method = rhs._method;
+		this->_sizeFile = rhs._sizeFile;
+		this->_lastNewLineFile = rhs._lastNewLineFile;
 	}
 	return ( *this );
 }
@@ -172,11 +170,15 @@ size_t			Request::getContentLength( void ) const
 	return ( this->_contentLength );
 }
 
+size_t			Request::getSizeFile( void ) const
+{
+	return ( this->_sizeFile );
+}
+
 std::string const & Request::getContentLengthStr( void ) const
 {
 	return ( this->_contentLenghtStr );
 }
-
 
 std::string		Request::getContentType( void ) const
 {
@@ -203,9 +205,9 @@ bool			Request::getIsSetRequest( void ) const
 	return ( this->_isSetRequest );
 }
 
-bool			Request::getIsSetBoundary( void ) const
+bool			Request::getIsSetHeaderFile( void ) const
 {
-	return ( this->_isSetBoundary );
+	return ( this->_isSetHeaderFile );
 }
 
 std::map< std::string, std::string >	& Request::getContentDisposition( void )
@@ -250,7 +252,7 @@ void		Request::_parseContentDisposition( std::string request )
 			( (request.find_last_of( ";" ) - 1) - (request.find( "=", 0 ) + 2 )) );
 
 		this->_contentDisposition["filename"] = request.substr( request.find_last_of( "=" ) + 2,
-			 ( request.size() - 1 ) - ( request.find_last_of( "=" ) + 2  ) );
+			 ( request.size() - 2 ) - ( request.find_last_of( "=" ) + 2  ) );
 	}
 }
 
@@ -259,8 +261,95 @@ void		Request::changeEpollEvent( t_epoll & epollVar, int i )
 	epollVar.new_event.events = EPOLLOUT;
 	epollVar.new_event.data.fd = epollVar.events[i].data.fd;
 	epoll_ctl( epollVar.epollFd, EPOLL_CTL_MOD, epollVar.events[i].data.fd, &epollVar.new_event);
-	this->_isSetRequest = false;
+}
 
+void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
+{
+	std::stringstream 	ss;
+	std::string			line;
+	std::string			temp;
+
+	if ( this->_sizeFile != this->_contentLength )
+		if ( this->_request.find( "\n", 0 ) == std::string::npos )
+			return ;
+
+	temp = this->_request;
+	this->_request = this->_lastNewLineFile;
+	this->_request += temp;
+	this->_lastNewLineFile.clear();
+
+	ss << this->_request;
+	while ( std::getline(ss, line) && !ss.eof() )
+	{
+		
+		if ( line.find( this->_boundary, 0 ) != std::string::npos )
+			break ;
+		if ( line.find( "\r", 0 ) == 0 )
+			continue ;
+		this->_newFile << line;
+		this->_newFile << "\n";
+	}
+	if ( line.find( this->_boundary, 0 ) != std::string::npos )
+	{
+		temp = this->_request.substr( this->_request.find( this->_boundary, 0),
+			this->_request.size() - 1 );
+		this->_request = temp;
+		this->_newFile.close();
+		this->_contentDisposition.clear();
+		this->_isSetHeaderFile = false;
+		parseHeaderFile( server, epollVar, i );
+	}
+	else
+	{
+		this->_request.clear();
+		this->_lastNewLineFile = line;
+	}
+}
+
+void		Request::parseHeaderFile( Server & server, t_epoll & epollVar, int i )
+{
+	std::string	line;
+	std::stringstream 	ss;
+	std::string			temp;
+	std::string			nameFile;
+
+	if ( this->_sizeFile == this->_contentLength )
+		changeEpollEvent( epollVar, i );
+
+	if ( this->_request.find( "\r\n\r\n", 0 ) == std::string::npos )
+		return ;
+
+	temp = this->_request.substr( this->_request.find( "\r\n\r\n", 0 ) + 4,
+		this->_request.size()- 1 );
+	this->_isSetHeaderFile = true;
+	this->_contentType.clear();
+	ss << this->_request;
+	while (!ss.eof())
+	{
+		std::getline(ss, line);
+		_parseContentType( line );
+		_parseContentDisposition( line );
+		if ( !this->_contentType.empty() )
+			break ;
+	}
+
+	if ( this->_isSetHeaderFile )
+	{
+		nameFile = ".";
+		nameFile += server.get_root();
+
+		for( itMapStringString it = this->_contentDisposition.begin();
+				it != this->_contentDisposition.end(); it++ )
+		{
+			if ( it->first == "filename" )
+				nameFile += it->second;
+		}
+		this->_newFile.clear();
+		this->_newFile.open( nameFile.c_str(), std::ofstream::out );
+		
+		this->_request = temp;
+		writeFile( server, epollVar, i );
+	}
 }
 
 void		Request::parseRequest( t_epoll & epollVar, int i )
@@ -278,7 +367,7 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 	{
 		std::getline(ss, line);
 		_parseMethodAndPath(line);
-		_checkUserAgent( line );
+//		_checkUserAgent( line );
 		if ( this->_method == GET || this->_method == DELETE )
 		{
 			_parseHost(line);
@@ -292,44 +381,30 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 			_parseOrigin( line );
 			_parseContentLength( line );
 			_parseContentType( line );
+			_parseContentDisposition( line );
 		}
-//		std::cout << line << "\n";
 	}
 	if ( this->_method == POST )
 	{
 		this->_request = temp;
 		if ( this->_contentType == "application/x-www-form-urlencoded" )
 			this->_queryString = this->_request;
-//		else if ( file )
 	}
 	if ( this->_method == GET || this->_method == DELETE
 			|| this->_method == BAD_REQUEST 
-			|| ( this->_method == POST && this->_request.size() == this->_contentLength ))
+			|| ( this->_method == POST && this->_request.size() == this->_contentLength
+				&& this->_boundary.empty()))
 	{
 		changeEpollEvent( epollVar, i );
+		this->_isSetRequest = false;
 	}
-/*	std::cout << "*******************************************\n\n";
-	std::cout << "\n\n*********PRINTING THE PARSING**********\n\n";
-
-		std::cout << "method = " << _method << "\n";
-		std::cout << "_addr = " << _addr << "\n";
-		std::cout << "port = " << _port << "\n";
-		std::cout << "_path = " << _path << "\n";
-
-		std::cout << "accept options :\n";
-		std::cout << "<<\n";
-		for (std::vector<std::string>::iterator it = _accept.begin(); it != _accept.end(); it++){
-			std::cout << *it << "\n";
-		}
-		std::cout << ">>" << "\n";
-		std::cout << "\n\n***********************************\n\n";
-*/}
+}
 
 int			Request::readData( int readFd, size_t bufferSize, int flag,
 				t_epoll & epollVar, int i )
 {
 	char	bufferRead[ bufferSize ];
-	int		rd;
+	int		rd = 0;
 
 	if ( (rd = recv( readFd , bufferRead, bufferSize, 0 )) <= 0 )
 	{
@@ -343,12 +418,16 @@ int			Request::readData( int readFd, size_t bufferSize, int flag,
 	}
 
 	bufferRead[rd] = '\0';
-	this->_request += bufferRead;
-	if ( flag == 1 && this->_request.find( "\r\n\r\n", 0 ) != std::string::npos )
+	this->_sizeFile += rd;
+	this->_request += (bufferRead);
+	if ( !this->_isSetRequest && this->_request.find( "\r\n\r\n", 0 ) != std::string::npos )
+	{
+		this->_sizeFile -= (this->_request.find( "\r\n\r\n", 0 ) + 4);
 		this->_isSetRequest = true;
-	if ( flag == 2 && this->_request.size() == this->_contentLength )
+	}
+	if ( flag && this->_sizeFile == this->_contentLength )
 		changeEpollEvent( epollVar, i );
-	std::cout << GREEN <<  "Server side receive from client : \n" << bufferRead << SET << std::endl;
+	std::cout << GREEN <<  "Server side receive from client : \n" << this->_request << SET << std::endl;
 
 	return ( rd );
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/04 09:48:17 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/11/07 09:28:52 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <cstdlib>
 # include <map>
 # include "epoll.h"
+# include <fstream>
 
 enum e_method
 {
@@ -36,7 +37,7 @@ class Request
 		std::string					_request;
 
 		bool						_isSetRequest;
-		bool						_isSetBoundary;
+		bool						_isSetHeaderFile;
 
 		size_t						_contentLength;
 		std::string					_contentLenghtStr;
@@ -49,6 +50,10 @@ class Request
 		std::string					_port;
 		std::string					_addr;
 		std::vector<std::string>	_accept;
+
+		std::ofstream				_newFile;
+		std::string					_lastNewLineFile;
+		size_t						_sizeFile;
 
 		std::map< std::string, std::string >	_contentDisposition;
 
@@ -80,7 +85,7 @@ class Request
 		const std::string	& getStringRequest( void ) const;
 
 		bool			getIsSetRequest( void ) const;
-		bool			getIsSetBoundary( void ) const;
+		bool			getIsSetHeaderFile( void ) const;
 
 		//max
 		int				getMethode() const;
@@ -90,6 +95,7 @@ class Request
 		std::string		getAddr() const;
 
 		size_t			getContentLength( void ) const;
+		size_t			getSizeFile( void ) const;
 		std::string 	const & getContentLengthStr( void ) const;
 		std::string		getContentType( void ) const;
 		std::string		getBoundary( void ) const;
@@ -102,7 +108,10 @@ class Request
 		int			readData( int readFd, size_t bufferSize, int flag,
 						t_epoll & epollVar, int i );
 		void		changeEpollEvent( t_epoll & epollVar, int i );
+		void		parseHeaderFile( Server & server, t_epoll & epollVar, int i );
+		void		writeFile( Server & server, t_epoll & epollVar, int i );
 };
 
+typedef std::map< std::string, std::string >::iterator itMapStringString;
 
 #endif
