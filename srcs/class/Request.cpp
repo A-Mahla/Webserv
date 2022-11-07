@@ -153,7 +153,9 @@ void		Request::_parseMethodAndPath(std::string request)
 	if ((pos = request.find("GET")) != std::string::npos)
 	{
 		if (_getPath(request.substr(4, request.find("\0", 0) - 4)))
+		{
 			_method = GET;
+		}
 	}
 	else if ((pos = request.find("POST")) != std::string::npos)
 	{

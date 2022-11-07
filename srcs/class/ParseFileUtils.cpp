@@ -295,3 +295,51 @@ bool	checkSyntaxIndex(std::string str)
 	return (true);
 }
 
+
+bool    afterSemiColon(std::string & str)
+{
+    int i = 0;
+    for (std::string::iterator it = str.end() - 1; *it != ';' && it != str.begin(); it--, i++){
+        if (*it != '\t' && *it != ' ') {
+            if (*it == '\0')
+                std::cout << "ici le test [" << *it << "] " << i << "\n";
+            return (false);
+        }
+    }
+    return (true);
+}
+
+bool    checkMethodes(std::string str, Server & serv)
+{
+    if ((str.substr(0, 3)).find("GET", 0) != std::string::npos && !serv.getAllowGet()){
+        if (str[3] == ':') {
+            serv.setAllowGet(true);
+            return (checkMethodes(str.c_str() + 4, serv));
+        }
+        if (str[3] == ';'){
+            serv.setAllowGet(true);
+            return (true);
+        }
+    }
+    else if ((str.substr(0, 4)).find("POST", 0) != std::string::npos && !serv.getAllowPost()){      
+        if (str[4] == ':'){
+            serv.setAllowPost(true);
+            return (checkMethodes(str.c_str() + 5, serv));
+        }
+        if (str[4] == ';') {
+            serv.setAllowPost(true);
+            return (true);
+        }
+    }
+    else if ((str.substr(0, 6)).find("DELETE", 0) != std::string::npos && !serv.getAllowDelete()){
+        if (str[6] == ':'){
+            serv.setAllowDelete(true);
+            return (checkMethodes(str.c_str() + 7, serv));
+        }
+        if (str[6] == ';'){
+            serv.setAllowDelete(true);
+            return (true);
+        }
+    }
+    return (false);
+}

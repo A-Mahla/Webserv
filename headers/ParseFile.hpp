@@ -22,7 +22,7 @@ class ParseFile
 	private:
 
 		std::vector<Server>	_servers;
-		bool				(ParseFile::*_ft[7])( const std::string str,
+		bool				(ParseFile::*_ft[8])( const std::string str,
 								Server & server );
 
 	public:
@@ -50,6 +50,7 @@ class ParseFile
 		bool	index(const std::string line_const, Server &server);
 		bool	listenParse( const std::string str_const, Server & serv);
 		bool	autoindexParse( const std::string str_const, Server & serv );
+		bool	allowedMethodsParse(std::string str, Server & serv);
 
 };
 
@@ -75,5 +76,7 @@ bool	onlyDiggit(std::string const & str);
 bool	addrIsValid(std::string	addr);
 bool	addrIsGood(Server & serv, std::string addr);
 bool	portIsGood(Server & serv, std::string port);
+bool    afterSemiColon(std::string & str);
+bool    checkMethodes(std::string str, Server & serv);
 
 #endif

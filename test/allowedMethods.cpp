@@ -22,14 +22,39 @@ class Server
         void    setAllowGet(bool val){_allowGet = val;}
 };
 
+bool    afterSemiColon(std::string & str)
+{
+    int i = 0;
+    for (std::string::iterator it = str.end() - 1; *it != ';' && it != str.begin(); it--, i++){
+        if (*it != '\t' && *it != ' ') {
+            if (*it == '\0')
+                std::cout << "ici le test [" << *it << "] " << i << "\n";
+            return (false);
+        }
+    }
+    return (true);
+}
+
+int	checkOccurance(std::string & str, const char * toFind)
+{
+	int	i = 0;
+	size_t occurs = 0;
+
+	while (((occurs = str.find(toFind, occurs))) != std::string::npos){
+		occurs++;
+		i++;
+	}
+	return (i);
+}
+
 bool    checkMethodes(std::string str, Server & serv)
 {
+    std::cout << "INPUT IS : " << str << std::endl;
     if ((str.substr(0, 3)).find("GET", 0) != std::string::npos && !serv.getAllowGet()){
-        if (str[3] == ':')
-            if (checkMethodes(str.c_str() + 4, serv)){
-                serv.setAllowGet(true);
-                return (true);
-            }
+        if (str[3] == ':') {
+            serv.setAllowGet(true);
+            return (checkMethodes(str.c_str() + 4, serv));
+        }
         if (str[3] == ';'){
             serv.setAllowGet(true);
             return (true);
@@ -37,23 +62,18 @@ bool    checkMethodes(std::string str, Server & serv)
     }
     else if ((str.substr(0, 4)).find("POST", 0) != std::string::npos && !serv.getAllowPost()){      
         if (str[4] == ':'){
-            if (checkMethodes(str.c_str() + 5, serv)){
-                serv.setAllowPost(true);
-                return (true);
-            }
+            serv.setAllowPost(true);
+            return (checkMethodes(str.c_str() + 5, serv));
         }
         if (str[4] == ';') {
-            std::cout << "je suis sense passer par la \n";
             serv.setAllowPost(true);
             return (true);
         }
     }
     else if ((str.substr(0, 6)).find("DELETE", 0) != std::string::npos && !serv.getAllowDelete()){
         if (str[6] == ':'){
-            if (checkMethodes(str.c_str() + 7, serv)){
-                serv.setAllowDelete(true);
-                return (true);
-            }
+            serv.setAllowDelete(true);
+            return (checkMethodes(str.c_str() + 7, serv));
         }
         if (str[6] == ';'){
             serv.setAllowDelete(true);
@@ -63,10 +83,11 @@ bool    checkMethodes(std::string str, Server & serv)
     return (false);
 }
 
+
 bool	allowedMethodsParse(std::string str, Server & serv)
 {
     int i = 0;
-    if ( !(str.compare(0, 9, "methodes ")) ){
+    if ( !(str.compare(0, 9, "methodes ")) && checkOccurance(str, ";") == 1 && afterSemiColon(str)){
         for (i = 9; str[i] == ' ' || str[i] == '\t'; i++);
         if (checkMethodes(str.c_str() + i, serv))
             return (true);
@@ -80,8 +101,9 @@ bool	allowedMethodsParse(std::string str, Server & serv)
 int main(void){
 
 
-    std::string test = "methodes         GET:GET:DELETE;";
+    std::string test = "methodes                POST;";
     Server serv;
+
 
     int ret = allowedMethodsParse(test, serv);
 

@@ -110,15 +110,19 @@ void	Response::DELETE_response(Server &serv, Request &req)
 	std::string script = std::string("/bin/rm ") + serv.get_root() + (req.getPath().substr(1, req.getPath().size() - 1));
 	std::cout << "------ DANS LA METHODE DELETE ------\n" << std::endl;
 
-	_response += "HTTP/1.1 200 OK\n";
-	_response += "Content-Type: text/html\r\n";
-	_response += "Content-Length: ";
-	_response += "14";
-	_response += "\n\n";
-	_response += "DELETE request";
-	_response += "\r\n\r\n";
-	std::cout << "Le fichier que lon veut supprimer: " << script << std::endl;
-	_execCGI(script, _buildCGIenv(req, serv));
+	
+	if (_execCGI(script, _buildCGIenv(req, serv)) == 0)
+	{
+		_response += "HTTP/1.1 200 OK\n";
+		_response += "Content-Type: text/html\r\n";
+		_response += "Content-Length: ";
+		_response += "23";
+		_response += "\n\n";
+		_response += "DELETE request succede\n";
+		_response += "\r\n\r\n";
+	}
+	else
+		_getErrorPage();
 	_isCGI = false;
 	std::cout << "\n------ SORTI DE LA METHODE DELETE ------\n" << std::endl;
 }
@@ -309,16 +313,17 @@ void	Response::_getErrorPage()
 	_response += "\r\n\r\n";
 }
 
-void    Response::_execCGI(std::string script, char **env)
+int    Response::_execCGI(std::string script, char **env)
 {
     int pid;
+	int	status;
     char            **argv = _getArgv(script);
 
     pid = fork();
     if (pid == -1 || !argv)
     {
         std::cout << "error fork()" << std::endl;
-        return ;
+        return (-1);
     }
 
     if (pid == 0)
@@ -335,10 +340,11 @@ void    Response::_execCGI(std::string script, char **env)
 		_clear_env(env);
 		exit(1);
     }
-    wait(NULL);
+    wait(&status);
     _clear_env(argv);
 	_clear_env(env);
 	_isCGI = true;
+	return (status >> 8);
 }
 
 /*------------BUILDING CGI ENVIRONNEMENT--------------------*/

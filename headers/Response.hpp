@@ -41,7 +41,7 @@ class Response
 		char    	**_getArgv(std::string script);
 		void    	_clear_argv(char **argv);
 		void		_clear_env(char **env);
-		void    	_execCGI(std::string script, char **env);
+		int    	_execCGI(std::string script, char **env);
 		std::string _getEnv(std::string key, char **env);
 		std::string	_readFile(std::string path);
 		std::string	_readFile(std::string path, Server &serv);

@@ -40,7 +40,10 @@ class Server
 		std::map< std::string, std::string>	_error_pages;
 		std::map< std::string, bool >		_is_set;
 		std::map< std::string, Server >		_location;
-
+		bool								_allowDelete;
+		bool								_allowGet;
+		bool								_allowPost;
+		
 	public:
 
 		Server( void );
@@ -69,6 +72,9 @@ class Server
 		std::string								get_root( void ) const;
 		std::vector< std::string >				& get_index( void );
 		bool									getAutoindex( void ) const;
+		bool    								getAllowGet( void );
+        bool								    getAllowPost( void );
+        bool								    getAllowDelete( void );
 
 		void									setAutoindex( bool onOff );
 		void									set_clientBody( const int val );
@@ -77,6 +83,10 @@ class Server
 		void									setAddr( in_addr_t addr );
 		void									setPort( const int port );
 		void									setPort( std::string const & port);
+
+        void    								setAllowDelete(bool val);
+        void    								setAllowPost(bool val);
+        void    								setAllowGet(bool val);
 
 
 };

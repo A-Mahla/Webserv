@@ -15,11 +15,13 @@ server	{
 
 	client_body_buffer_size		8k;
 
+	methodes        					POST:GET:DELETE;
 	location		ifs	{
 
 				autoindex		off;
-
+	
 	}
+	
 }
 
 server	{
@@ -37,6 +39,8 @@ server	{
 	root						.;
 
 	client_body_buffer_size		8k;
+
+	methodes        			POST:GET:DELETE;
 
 	location		./config	{
 
