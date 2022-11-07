@@ -50,6 +50,7 @@ class Response
 		void		_getErrorPage(void);
 		char**		_buildCGIenv(Request const & req, Server const & serv);
 		char**		_ft_split(char const *s, char c);
+		bool		_checkFileToDelete(std::string const & script);
 
 	public:
 		Response( void );

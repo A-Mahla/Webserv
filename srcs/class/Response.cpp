@@ -105,13 +105,27 @@ int		&Response::getStatus(void)
 }
 
 /*------------public methode--------------------*/
+
+bool		Response::_checkFileToDelete(std::string const & script)
+{
+	std::cout << "in _checkFileToDelete(), input is [" << script << "]\n";
+	if (script.find("*", 0) != std::string::npos)
+		return (false);
+	if (script.find(".", 0) != std::string::npos && script.size() == 1)
+		return (false);
+	if (script.find("./", 0) != std::string::npos && script.size() == 2)
+		return (false);
+	if (*(script.end() - 1) == '.')
+		return (false);
+	return (true);
+}
+
 void	Response::DELETE_response(Server &serv, Request &req)
 {
 	std::string script = std::string("/bin/rm ") + serv.get_root() + (req.getPath().substr(1, req.getPath().size() - 1));
 	std::cout << "------ DANS LA METHODE DELETE ------\n" << std::endl;
 
-	
-	if (_execCGI(script, _buildCGIenv(req, serv)) == 0)
+	if (_checkFileToDelete(script.substr(8, script.size() - 8)) && _execCGI(script, _buildCGIenv(req, serv)) == 0)
 	{
 		_response += "HTTP/1.1 200 OK\n";
 		_response += "Content-Type: text/html\r\n";
@@ -121,8 +135,10 @@ void	Response::DELETE_response(Server &serv, Request &req)
 		_response += "DELETE request succede\n";
 		_response += "\r\n\r\n";
 	}
-	else
+	else{
+		_status = 403;
 		_getErrorPage();
+	}
 	_isCGI = false;
 	std::cout << "\n------ SORTI DE LA METHODE DELETE ------\n" << std::endl;
 }
