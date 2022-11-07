@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 12:01:04 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/07 17:24:43 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,10 @@ void	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::s
 		for (std::map< std::string, bool >::iterator it = server.getMap().begin();
 				it != server.getMap().end(); it++ )
 			it->second = false;
+		server.setAllowDelete(false);
+		server.setAllowGet(false);
+		server.setAllowPost(false);
+		server.getLocation().clear();
 	}
 
 	while ( std::getline( ifs, temp ).good() )
@@ -430,15 +434,15 @@ bool	ParseFile::allowedMethodsParse(std::string str, Server & serv)
     int i = 0;
 	if ( serv.get_is_set( "allowMethods" ) )
 		return ( false );
-    if ( !(str.compare(0, 8, "methodes")) && checkOccurance(str, ";") == 1 && afterSemiColon(str)){
-        for (i = 8; str[i] == ' ' || str[i] == '\t'; i++){}
-        if (checkMethodes(str.c_str() + i, serv)){
+    if ( !(str.compare(0, 8, "methodes")) && checkOccurance(str, ";") == 1 && afterSemiColon(str))
+	{
+        for (i = 8; str[i] == ' ' || str[i] == '\t'; i++)
+			;
+        if (checkMethodes(str.c_str() + i, serv))
+		{
 			serv.set_is_set( "allowMethods" );
 		    return (true);
 		}
     }
-    serv.setAllowGet(false);
-    serv.setAllowDelete(false);
-    serv.setAllowPost(false);
     return (false);
 }

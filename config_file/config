@@ -43,10 +43,9 @@ server	{
 
 	methodes        			POST:GET;
 
-	location		./config	{
+	location		./config {
 
 				autoindex		off;
-
 				root			.;
 	}
 

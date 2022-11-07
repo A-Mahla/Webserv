@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/04 09:48:55 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/11/07 17:23:15 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,19 +102,14 @@ const short								& Server::getPort( void ) const
 	return ( this->_port );
 }
 
-short									& Server::getPort( void )
+short								& Server::getPort( void )
 {
 	return ( this->_port );
 }
 
-std::string const 						& Server::getPortStr(void) const
+std::string	const						& Server::getPortStr( void ) const
 {
 	return (this->_portStr);
-}
-
-const in_addr_t							& Server::getInetAddr( void ) const
-{
-	return (this->_inetAddr);
 }
 
 in_addr_t								& Server::getInetAddr( void )
@@ -263,6 +258,19 @@ std::ostream	& operator<<( std::ostream & o, Server rhs )
 				it != rhs.get_error_pages().end(); it++ )
 			o << "			" << it->first << " => " << it->second << std::endl;
 	}
+	o << "	methodes:" << std::endl;
+	if (rhs.getAllowDelete())
+		o << "			DELETE = true\n" ;
+	else
+		o << "			DELETE = false\n" ;
+	if (rhs.getAllowPost())
+		o << "			POST = true\n" ;
+	else
+		o << "			POST = false\n" ;
+	if (rhs.getAllowGet())
+		o << "			GET = true\n" ;
+	else
+		o << "			GET = false\n" ;
 	if ( !rhs.getLocation().empty() )
 	{
 		for ( std::map< std::string, Server >::iterator it( rhs.getLocation().begin() );
@@ -273,18 +281,7 @@ std::ostream	& operator<<( std::ostream & o, Server rhs )
 		}
 		o << std::endl;
 	}
-	o << "\n allowed methodes : \n";
-	if (rhs.getAllowDelete())
-		o << "--> DELETE = true\n" ;
-	else
-		o << "--> DELETE = false\n" ;
-	if (rhs.getAllowPost())
-		o << "--> POST = true\n" ;
-	else
-		o << "--> POST = false\n" ;
-	if (rhs.getAllowGet())
-		o << "--> GET = true\n" ;
-	else
-		o << "--> GET = false\n" ;
+
+	
 	return ( o );
 }
