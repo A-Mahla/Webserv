@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 14:00:16 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/07 15:41:49 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,11 @@ void	Client::setRequest( t_epoll & epollVar, int i )
 			this->_request.parseRequest( epollVar, i );
 			if ( this->_request.getStatus() )
 				return ;
-			_chooseServer( this->_request.getPath() );
+			if ( !this->_server )
+				_chooseServer( this->_request.getPath() );
+			this->_request.checkMethodeAllowed( *(this->_server) );
+			if ( this->_request.getStatus() )
+				return ;
 		}
 	}
 	else if ( this->_request.getIsSetRequest() )

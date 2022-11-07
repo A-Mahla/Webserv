@@ -15,11 +15,13 @@ server	{
 
 	client_body_buffer_size		8k;
 
+	methodes        					POST:GET:DELETE;
 	location		ifs	{
 
 				autoindex		off;
-
+	
 	}
+	
 }
 
 server	{
@@ -39,6 +41,8 @@ server	{
 
 	client_body_buffer_size		8k;
 
+	methodes        			POST:GET;
+
 	location		./config	{
 
 				autoindex		off;
@@ -48,6 +52,11 @@ server	{
 
 	location		./Client.cpp {
 				root srcs/class;
+	}
+
+	location	./test_delete/ {
+				root 		./;
+				methodes	DELETE;
 	}
 }
 

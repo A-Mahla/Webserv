@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 12:37:00 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/07 15:27:08 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,7 @@ class Request
 		void		changeEpollEvent( t_epoll & epollVar, int i );
 		void		parseHeaderFile( Server & server, t_epoll & epollVar, int i );
 		void		writeFile( Server & server, t_epoll & epollVar, int i );
+		void		checkMethodeAllowed( Server & server );
 };
 
 typedef std::map< std::string, std::string >::iterator itMapStringString;

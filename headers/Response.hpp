@@ -35,12 +35,13 @@ class Response
 
 		int			_fd;
 		std::string	_response;
+		bool		_isCGI;
 		int			_status;
 
 		char    	**_getArgv(std::string script);
 		void    	_clear_argv(char **argv);
 		void		_clear_env(char **env);
-		void    	_execCGI(std::string script, char **env);
+		int    	_execCGI(std::string script, char **env);
 		std::string _getEnv(std::string key, char **env);
 		std::string	_readFile(std::string path);
 		std::string	_readFile(std::string path, Server &serv);
@@ -49,6 +50,7 @@ class Response
 		void		_getErrorPage(Server &serv);
 		char**		_buildCGIenv(Request const & req, Server const & serv);
 		char**		_ft_split(char const *s, char c);
+		bool		_checkFileToDelete(std::string const & script);
 
 	public:
 		Response( void );
@@ -58,6 +60,7 @@ class Response
 		Response &	operator=( const Response & rhs );
 
 		std::string			& getStringResponse( void );
+		bool				getIsCGI(void);
 		const std::string	& getStringResponse( void ) const;
 		int					& getStatus(void);
 		

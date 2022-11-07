@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 14:31:09 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/07 15:15:17 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
 #define NB_ELEMENTS 17
 
 
-Response::Response(Server & serv, Request & req, int fd) :  _status(req.getStatus())
+Response::Response(Server & serv, Request & req, int fd) : _isCGI(0), _status(req.getStatus())
 {
 	if ( DEBUG )
 		std::cout << "Response request Constructor" << std::endl;
@@ -70,12 +70,13 @@ Response &	Response::operator=( const Response & rhs )
 	{
 		this->_response = rhs._response;
 		this->_fd = rhs._fd;
+		this->_isCGI = rhs._isCGI;
 		this->_status = rhs._status;
 	}
 	return ( *this );
 }
 
-Response::Response( void ) :  _status(0)
+Response::Response( void ) : _isCGI(0), _status(0)
 {
 	if ( DEBUG )
 		std::cout << "Response Default Constructor" << std::endl;
@@ -96,30 +97,57 @@ const std::string	& Response::getStringResponse( void ) const
 	return ( this->_response );
 }
 
+bool				Response::getIsCGI(void)
+{
+	return (this->_isCGI);
+}
+
 int		&Response::getStatus(void)
 {
 	return (_status);
 }
 
 /*------------public methode--------------------*/
+
+bool		Response::_checkFileToDelete(std::string const & script)
+{
+	std::cout << "in _checkFileToDelete(), input is [" << script << "]\n";
+	if (script.find("*", 0) != std::string::npos)
+		return (false);
+	if (script.find(".", 0) != std::string::npos && script.size() == 1)
+		return (false);
+	if (script.find("./", 0) != std::string::npos && script.size() == 2)
+		return (false);
+	if (*(script.end() - 1) == '.')
+		return (false);
+	return (true);
+}
+
 void	Response::DELETE_response(Server &serv, Request &req)
 {
-	(void)serv;
-	(void)req;
-	_response += "HTTP/1.1 200 OK\n";
-	_response += "Content-Type: text/html\r\n";
-	_response += "Content-Length: ";
-	_response += "14";
-	_response += "\n\n";
-	_response += "DELETE request";
-	_response += "\r\n\r\n";
+	std::string script = std::string("/bin/rm ") + serv.get_root() + (req.getPath().substr(1, req.getPath().size() - 1));
+
+	if (_checkFileToDelete(script.substr(8, script.size() - 8)) && _execCGI(script, _buildCGIenv(req, serv)) == 0)
+	{
+		_response += "HTTP/1.1 200 OK\n";
+		_response += "Content-Type: text/html\r\n";
+		_response += "Content-Length: ";
+		_response += "23";
+		_response += "\n\n";
+		_response += "DELETE request succede\n";
+		_response += "\r\n\r\n";
+	}
+	else{
+		_status = 403;
+		_getErrorPage(serv);
+	}
+	_isCGI = false;
 }
 
 void	Response::GET_response(Server & serv, Request & req)
 {
 	std::string content_str;
 	std::stringstream ss;
-
 
 	if (req.getPath() == "/"  || *req.getPath().rbegin() != '/' )
 	{
@@ -145,7 +173,6 @@ void	Response::GET_response(Server & serv, Request & req)
 		char **env = _buildCGIenv(req, serv);
 		std::string	script = "./cgi/autoindex.cgi";
 		_execCGI(script, env);
-		_response = "CGI";
 	}
 	
 }
@@ -227,10 +254,7 @@ std::string	Response::_readFile(std::string path, Server &serv)
 
 char    **Response::_getArgv(std::string script)
 {
-    char**  argv = new char*[2];
-    argv[0] = strdup(script.c_str());
-	argv[1] = NULL;
-    return (argv);
+    return (_ft_split(script.c_str(), ' '));
 }
 
 void    Response::_clear_argv(char **argv)
@@ -325,23 +349,24 @@ void	Response::_getErrorPage(Server &serv)
 	_response += "\r\n\r\n";
 }
 
-void    Response::_execCGI(std::string script, char **env)
+int    Response::_execCGI(std::string script, char **env)
 {
     int pid;
+	int	status;
     char            **argv = _getArgv(script);
 
     pid = fork();
-    if (pid == -1)
+    if (pid == -1 || !argv)
     {
         std::cout << "error fork()" << std::endl;
-        return ;
+        return (-1);
     }
 
     if (pid == 0)
     {
         dup2(this->_fd, STDOUT_FILENO);
 		
-        execve(script.c_str(), argv, env );
+        execve(argv[0], argv, env );
 		
 		_status = 400;
 		_printErrorPage();
@@ -351,10 +376,11 @@ void    Response::_execCGI(std::string script, char **env)
 		_clear_env(env);
 		exit(1);
     }
-    wait(NULL);
-    _clear_argv(argv);
+    wait(&status);
+    _clear_env(argv);
 	_clear_env(env);
-	_response = "CGI";
+	_isCGI = true;
+	return (status >> 8);
 }
 
 /*------------BUILDING CGI ENVIRONNEMENT--------------------*/

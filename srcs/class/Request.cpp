@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 14:00:54 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/07 15:40:17 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,6 @@ Request &	Request::operator=( const Request & rhs )
 		this->_contentLength = rhs._contentLength;
 		this->_contentType = rhs._contentType;
 		this->_boundary = rhs._boundary;
-		this->_method = rhs._method;
 		this->_path = rhs._path;
 		this->_port = rhs._port;
 		this->_addr = rhs._addr;
@@ -116,8 +115,9 @@ void	Request::_checkUserAgent( const std::string request )
 {
 	if (!request.compare(0, 12, "User-Agent: "))
 	{
-		if (request.find("Chrome", 0) == std::string::npos)
-			_method = BAD_REQUEST;
+		if (request.find("Firefox", 0) == std::string::npos){
+			//_method = BAD_REQUEST;
+		}
 	}
 }
 
@@ -159,7 +159,9 @@ void		Request::_parseMethodAndPath(std::string request)
 	if ((pos = request.find("GET")) != std::string::npos)
 	{
 		if (_getPath(request.substr(4, request.find("\0", 0) - 4)))
+		{
 			_method = GET;
+		}
 	}
 	else if ((pos = request.find("POST")) != std::string::npos)
 	{
@@ -268,6 +270,14 @@ void		Request::_parseContentDisposition( std::string request )
 		this->_contentDisposition["filename"] = request.substr( request.find_last_of( "=" ) + 2,
 			 ( request.size() - 2 ) - ( request.find_last_of( "=" ) + 2  ) );
 	}
+}
+
+void		Request::checkMethodeAllowed( Server & server )
+{
+	if ( ( this->_method == GET && !server.getAllowGet() )
+		|| ( this->_method == DELETE && !server.getAllowDelete() )
+		|| ( this->_method == POST && !server.getAllowPost() ) )
+		this->_status = 405;
 }
 
 void		Request::changeEpollEvent( t_epoll & epollVar, int i )
@@ -403,7 +413,6 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 			_parseContentDisposition( line );
 		}
 	}
-
 	if ( this->_method == POST )
 	{
 		if ( !this->_isSetContentLength || !this->_contentLength

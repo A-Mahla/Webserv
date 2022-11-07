@@ -17,7 +17,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-Server::Server( void ) : _servSock(0), _port(8080), _inetAddr(INADDR_ANY), _clientBody(16000), _autoindex( false ), _root("html/")
+Server::Server( void ) : _servSock(0), _port(8080), _inetAddr(INADDR_ANY), _clientBody(16000), _autoindex( false ), _root("html/"), 
+_allowDelete(false), _allowGet(false), _allowPost(false)
 {
 	if ( DEBUG )
 		std::cout << "Server Default Constructor" << std::endl;
@@ -32,6 +33,7 @@ Server::Server( void ) : _servSock(0), _port(8080), _inetAddr(INADDR_ANY), _clie
 	this->_is_set["error_page"] = false;
 	this->_is_set["index"] = false;
 	this->_is_set["root"] = false;
+	this->_is_set["allowMethods"] = false;
 }
 
 Server::Server( const Server & rhs )
@@ -63,6 +65,9 @@ Server &			Server::operator=( const Server & rhs )
 		this->_autoindex = rhs._autoindex;
 		this->_inetAddr = rhs._inetAddr;
 		this->_portStr = rhs._portStr;
+		this->_allowDelete = rhs._allowDelete;
+		this->_allowGet = rhs._allowGet;
+		this->_allowPost = rhs._allowPost;
 	}
 	return ( *this );
 }
@@ -147,6 +152,26 @@ std::string								Server::get_root(void) const
 	return ( this->_root );
 }
 
+bool									Server::getAutoindex( void ) const
+{
+	return ( this->_autoindex);
+}
+
+bool    								Server::getAllowGet( void )
+{
+	return (_allowGet);
+}
+
+bool    								Server::getAllowPost( void )
+{
+	return (_allowPost);
+}
+
+bool    								Server::getAllowDelete( void )
+{
+	return (_allowDelete);
+}
+
 void									Server::set_root( const std::string root )
 {
 	_root.clear();
@@ -184,10 +209,21 @@ void									Server::setAutoindex( bool onOff )
 	this->_autoindex = onOff;
 }
 
-bool									Server::getAutoindex( void ) const
+void    								Server::setAllowDelete(bool val)
 {
-	return ( this->_autoindex);
+	_allowDelete = val;
 }
+
+void    								Server::setAllowPost(bool val)
+{
+	_allowPost = val;
+}
+
+void    								Server::setAllowGet(bool val)
+{
+	_allowGet = val;
+}
+
 
 std::ostream	& operator<<( std::ostream & o, Server rhs )
 {
@@ -237,5 +273,18 @@ std::ostream	& operator<<( std::ostream & o, Server rhs )
 		}
 		o << std::endl;
 	}
+	o << "\n allowed methodes : \n";
+	if (rhs.getAllowDelete())
+		o << "--> DELETE = true\n" ;
+	else
+		o << "--> DELETE = false\n" ;
+	if (rhs.getAllowPost())
+		o << "--> POST = true\n" ;
+	else
+		o << "--> POST = false\n" ;
+	if (rhs.getAllowGet())
+		o << "--> GET = true\n" ;
+	else
+		o << "--> GET = false\n" ;
 	return ( o );
 }
