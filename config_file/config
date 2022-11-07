@@ -41,7 +41,7 @@ server	{
 
 	client_body_buffer_size		8k;
 
-	methodes        			POST:GET;
+	methodes        			POST:GET:DELETE;
 
 	location		./config {
 

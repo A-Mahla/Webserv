@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 15:15:17 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/07 17:41:35 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,14 +111,15 @@ int		&Response::getStatus(void)
 
 bool		Response::_checkFileToDelete(std::string const & script)
 {
-	std::cout << "in _checkFileToDelete(), input is [" << script << "]\n";
-	if (script.find("*", 0) != std::string::npos)
+	if (script.find("*", 0) == 0)
 		return (false);
-	if (script.find(".", 0) != std::string::npos && script.size() == 1)
+	else if (script.find(".", 0) == 0 && script.size() == 1)
 		return (false);
-	if (script.find("./", 0) != std::string::npos && script.size() == 2)
+	else if (script.find("..", 0) != std::string::npos )
 		return (false);
-	if (*(script.end() - 1) == '.')
+	else if (script.find("./", 0) == 0 && script.size() == 2)
+		return (false);
+	else if (*(script.rbegin()) == '.')
 		return (false);
 	return (true);
 }
