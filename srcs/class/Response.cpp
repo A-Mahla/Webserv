@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/04 09:35:37 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/11/07 09:09:48 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
 #define NB_ELEMENTS 17
 
 
-Response::Response(Server & serv, Request & req, int fd) : _server(NULL), _status(0)
+Response::Response(Server & serv, Request & req, int fd) :  _status(0)
 {
 	if ( DEBUG )
 		std::cout << "Response request Constructor" << std::endl;
@@ -67,13 +67,12 @@ Response &	Response::operator=( const Response & rhs )
 	{
 		this->_response = rhs._response;
 		this->_fd = rhs._fd;
-		this->_server = rhs._server;
 		this->_status = rhs._status;
 	}
 	return ( *this );
 }
 
-Response::Response( void ) : _server(NULL), _status(0)
+Response::Response( void ) :  _status(0)
 {
 	if ( DEBUG )
 		std::cout << "Response Default Constructor" << std::endl;
@@ -102,6 +101,8 @@ int		&Response::getStatus(void)
 /*------------public methode--------------------*/
 void	Response::DELETE_response(Server &serv, Request &req)
 {
+	(void)serv;
+	(void)req;
 	_response += "HTTP/1.1 200 OK\n";
 	_response += "Content-Type: text/html\r\n";
 	_response += "Content-Length: ";
@@ -138,7 +139,7 @@ void	Response::GET_response(Server & serv, Request & req)
 	}
 	else if (*req.getPath().rbegin() == '/')
 	{
-		char **env = buildCGIenv(req, serv);
+		char **env = _buildCGIenv(req, serv);
 		std::string	script = "./cgi/autoindex.cgi";
 		_execCGI(script, env);
 		_response = "CGI";
@@ -148,7 +149,7 @@ void	Response::GET_response(Server & serv, Request & req)
 
 void	Response::POST_response(Server &serv, Request &req)
 {
-	char **env = buildCGIenv(req, serv);
+	char **env = _buildCGIenv(req, serv);
 	std::string     script = "./cgi" + _getEnv("PATH_INFO", env);
 	_execCGI(script, env);
 }
@@ -349,7 +350,7 @@ char**	Response::_buildCGIenv(Request const & req, Server const & serv)
 		pos += var[i].size() + 1;
 		i++;
 	}
-	return (ft_split(starter.c_str(), ' '));
+	return (_ft_split(starter.c_str(), ' '));
 }
 
 void	Response::_initVar(std::string *var, Request const & req, Server const & serv){
@@ -360,7 +361,6 @@ void	Response::_initVar(std::string *var, Request const & req, Server const & se
 	var[3] = req.getPath();
 	var[4] = serv.get_root() + req.getPath().substr(1, (req.getPath().size() - 1));
 	var[5] = req.getQueryString();
-	std::cout << "ICI LE TEST -------------" << req.getAddr() << "\n";
 	var[6] = req.getOrigin();
 	var[7] = req.getAddr();
 	var[8] =  "NULL"; // client_login;

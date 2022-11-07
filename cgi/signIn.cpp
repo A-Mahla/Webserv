@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   signIn.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 09:33:17 by meudier           #+#    #+#             */
-/*   Updated: 2022/11/04 16:06:45 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/11/07 09:16:45 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,10 +52,10 @@ std::string getName(std::string qs)
 {
     size_t  pos = 0;
 
-    pos = qs.find("=", 0);
-    qs.erase(0, pos + 1);
-    pos = qs.find("&", 0);
-    qs.erase(pos, qs.size() - pos);
+    if ((pos = qs.find("=", 0)) != std::string::npos)
+        qs.erase(0, pos + 1);
+    if ((pos = qs.find("&", 0)) != std::string::npos)
+        qs.erase(pos, qs.size() - pos);
     return (qs);
 }
 
