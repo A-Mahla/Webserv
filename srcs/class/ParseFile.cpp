@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseFile.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 08:33:31 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/07 12:01:04 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -264,7 +264,8 @@ bool	ParseFile::client_body(const std::string line_const, Server &server)
 	std::string rslt;
 	int     i = 0;
 
-	if (!get_the_info_i_need(line, "client_body_buffer_size", rslt))
+	if (!get_the_info_i_need(line, "client_body_buffer_size", rslt)
+		|| line.find("-", 0) != std::string::npos)
 		return (false);
 
 	while ( std::isdigit(rslt[++i]) );

@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 10:32:38 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/07 14:00:16 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,18 +111,20 @@ void	Client::setRequest( t_epoll & epollVar, int i )
 	if ( !this->_request.getIsSetRequest() )
 	{
 		if ( ( this->_readStatus = this->_request.readData( this->_clientSock,
-			4096, 0, epollVar, i ) ) <= 0 )
+			4096, 0, epollVar, i ) ) <= 0 || this->_request.getStatus() )
 			return ;
 		if ( this->_request.getIsSetRequest() )
 		{
 			this->_request.parseRequest( epollVar, i );
+			if ( this->_request.getStatus() )
+				return ;
 			_chooseServer( this->_request.getPath() );
 		}
 	}
 	else if ( this->_request.getIsSetRequest() )
 	{
 		if ( ( this->_readStatus = this->_request.readData( this->_clientSock,
-			this->_server->get_clientBody(), 1, epollVar, i ) ) <= 0 )
+			this->_server->get_clientBody(), 1, epollVar, i ) ) <= 0 || this->_request.getStatus() )
 			return ;
 	}
 	if ( this->_request.getIsSetRequest()
@@ -130,6 +132,8 @@ void	Client::setRequest( t_epoll & epollVar, int i )
 	{
 		if ( !this->_request.getIsSetHeaderFile() )
 			this->_request.parseHeaderFile( *(this->_server), epollVar, i );
+		if ( this->_request.getStatus() )
+			return ;
 		if ( this->_request.getIsSetHeaderFile() )
 			this->_request.writeFile( *(this->_server), epollVar, i );
 	}

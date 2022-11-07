@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/04 09:50:21 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/11/07 13:38:13 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ class Response
 		std::string	_readFile(std::string path, Server &serv);
 		void		_initVar(std::string *var, Request const & req, Server const & serv);
 		void		_printErrorPage(void);
-		void		_getErrorPage(void);
+		void		_getErrorPage(Server &serv);
 		char**		_buildCGIenv(Request const & req, Server const & serv);
 		char**		_ft_split(char const *s, char c);
 

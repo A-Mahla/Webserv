@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 10:50:19 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/07 14:00:54 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,14 @@
 #include <sstream>
 
 Request::Request( void ) : _isSetRequest(false), _isSetHeaderFile(false),
-	_contentLength(0), _sizeFile(0)
+	_isSetContentLength(false), _contentLength(0), _sizeFile(0), _status(0)
 {
 	if ( DEBUG )
 		std::cout << "Request Default Constructor" << std::endl;
 }
 
 Request::Request( const Request & rhs ) : _isSetRequest(false),
-	_isSetHeaderFile(false), _contentLength(0), _sizeFile(0)
+	_isSetHeaderFile(false), _isSetContentLength(false), _contentLength(0), _sizeFile(0), _status(0)
 {
 	if ( DEBUG )
 		std::cout << "Request copy Constructor" << std::endl;
@@ -43,6 +43,7 @@ Request &	Request::operator=( const Request & rhs )
 		this->_request = rhs._request;
 		this->_isSetRequest = rhs._isSetRequest;
 		this->_isSetHeaderFile = rhs._isSetHeaderFile;
+		this->_isSetContentLength = rhs._isSetContentLength;
 		this->_contentLength = rhs._contentLength;
 		this->_contentType = rhs._contentType;
 		this->_boundary = rhs._boundary;
@@ -56,6 +57,7 @@ Request &	Request::operator=( const Request & rhs )
 		this->_queryString = rhs._queryString;
 		this->_sizeFile = rhs._sizeFile;
 		this->_lastNewLineFile = rhs._lastNewLineFile;
+		this->_status = rhs._status;
 	}
 	return ( *this );
 }
@@ -93,6 +95,12 @@ std::string	Request::getPort() const
 std::string	Request::getAddr() const
 {
 	return (_addr);
+}
+
+void	Request::setStatusError( int status, t_epoll & epollVar, int i )
+{
+	this->_status = status;
+	changeEpollEvent( epollVar, i );
 }
 
 void	Request::_parseHost( const  std::string request )
@@ -210,6 +218,11 @@ bool			Request::getIsSetHeaderFile( void ) const
 	return ( this->_isSetHeaderFile );
 }
 
+bool			Request::getIsSetContentLength( void ) const
+{
+	return ( this->_isSetContentLength );
+}
+
 std::map< std::string, std::string >	& Request::getContentDisposition( void )
 {
 	return ( this->_contentDisposition );
@@ -225,6 +238,7 @@ void		Request::_parseContentLength( std::string request )
 {
 	if ( !request.compare( 0, 16, "Content-Length: ") )
 	{
+		this->_isSetContentLength = true;
 		this->_contentLength = std::strtoul( request.substr( 16, ( request.find( "\0", 0 ) - 16 ) ).c_str() , NULL, 0 );
 		this->_contentLenghtStr = request.substr( 16, ( request.find( "\0", 0 ) - 16 ) );
 	}
@@ -335,7 +349,8 @@ void		Request::parseHeaderFile( Server & server, t_epoll & epollVar, int i )
 
 	if ( this->_isSetHeaderFile )
 	{
-		nameFile = ".";
+		if ( server.get_root()[0] == '/' )
+			nameFile = ".";
 		nameFile += server.get_root();
 
 		for( itMapStringString it = this->_contentDisposition.begin();
@@ -346,7 +361,11 @@ void		Request::parseHeaderFile( Server & server, t_epoll & epollVar, int i )
 		}
 		this->_newFile.clear();
 		this->_newFile.open( nameFile.c_str(), std::ofstream::out );
-		
+		if ( !this->_newFile.is_open() )
+		{
+			setStatusError( 403, epollVar, i );
+			return ;
+		}
 		this->_request = temp;
 		writeFile( server, epollVar, i );
 	}
@@ -384,8 +403,23 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 			_parseContentDisposition( line );
 		}
 	}
+
 	if ( this->_method == POST )
 	{
+		if ( !this->_isSetContentLength || !this->_contentLength
+			|| this->_sizeFile > this->_contentLength
+			|| this->_contentLength > 2000000000 )
+		{
+			if ( !this->_isSetContentLength )
+				setStatusError( 411, epollVar, i );
+			else if ( !this->_contentLength || this->_sizeFile > this->_contentLength )
+				setStatusError( 400, epollVar, i );
+			else if ( this->_contentLength > 2000000000 )
+				setStatusError( 413, epollVar, i );
+			this->_isSetRequest = false;
+			return ;
+		}
+			
 		this->_request = temp;
 		if ( this->_contentType == "application/x-www-form-urlencoded" )
 			this->_queryString = this->_request;
@@ -409,7 +443,7 @@ int			Request::readData( int readFd, size_t bufferSize, int flag,
 	if ( (rd = recv( readFd , bufferRead, bufferSize, 0 )) <= 0 )
 	{
 		if ( rd < 0 )
-			std::cout << RED << "Connexion client lost" << SET << std::endl;
+			std::cout << RED << "Connexion client lost qwd" << SET << std::endl;
 		else
 			std::cout << RED << "Connexion client is closed" << SET << std::endl;
 		epoll_ctl(epollVar.epollFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
@@ -419,15 +453,29 @@ int			Request::readData( int readFd, size_t bufferSize, int flag,
 
 	bufferRead[rd] = '\0';
 	this->_sizeFile += rd;
-	this->_request += (bufferRead);
-	if ( !this->_isSetRequest && this->_request.find( "\r\n\r\n", 0 ) != std::string::npos )
+	this->_request += bufferRead;
+	if ( !this->_isSetRequest && this->_request.find( "\r\n\r\n", 0 ) == std::string::npos )
+	{
+		setStatusError( 431, epollVar, i );
+		return ( rd );
+	}
+	else if ( !this->_isSetRequest && this->_request.find( "\r\n\r\n", 0 ) != std::string::npos )
 	{
 		this->_sizeFile -= (this->_request.find( "\r\n\r\n", 0 ) + 4);
 		this->_isSetRequest = true;
 	}
 	if ( flag && this->_sizeFile == this->_contentLength )
 		changeEpollEvent( epollVar, i );
+	if ( (size_t)rd < bufferSize && this->_sizeFile < this->_contentLength
+		&& this->_isSetContentLength )
+		setStatusError( 400, epollVar, i );
 	std::cout << GREEN <<  "Server side receive from client : \n" << this->_request << SET << std::endl;
 
 	return ( rd );
+}
+
+
+int 	Request::getStatus(void) const 
+{
+	return (_status);
 }

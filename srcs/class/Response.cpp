@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 09:09:48 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/07 14:31:09 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,15 @@
 #define NB_ELEMENTS 17
 
 
-Response::Response(Server & serv, Request & req, int fd) :  _status(0)
+Response::Response(Server & serv, Request & req, int fd) :  _status(req.getStatus())
 {
 	if ( DEBUG )
 		std::cout << "Response request Constructor" << std::endl;
+	if (_status)
+	{
+		_getErrorPage(serv);
+		return ;
+	}
 
 	_fd = fd;
 	if (req.getMethode() == GET)
@@ -40,11 +45,9 @@ Response::Response(Server & serv, Request & req, int fd) :  _status(0)
 		POST_response(serv, req);
 	else if ( req.getMethode() == DELETE)
 		DELETE_response(serv, req);
-	else
-		_status = 400;
 
 	if (_status)
-		_getErrorPage();
+		_getErrorPage(serv);
 }
 
 /*------------canonical form--------------------*/
@@ -284,11 +287,30 @@ void	Response::_printErrorPage()
 	std::cout << "\r\n\r\n";
 }
 
-void	Response::_getErrorPage()
+void	Response::_getErrorPage(Server &serv)
 {
+	(void)serv;
 	std::stringstream ss1;
 	ss1 << _status;
-	std::string error_page = "./html/error_page/" + ss1.str() + ".html";
+	std::string error;
+
+	/*if (!serv.get_error_pages().empty() && (error = serv.get_error_pages()[ss1.str()] == ))
+	{
+		
+	}*/
+	if (serv.get_error_pages().find(ss1.str()) != serv.get_error_pages().end())
+	{
+		if (serv.get_root()[0] == '/')
+			error = ".";
+		if ( serv.get_error_pages()[ss1.str()][0] == '/')
+			error += serv.get_root().erase(serv.get_root().size() - 1, 1) + serv.get_error_pages()[ss1.str()];
+		else
+			error += serv.get_root() + serv.get_error_pages()[ss1.str()];
+	}
+	else
+		error =  "./html/error_page/" + ss1.str() + ".html";
+	
+	std::string error_page = error;
 	std::string content_str = _readFile(error_page);
 	std::stringstream ss2;
 	ss2 << content_str.size();
@@ -363,7 +385,7 @@ void	Response::_initVar(std::string *var, Request const & req, Server const & se
 	var[5] = req.getQueryString();
 	var[6] = req.getOrigin();
 	var[7] = req.getAddr();
-	var[8] =  "NULL"; // client_login;
+	var[8] =  "NULL"; // -client_login;
 	var[9] = "NULL"; //user_login;
 	if (req.getMethode() == GET)
 		var[10] = "GET";

@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 09:28:52 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/07 12:37:00 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ class Request
 
 		bool						_isSetRequest;
 		bool						_isSetHeaderFile;
+		bool						_isSetContentLength;
 
 		size_t						_contentLength;
 		std::string					_contentLenghtStr;
@@ -54,6 +55,8 @@ class Request
 		std::ofstream				_newFile;
 		std::string					_lastNewLineFile;
 		size_t						_sizeFile;
+
+		int							_status;
 
 		std::map< std::string, std::string >	_contentDisposition;
 
@@ -86,6 +89,7 @@ class Request
 
 		bool			getIsSetRequest( void ) const;
 		bool			getIsSetHeaderFile( void ) const;
+		bool			getIsSetContentLength( void ) const;
 
 		//max
 		int				getMethode() const;
@@ -101,6 +105,8 @@ class Request
 		std::string		getBoundary( void ) const;
 		std::string		getOrigin( void ) const;
 		std::string		getQueryString( void ) const;
+		int				getStatus( void ) const;
+		void			setStatusError( int status, t_epoll & epollVar, int i );
 
 		std::map< std::string, std::string >	& getContentDisposition( void );
 
