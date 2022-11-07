@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/04 16:57:55 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/07 09:24:32 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -388,7 +388,7 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 	if ( this->_method == GET || this->_method == DELETE
 			|| this->_method == BAD_REQUEST 
 			|| ( this->_method == POST && this->_request.size() == this->_contentLength
-				&& this->_contentType == "application/x-www-form-urlencoded" ))
+				&& this->_boundary.empty()))
 	{
 		changeEpollEvent( epollVar, i );
 		this->_isSetRequest = false;
