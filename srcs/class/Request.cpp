@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 15:40:17 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/08 13:58:41 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,8 +106,13 @@ void	Request::_parseHost( const  std::string request )
 {
 	if ( !request.compare(0, 6, "Host: ") )
 	{
+		if (request.find(":", 6) != std::string::npos)
+		{
 			_addr = request.substr(6, request.find(":",6) - 6);
 			_port = request.substr((request.find(":", 6) + 1), ( (request.find("\0", 0)) - (request.find(":", 6) + 1) ));
+		}
+		else
+			_addr = request.substr(6, request.size() - 6);
 	}
 }
 

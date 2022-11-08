@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 13:38:13 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/08 12:42:23 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ class Response
 		char**		_buildCGIenv(Request const & req, Server const & serv);
 		char**		_ft_split(char const *s, char c);
 		bool		_checkFileToDelete(std::string const & script);
+		std::string	_getType(std::string str);
 
 	public:
 		Response( void );

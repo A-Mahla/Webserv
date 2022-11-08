@@ -26,14 +26,14 @@ server	{
 
 server	{
 
-	server_name					localhost;
+	server_name					example.com;
 
-	listen						0.0.0.0:8080;
+	listen						127.0.0.1:8080;
 
 	autoindex					on;
 
 	error_page					500 502 503 504	/ 50x.html ;
-	
+	error_page					404				/ Makefile;
 
 	index						index.html index.php test.html ;
 

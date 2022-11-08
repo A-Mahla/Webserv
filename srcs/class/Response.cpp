@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 17:41:35 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/08 13:43:55 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,16 +126,15 @@ bool		Response::_checkFileToDelete(std::string const & script)
 
 void	Response::DELETE_response(Server &serv, Request &req)
 {
-	std::string script = std::string("/bin/rm ") + serv.get_root() + (req.getPath().substr(1, req.getPath().size() - 1));
+	std::string script = std::string("/bin/rm -rf ") + serv.get_root() + (req.getPath().substr(1, req.getPath().size() - 1));
 
-	if (_checkFileToDelete(script.substr(8, script.size() - 8)) && _execCGI(script, _buildCGIenv(req, serv)) == 0)
+	if (_checkFileToDelete(script.substr(12, script.size() - 12)) && _execCGI(script, _buildCGIenv(req, serv)) == 0)
 	{
-		_response += "HTTP/1.1 200 OK\n";
+		_response += "HTTP/1.1 204 OK\n";
 		_response += "Content-Type: text/html\r\n";
 		_response += "Content-Length: ";
-		_response += "23";
+		_response += "0";
 		_response += "\n\n";
-		_response += "DELETE request succede\n";
 		_response += "\r\n\r\n";
 	}
 	else{
@@ -145,24 +144,42 @@ void	Response::DELETE_response(Server &serv, Request &req)
 	_isCGI = false;
 }
 
+std::string		Response::_getType(std::string str)
+{
+	size_t	pos = 0;
+	std::string	rslt;
+
+	if ((pos = str.find(".", 0)) != std::string::npos)
+		rslt = str.erase(0, pos++);
+	return (rslt);
+}
+
 void	Response::GET_response(Server & serv, Request & req)
 {
-	std::string content_str;
-	std::stringstream ss;
+	std::string 		content_str;
+	std::stringstream 	ss;
+	std::string			type;
 
 	if (req.getPath() == "/"  || *req.getPath().rbegin() != '/' )
 	{
 		if (req.getPath() == "/")
+		{
 			content_str = _readFile("./html/index.html");
+			type = "html";
+		}
+			
 		else
 			content_str = _readFile(req.getPath(), serv);
 		ss << content_str.size();
 
 		if (ss.str().empty())
 			return ;
+		
+		if (type.empty())
+			type = _getType(req.getPath());
 
 		_response += "HTTP/1.1 200 OK\n";
-		_response += "Content-Type: text/html\r\n";
+		_response += "Content-Type: text/" + type + "\r\n";
 		_response += "Content-Length: ";
 		_response += ss.str();
 		_response += "\n\n";
