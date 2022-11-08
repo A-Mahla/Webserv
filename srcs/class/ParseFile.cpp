@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 17:24:43 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/08 18:44:54 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -255,8 +255,9 @@ bool	ParseFile::error_page(const std::string line_const, Server &server)
     if (!get_value_map_error(rslt, error_map))
         return (false);
 
-    std::map< std::string, std::string > &map_error = server.get_error_pages();
-    map_error.insert(error_map.begin(), error_map.end());
+//	std::map< std::string, std::string > &map_error = server.get_error_pages();
+	if ( !error_map.empty() )
+		server.get_error_pages().insert(error_map.begin(), error_map.end());
     server.set_is_set("error_page");
 
     //default value: none

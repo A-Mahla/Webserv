@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/08 13:43:55 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/08 17:59:16 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -331,16 +331,12 @@ void	Response::_printErrorPage()
 
 void	Response::_getErrorPage(Server &serv)
 {
-	(void)serv;
 	std::stringstream ss1;
 	ss1 << _status;
 	std::string error;
 
-	/*if (!serv.get_error_pages().empty() && (error = serv.get_error_pages()[ss1.str()] == ))
-	{
-		
-	}*/
-	if (serv.get_error_pages().find(ss1.str()) != serv.get_error_pages().end())
+	if (serv.get_error_pages().size()
+		&& serv.get_error_pages().find(ss1.str()) != serv.get_error_pages().end())
 	{
 		if (serv.get_root()[0] == '/')
 			error = ".";

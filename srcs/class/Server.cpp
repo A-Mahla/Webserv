@@ -6,13 +6,14 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 17:23:15 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/08 18:52:22 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <netinet/in.h>
 #include "../../headers/defines.h"
 #include <iostream>
+#include <sstream>
 #include "Server.hpp"
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -198,7 +199,6 @@ void									Server::setPort( std::string const & port )
 	this->_portStr = port;
 }
 
-
 void									Server::setAutoindex( bool onOff )
 {
 	this->_autoindex = onOff;
@@ -219,6 +219,20 @@ void    								Server::setAllowGet(bool val)
 	_allowGet = val;
 }
 
+std::string								Server::getAddrStr( void ) const
+{
+	std::stringstream	ss;
+
+	for ( int i = 3, bit = 0; i >= 0; i-- )
+	{
+		int addr = ( this->_inetAddr >> bit) & 255;
+		ss << addr;
+		if ( i )
+			ss << ".";
+		bit += 8;
+	}
+	return( ss.str() );
+}
 
 std::ostream	& operator<<( std::ostream & o, Server rhs )
 {

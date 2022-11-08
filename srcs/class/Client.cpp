@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/08 14:31:48 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/08 18:54:28 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,12 @@ void	Client::_chooseServer( std::string path, t_epoll & epollVar, int i )
 {
 	for (std::vector<Server *>::iterator it = _serverList.begin(); it != _serverList.end(); it++)
 	{
+		if ( (*it)->getAddrStr() == _request.getAddr()
+			|| ( (*it)->getAddrStr() == "127.0.0.1" && _request.getAddr() == "localhost" ) )
+		{
+			_server = *it;
+			return ;
+		}
 		for (std::vector<std::string>::iterator it2 = (*it)->getServerName().begin(); it2 != (*it)->getServerName().end(); it2++)
 		{
 			if (*it2 == _request.getAddr())
@@ -115,15 +121,15 @@ void	Client::setRequest( t_epoll & epollVar, int i )
 	if ( !this->_request.getIsSetRequest() )
 	{
 		if ( ( this->_readStatus = this->_request.readData( this->_clientSock,
-			4096, 0, epollVar, i ) ) <= 0 || this->_request.getStatus() )
+			4096, 0, epollVar, i ) ) <= 0 )
 			return ;
 		if ( this->_request.getIsSetRequest() )
 		{
 			this->_request.parseRequest( epollVar, i );
-			if ( this->_request.getStatus() )
-				return ;
 			if ( !this->_server )
 				_chooseServer( this->_request.getPath(), epollVar, i );
+			if ( this->_request.getStatus() )
+				return ;
 			if ( this->_readStatus == 0 )
 				return ;
 			this->_request.checkMethodeAllowed( *(this->_server) );

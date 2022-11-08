@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/08 13:58:41 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/08 18:23:39 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -471,6 +471,7 @@ int			Request::readData( int readFd, size_t bufferSize, int flag,
 	if ( !this->_isSetRequest && this->_request.find( "\r\n\r\n", 0 ) == std::string::npos )
 	{
 		setStatusError( 431, epollVar, i );
+		this->_isSetRequest = true;
 		return ( rd );
 	}
 	else if ( !this->_isSetRequest && this->_request.find( "\r\n\r\n", 0 ) != std::string::npos )

@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/03 13:31:58 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/08 18:45:34 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ class Server
 		in_addr_t								& getInetAddr( void );
 		int										get_clientBody( void ) const;
 		std::string								get_root( void ) const;
+		std::string								getAddrStr( void ) const;
 		std::vector< std::string >				& get_index( void );
 		bool									getAutoindex( void ) const;
 		bool    								getAllowGet( void );
