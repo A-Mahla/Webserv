@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 15:13:24 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/08 20:18:44 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,8 @@ void	readData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, i
 
 void	sendData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, int i )
 {
-		const char	*buffer_write = it->getResponse(*(it->getServer()), it->getRequest(), epollVar.events[i].data.fd).getStringResponse().c_str();
+		const char	*buffer_write = it->getResponse(*(it->getServer()),
+			it->getRequest(), epollVar.events[i].data.fd).getStringResponse().c_str();
 		
 		if (!(it->getResponse().getIsCGI()) &&  send( epollVar.events[i].data.fd, buffer_write, strlen(buffer_write), 0 ) < 0 )
 		{

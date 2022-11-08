@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/08 18:23:39 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/08 20:14:32 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -451,8 +451,8 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 int			Request::readData( int readFd, size_t bufferSize, int flag,
 				t_epoll & epollVar, int i )
 {
-	char	bufferRead[ bufferSize ];
-	int		rd = 0;
+	unsigned char	bufferRead[ bufferSize ];
+	int				rd = 0;
 
 	if ( (rd = recv( readFd , bufferRead, bufferSize, 0 )) <= 0 )
 	{
@@ -467,14 +467,17 @@ int			Request::readData( int readFd, size_t bufferSize, int flag,
 
 	bufferRead[rd] = '\0';
 	this->_sizeFile += rd;
-	this->_request += bufferRead;
+/*	if ( flag )
+		this->_vectorChar = 
+	if ( !flag )*/
+	this->_request += reinterpret_cast<char *>(bufferRead);
 	if ( !this->_isSetRequest && this->_request.find( "\r\n\r\n", 0 ) == std::string::npos )
 	{
 		setStatusError( 431, epollVar, i );
 		this->_isSetRequest = true;
 		return ( rd );
 	}
-	else if ( !this->_isSetRequest && this->_request.find( "\r\n\r\n", 0 ) != std::string::npos )
+	if ( !this->_isSetRequest && this->_request.find( "\r\n\r\n", 0 ) != std::string::npos )
 	{
 		this->_sizeFile -= (this->_request.find( "\r\n\r\n", 0 ) + 4);
 		this->_isSetRequest = true;

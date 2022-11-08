@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amahla <amahla@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/08 17:59:16 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/08 20:16:33 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -178,7 +178,7 @@ void	Response::GET_response(Server & serv, Request & req)
 		if (type.empty())
 			type = _getType(req.getPath());
 
-		_response += "HTTP/1.1 200 OK\n";
+		_response += "HTTP/1.1 200\n";
 		_response += "Content-Type: text/" + type + "\r\n";
 		_response += "Content-Length: ";
 		_response += ss.str();
@@ -320,7 +320,7 @@ void	Response::_printErrorPage()
 	std::stringstream ss2;
 	ss2 << content_str.size();
 
-	std::cout << "HTTP/1.1 200 OK\n";
+	std::cout << "HTTP/1.1 " + ss1.str() + "\n";
 	std::cout << "Content-Type: text/html\r\n";
 	std::cout << "Content-Length: ";
 	std::cout << ss2.str();
@@ -335,8 +335,7 @@ void	Response::_getErrorPage(Server &serv)
 	ss1 << _status;
 	std::string error;
 
-	if (serv.get_error_pages().size()
-		&& serv.get_error_pages().find(ss1.str()) != serv.get_error_pages().end())
+	if ( serv.get_error_pages().find(ss1.str()) != serv.get_error_pages().end())
 	{
 		if (serv.get_root()[0] == '/')
 			error = ".";
@@ -347,6 +346,7 @@ void	Response::_getErrorPage(Server &serv)
 	}
 	else
 		error =  "./html/error_page/" + ss1.str() + ".html";
+
 	
 	std::string error_page = error;
 	std::string content_str = _readFile(error_page);
@@ -354,7 +354,7 @@ void	Response::_getErrorPage(Server &serv)
 	ss2 << content_str.size();
 
 	_response.clear();
-	_response += "HTTP/1.1 200 OK\n";
+	_response = "HTTP/1.1 " + ss1.str() + "\n";
 	_response += "Content-Type: text/html\r\n";
 	_response += "Content-Length: ";
 	_response += ss2.str();
