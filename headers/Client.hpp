@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 08:46:46 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/08 14:27:06 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ class Client
 		void					_chooseServer(void);
 
 		void	_get_good_Root(std::string path, Server *serv);
-		void	_chooseServer( std::string path );
+		void	_chooseServer( std::string path, t_epoll & epollVar, int i );
 
 	public:
 

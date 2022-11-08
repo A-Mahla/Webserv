@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 15:41:49 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/08 14:31:48 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,9 +85,8 @@ void	Client::_get_good_Root(std::string path, Server *serv)
 	}
 }
 
-void	Client::_chooseServer( std::string path )
+void	Client::_chooseServer( std::string path, t_epoll & epollVar, int i )
 {
-	_server = _serverList[0];
 	for (std::vector<Server *>::iterator it = _serverList.begin(); it != _serverList.end(); it++)
 	{
 		for (std::vector<std::string>::iterator it2 = (*it)->getServerName().begin(); it2 != (*it)->getServerName().end(); it2++)
@@ -101,9 +100,14 @@ void	Client::_chooseServer( std::string path )
 			}
 		}
 	}
-	_get_good_Root( path, this->_serverList[0] );
 	if ( !this->_server )
-		_server = this->_serverList[0];
+	{
+		epoll_ctl(epollVar.epollFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
+		close( epollVar.events[i].data.fd );	
+		std::cout << RED << "Invalid hostname from client" << std::endl;
+		std::cout << "Client request rejected" << SET << std::endl;
+		this->_readStatus = 0;
+	}
 }
 
 void	Client::setRequest( t_epoll & epollVar, int i )
@@ -119,7 +123,9 @@ void	Client::setRequest( t_epoll & epollVar, int i )
 			if ( this->_request.getStatus() )
 				return ;
 			if ( !this->_server )
-				_chooseServer( this->_request.getPath() );
+				_chooseServer( this->_request.getPath(), epollVar, i );
+			if ( this->_readStatus == 0 )
+				return ;
 			this->_request.checkMethodeAllowed( *(this->_server) );
 			if ( this->_request.getStatus() )
 				return ;
