@@ -51,6 +51,9 @@ int main()
     std::cout << "find (124): " << find(vectorUC, "124") << std::endl;
     std::cout << "find (1234): " << find(vectorUC, "1234") << std::endl;
 
-    return (0);
+    if (find(vectorUC, "hey") == std::string::npos)
+        std::cout << "i did't find" << std::endl;
+    
 
+    return (0);
 }

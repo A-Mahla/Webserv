@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/09 10:37:44 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/09 12:48:14 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,14 +53,14 @@ class Request
 		std::vector<std::string>	_accept;
 
 		std::ofstream				_newFile;
-		std::string					_lastNewLineFile;
+		
 		size_t						_sizeFile;
 
 		int							_status;
 
 		std::map< std::string, std::string >	_contentDisposition;
-
-		std::vector<unsigned char>	_vectorChar;
+		std::vector<unsigned char>				_lastNewLineFile;
+		std::vector<unsigned char>				_vectorChar;
 
 
 		//max
@@ -70,7 +70,7 @@ class Request
 		bool	_getPath(std::string request);
 		void	_checkUserAgent( const std::string request );
 		size_t  _find(std::vector<unsigned char> str, std::string occur);
-		void    _insert(std::vector<unsigned char> &vec, unsigned char * buff);
+		void    _insert(std::vector<unsigned char> &vec, unsigned char * buff, int rd);
 
 		//amir
 		void		_parseOrigin( std::string request );
