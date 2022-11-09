@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/09 12:48:14 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/09 18:11:25 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ class Request
 		bool	_getPath(std::string request);
 		void	_checkUserAgent( const std::string request );
 		size_t  _find(std::vector<unsigned char> str, std::string occur);
+		size_t  _find(std::vector<unsigned char> str, std::string occur, size_t posFinal);
 		void    _insert(std::vector<unsigned char> &vec, unsigned char * buff, int rd);
 
 		//amir

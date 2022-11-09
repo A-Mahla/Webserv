@@ -6,7 +6,7 @@
 #    By: meudier <meudier@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/10/17 21:07:29 by amahla            #+#    #+#              #
-#    Updated: 2022/11/09 13:16:12 by meudier          ###   ########.fr        #
+#    Updated: 2022/11/09 17:33:02 by meudier          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -118,4 +118,4 @@ re					:	fclean
 
 .PHONY				:	all clean fclean re debug mac select
 
--include	$(addprefix $(OUTDIR)/,$(SRCS:.cpp=.d))
+-include	$(addprefix $(OUTDIR)/,$(SRCS:.cpp=.d))------

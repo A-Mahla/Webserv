@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/09 14:51:28 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/09 19:45:32 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ Request &	Request::operator=( const Request & rhs )
 		this->_queryString = rhs._queryString;
 		this->_sizeFile = rhs._sizeFile;
 		this->_lastNewLineFile = rhs._lastNewLineFile;
+		this->_vectorChar = rhs._vectorChar;
 		this->_status = rhs._status;
 	}
 	return ( *this );
@@ -294,19 +295,21 @@ void		Request::changeEpollEvent( t_epoll & epollVar, int i )
 
 void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 {
-	std::stringstream 	ss;
-	std::string			line;
 	std::vector<unsigned char>	temp;
 	size_t						pos = 0;
 	size_t						posBoundary = 0;
+	bool						isDelimit = false;
 
 	if ( this->_sizeFile != this->_contentLength )
 	{
-		if (( pos = _find(this->_vectorChar, "\n") ) == std::string::npos )
+		if (( pos = _find(this->_vectorChar, "\r\n") ) == std::string::npos )
 			return ;
 	}
+	else if ( (pos = _find(this->_vectorChar, "\r\n") ) == std::string::npos )
+		pos = this->_vectorChar.size() - 1;
 	else
-		pos = _find(this->_vectorChar, "\n");
+		isDelimit = true;
+	
 
 	std::cout << "I'm reading" << std::endl;
 	temp = this->_vectorChar;
@@ -314,95 +317,85 @@ void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 	this->_vectorChar.insert(this->_vectorChar.end(), temp.begin(), temp.end());
 	this->_lastNewLineFile.clear();
 	
-//	ss << this->_request;
-//	while ( std::getline(ss, line) && !ss.eof() )
-//	{
+	/*std::cout << YELLOW;
+	for ( size_t i(0); i < _vectorChar.size(); i++ )
+	{
+		if ( _vectorChar[i] == '\n')
+			std::cout << RED << "\\n" << "\n" << YELLOW;
+		else if ( _vectorChar[i] == '\r')
+			std::cout << RED << "\\r" << YELLOW;
+		else
+			std::cout << _vectorChar[i];
+	}
+	std::cout << SET;*/
+
 	while ( 1 )
 	{
 		temp.clear();
 		temp.insert(temp.begin(), this->_vectorChar.begin(), this->_vectorChar.begin() + pos);
-		if ( ( posBoundary = _find( temp, this->_boundary ) ) != std::string::npos )
-			break ;
+//		if ( ( posBoundary = _find( temp, this->_boundary ) ) != std::string::npos )
+//			break ;
+
+		std::cout << YELLOW;
+		for ( size_t i(0); i < temp.size(); i++ )
+		{
+			if ( temp[i] == '\n')
+				std::cout << RED << "\\n" << "\n" << YELLOW;
+			else if ( temp[i] == '\r')
+				std::cout << RED << "\\r" << YELLOW;
+			else
+				std::cout << temp[i];
+		}
+		std::cout << SET;
+
 		for (size_t j(0); j < temp.size(); j++)
 			this->_newFile << temp[j];
-		this->_vectorChar.erase( this->_vectorChar.begin(), this->_vectorChar.begin() + pos + 1 );
-	   if ( ( pos = _find(this->_vectorChar, "\n" ) ) == std::string::npos )
+		if ( isDelimit )
+			pos += 2;
+		this->_vectorChar.erase( this->_vectorChar.begin(), this->_vectorChar.begin() + pos );
+		if ( ( posBoundary = _find( this->_vectorChar, this->_boundary ) ) != std::string::npos )
 		{
-			for ( size_t j(0); j < this->_vectorChar.size(); j++)
-				std::cout << RED << this->_vectorChar[j];
- 			std::cout << SET << std::endl;
+			std::cout << RED << posBoundary << SET << std::endl;
+			for (size_t j(0); j < posBoundary; j++)
+				this->_newFile << _vectorChar[j];
 			break ;
 		}
-		this->_newFile << "\n";
-	}
+		
+		if ( isDelimit )
+			this->_newFile << "\r\n";
+		if ( this->_vectorChar.empty() && (  pos = _find(this->_vectorChar, "\r\n") ) == std::string::npos )
+			break ;
 
-	if ( this->_sizeFile == this->_contentLength || posBoundary != std::string::npos )
+	
+	}
+	
+	if ( posBoundary != std::string::npos || this->_sizeFile == this->_contentLength )
 	{
 		temp.clear();
-		temp.insert(temp.begin(), this->_vectorChar.begin() + posBoundary, this->_vectorChar.end());
+		if ( ( pos = _find(this->_vectorChar, "\r\n") ) != std::string::npos )
+			pos += 2;
+		temp.insert(temp.begin(),
+			this->_vectorChar.begin() + pos, this->_vectorChar.end());
 		this->_vectorChar = temp;
+		
+
 		this->_newFile.close();
 		this->_contentDisposition.clear();
 		this->_isSetHeaderFile = false;
-		parseHeaderFile( server, epollVar, i );
+//		parseHeaderFile( server, epollVar, i );
 		return ;
 	}
-	if ( pos < this->_vectorChar.size() )
-		this->_lastNewLineFile.insert(_lastNewLineFile.begin(), this->_vectorChar.begin() + pos + 1, this->_vectorChar.end());
-	this->_vectorChar.clear();
+	
+	pos = _find(this->_vectorChar, "\r\n");
+	if ( pos != std::string::npos )
+		pos += 2;
+	this->_lastNewLineFile.insert(_lastNewLineFile.begin(), this->_vectorChar.begin() + pos, this->_vectorChar.end());
+//	if ( _find(this->_lastNewLineFile, "\r\n") != std::string::npos )
+
+	writeFile( server, epollVar, i );
+//	this->_vectorChar.clear();
 
 }
-
-/*void		Request::parseHeaderFile( Server & server, t_epoll & epollVar, int i )
-{
-	std::string	line;
-	std::stringstream 	ss;
-	std::string			temp;
-	std::string			nameFile;
-
-	if ( this->_sizeFile == this->_contentLength )
-		changeEpollEvent( epollVar, i );
-
-	if ( this->_request.find( "\r\n\r\n", 0 ) == std::string::npos )
-		return ;
-
-	temp = this->_request.substr( this->_request.find( "\r\n\r\n", 0 ) + 4,
-		this->_request.size()- 1 \0);
-	this->_isSetHeaderFile = true;
-	this->_contentType.clear();
-	ss << this->_request;
-	while (!ss.eof())
-	{
-		std::getline(ss, line);
-		_parseContentType( line );
-		_parseContentDisposition( line );
-		if ( !this->_contentType.empty() )
-			break ;
-	}
-
-	if ( this->_isSetHeaderFile )
-	{
-		if ( server.get_root()[0] == '/' )
-			nameFile = ".";
-		nameFile += server.get_root();
-
-		for( itMapStringString it = this->_contentDisposition.begin();
-				it != this->_contentDisposition.end(); it++ )
-		{
-			if ( it->first == "filename" )
-				nameFile += it->second;
-		}
-		this->_newFile.clear();
-		this->_newFile.open( nameFile.c_str(), std::ofstream::out );
-		if ( !this->_newFile.is_open() )
-		{
-			setStatusError( 403, epollVar, i );
-			return ;
-		}
-		this->_request = temp;
-		writeFile( server, epollVar, i );
-	}
-}*/
 
 void		Request::parseHeaderFile( Server & server, t_epoll & epollVar, int i )
 {
@@ -411,6 +404,17 @@ void		Request::parseHeaderFile( Server & server, t_epoll & epollVar, int i )
 	std::vector<unsigned char>	temp;
 	std::string			nameFile;
 
+	std::cout << YELLOW;
+	/*for ( size_t i(0); i < _vectorChar.size(); i++ )
+	{
+		if ( _vectorChar[i] == '\n')
+			std::cout << RED << "\\n" << "\n" << YELLOW;
+		else if ( _vectorChar[i] == '\r')
+			std::cout << RED << "\\r" << YELLOW;
+		else
+			std::cout << _vectorChar[i];
+	}*/
+	std::cout << SET << std::endl;
 	size_t				pos = _find( this->_vectorChar, "\r\n\r\n");
 
 	if ( this->_sizeFile == this->_contentLength )
@@ -479,7 +483,15 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 
 	temp = this->_request.substr( this->_request.find( "\r\n\r\n", 0 ) + 4,  this->_request.size()- 1 );
 	tempVec.insert(tempVec.begin(), this->_vectorChar.begin() + _find(this->_vectorChar, "\r\n\r\n") + 4, this->_vectorChar.end());
-
+/*	for ( size_t i(0); i < _vectorChar.size(); i++ )
+	{
+		if ( _vectorChar[i] == '\n')
+			std::cout << RED << "\\n" << "\n" << YELLOW;
+		else if ( _vectorChar[i] == '\r')
+			std::cout << RED << "\\r" << YELLOW;
+		else
+			std::cout << _vectorChar[i];
+	}*/
 	while ((pos = _request.find("\r")) != std::string::npos)
 	  	_request.erase(pos, 1);
 	ss << this->_request;
@@ -552,7 +564,28 @@ size_t  Request::_find(std::vector<unsigned char> str, std::string occur)
         temp = 0;
         if ( *it == occur[temp])
         {
-            while (occur[temp] && *(it + temp) == occur[temp])
+            while ( temp < occur.size() && *(it + temp) == occur[temp])
+                temp++;
+            if (!occur[temp])
+                return (pos);
+        }
+        pos++;
+    }
+    return (std::string::npos);
+}
+
+size_t  Request::_find(std::vector<unsigned char> str, std::string occur, size_t posFinal)
+{
+    size_t  pos = 0;
+    size_t  temp;
+
+    for (std::vector<unsigned char>::iterator it = str.begin(); it != str.begin() + posFinal; it++)
+    {
+
+        temp = 0;
+        if ( *it == occur[temp])
+        {
+            while ( temp < occur.size() && *(it + temp) == occur[temp])
                 temp++;
             if (!occur[temp])
                 return (pos);
