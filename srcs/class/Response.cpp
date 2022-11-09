@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <amahla@student.42.fr>              +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/08 20:16:33 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/09 10:32:43 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,30 +28,30 @@
 #define NB_ELEMENTS 17
 
 
-Response::Response(Server & serv, Request & req, int fd) : _isCGI(0), _status(req.getStatus())
+Response::Response(Server &serv, Request &req, int fd) : _isCGI(0), _status(req.getStatus()), _serv(serv), _req(req)
 {
 	if ( DEBUG )
 		std::cout << "Response request Constructor" << std::endl;
 	if (_status)
 	{
-		_getErrorPage(serv);
+		_getErrorPage();
 		return ;
 	}
 
 	_fd = fd;
-	if (req.getMethode() == GET)
-		GET_response(serv, req);
-	else if ( req.getMethode() == POST)
-		POST_response(serv, req);
-	else if ( req.getMethode() == DELETE)
-		DELETE_response(serv, req);
+	if (_req.getMethode() == GET)
+		GET_response();
+	else if ( _req.getMethode() == POST)
+		POST_response();
+	else if ( _req.getMethode() == DELETE)
+		DELETE_response();
 
 	if (_status)
-		_getErrorPage(serv);
+		_getErrorPage();
 }
 
 /*------------canonical form--------------------*/
-Response::Response( const Response & rhs )
+Response::Response( const Response & rhs ):  _serv(_initserv), _req(_initreq)
 {
 	if ( DEBUG )
 		std::cout << "Response copy Constructor" << std::endl;
@@ -72,15 +72,18 @@ Response &	Response::operator=( const Response & rhs )
 		this->_fd = rhs._fd;
 		this->_isCGI = rhs._isCGI;
 		this->_status = rhs._status;
+		this->_req = rhs._req;
+		this->_serv = rhs._serv;
 	}
 	return ( *this );
 }
 
-Response::Response( void ) : _isCGI(0), _status(0)
+Response::Response( void ) : _isCGI(0), _status(0), _serv(_initserv), _req(_initreq)
 {
 	if ( DEBUG )
 		std::cout << "Response Default Constructor" << std::endl;
-	this->_response = "HTTP/1.1 200 OK\n";
+	_serv = Server();
+	this->_response = "HTTP/1.1 200\n";
 	this->_response += "Content-Type: text/plain\n";
 	this->_response += "Content-Length: 12";
 	this->_response += "\n\nHello world!";
@@ -124,22 +127,23 @@ bool		Response::_checkFileToDelete(std::string const & script)
 	return (true);
 }
 
-void	Response::DELETE_response(Server &serv, Request &req)
+void	Response::DELETE_response()
 {
-	std::string script = std::string("/bin/rm -rf ") + serv.get_root() + (req.getPath().substr(1, req.getPath().size() - 1));
+	std::string script = std::string("/bin/rm -rf ") + _serv.get_root() + (_req.getPath().substr(1, _req.getPath().size() - 1));
 
-	if (_checkFileToDelete(script.substr(12, script.size() - 12)) && _execCGI(script, _buildCGIenv(req, serv)) == 0)
+	if (_checkFileToDelete(script.substr(12, script.size() - 12)) && _execCGI(script, _buildCGIenv()) == 0)
 	{
-		_response += "HTTP/1.1 204 OK\n";
+		_response += "HTTP/1.1 204\n";
 		_response += "Content-Type: text/html\r\n";
 		_response += "Content-Length: ";
 		_response += "0";
 		_response += "\n\n";
 		_response += "\r\n\r\n";
 	}
-	else{
+	else
+	{
 		_status = 403;
-		_getErrorPage(serv);
+		_getErrorPage();
 	}
 	_isCGI = false;
 }
@@ -154,29 +158,29 @@ std::string		Response::_getType(std::string str)
 	return (rslt);
 }
 
-void	Response::GET_response(Server & serv, Request & req)
+void	Response::GET_response()
 {
 	std::string 		content_str;
 	std::stringstream 	ss;
 	std::string			type;
 
-	if (req.getPath() == "/"  || *req.getPath().rbegin() != '/' )
+	if (_req.getPath() == "/"  || *_req.getPath().rbegin() != '/' )
 	{
-		if (req.getPath() == "/")
+		if (_req.getPath() == "/")
 		{
 			content_str = _readFile("./html/index.html");
 			type = "html";
 		}
 			
 		else
-			content_str = _readFile(req.getPath(), serv);
+			content_str = _readFile(_req.getPath(), _serv);
 		ss << content_str.size();
 
 		if (ss.str().empty())
 			return ;
 		
 		if (type.empty())
-			type = _getType(req.getPath());
+			type = _getType(_req.getPath());
 
 		_response += "HTTP/1.1 200\n";
 		_response += "Content-Type: text/" + type + "\r\n";
@@ -186,18 +190,18 @@ void	Response::GET_response(Server & serv, Request & req)
 		_response += content_str;
 		_response += "\r\n\r\n";
 	}
-	else if (*req.getPath().rbegin() == '/')
+	else if (*_req.getPath().rbegin() == '/')
 	{
-		char **env = _buildCGIenv(req, serv);
+		char **env = _buildCGIenv();
 		std::string	script = "./cgi/autoindex.cgi";
 		_execCGI(script, env);
 	}
 	
 }
 
-void	Response::POST_response(Server &serv, Request &req)
+void	Response::POST_response()
 {
-	char **env = _buildCGIenv(req, serv);
+	char **env = _buildCGIenv();
 	std::string     script = "./cgi" + _getEnv("PATH_INFO", env);
 	_execCGI(script, env);
 }
@@ -315,13 +319,35 @@ void	Response::_printErrorPage()
 {
 	std::stringstream ss1;
 	ss1 << _status;
-	std::string error_page = "./html/error_page/" + ss1.str() + ".html";
+	std::string error;
+	std::string	type;
+	
+	if ( _serv.get_error_pages().find(ss1.str()) != _serv.get_error_pages().end())
+	{
+		if (_serv.get_root()[0] == '/')
+			error = ".";
+		if ( _serv.get_error_pages()[ss1.str()][0] == '/')
+			error += _serv.get_root().erase(_serv.get_root().size() - 1, 1) + _serv.get_error_pages()[ss1.str()];
+		else
+			error += _serv.get_root() + _serv.get_error_pages()[ss1.str()];
+	}
+	else
+	{
+		error =  "./html/error_page/" + ss1.str() + ".html";
+		type = "html";
+	}
+
+	if (type.empty())
+		type = _getType(error);
+
+	
+	std::string error_page = error;
 	std::string content_str = _readFile(error_page);
 	std::stringstream ss2;
 	ss2 << content_str.size();
 
 	std::cout << "HTTP/1.1 " + ss1.str() + "\n";
-	std::cout << "Content-Type: text/html\r\n";
+	std::cout << "Content-Type: text/" + type + "\r\n";
 	std::cout << "Content-Length: ";
 	std::cout << ss2.str();
 	std::cout << "\n\n";
@@ -329,23 +355,30 @@ void	Response::_printErrorPage()
 	std::cout << "\r\n\r\n";
 }
 
-void	Response::_getErrorPage(Server &serv)
+void	Response::_getErrorPage()
 {
 	std::stringstream ss1;
 	ss1 << _status;
 	std::string error;
+	std::string	type;
 
-	if ( serv.get_error_pages().find(ss1.str()) != serv.get_error_pages().end())
+	if ( _serv.get_error_pages().find(ss1.str()) != _serv.get_error_pages().end())
 	{
-		if (serv.get_root()[0] == '/')
+		if (_serv.get_root()[0] == '/')
 			error = ".";
-		if ( serv.get_error_pages()[ss1.str()][0] == '/')
-			error += serv.get_root().erase(serv.get_root().size() - 1, 1) + serv.get_error_pages()[ss1.str()];
+		if ( _serv.get_error_pages()[ss1.str()][0] == '/')
+			error += _serv.get_root().erase(_serv.get_root().size() - 1, 1) + _serv.get_error_pages()[ss1.str()];
 		else
-			error += serv.get_root() + serv.get_error_pages()[ss1.str()];
+			error += _serv.get_root() + _serv.get_error_pages()[ss1.str()];
 	}
 	else
+	{
 		error =  "./html/error_page/" + ss1.str() + ".html";
+		type = "html";
+	}
+
+	if (type.empty())
+		type = _getType(error);
 
 	
 	std::string error_page = error;
@@ -355,7 +388,7 @@ void	Response::_getErrorPage(Server &serv)
 
 	_response.clear();
 	_response = "HTTP/1.1 " + ss1.str() + "\n";
-	_response += "Content-Type: text/html\r\n";
+	_response += "Content-Type: text/" + type + "\r\n";
 	_response += "Content-Length: ";
 	_response += ss2.str();
 	_response += "\n\n";
@@ -399,14 +432,14 @@ int    Response::_execCGI(std::string script, char **env)
 
 /*------------BUILDING CGI ENVIRONNEMENT--------------------*/
 
-char**	Response::_buildCGIenv(Request const & req, Server const & serv)
+char**	Response::_buildCGIenv()
 {
 	int i = 0;
 	size_t pos = 0;
 	std::string	starter = "CONTENT_LENGTH= CONTENT_TYPE= GATEWAY_INTERFACE= PATH_INFO= PATH_TRANSLATED= QUERY_STRING= REMOTE_ADDR= REMOTE_HOST= REMOTE_IDENT= REMOTE_USER= REQUEST_METHOD= SCRIPT_NAME= SERVER_NAME= SERVER_PORT= SERVER_PROTOCOL= SERVER_SOFTWARE= HTTP_COOKIE= ";
 	std::string	var[NB_ELEMENTS];
 
-	_initVar(var, req, serv);
+	_initVar(var);
 	while ((pos = starter.find(" ", pos)) != std::string::npos){
 		starter.insert(pos, var[i]);
 		pos += var[i].size() + 1;
@@ -415,27 +448,27 @@ char**	Response::_buildCGIenv(Request const & req, Server const & serv)
 	return (_ft_split(starter.c_str(), ' '));
 }
 
-void	Response::_initVar(std::string *var, Request const & req, Server const & serv){
+void	Response::_initVar(std::string *var){
 
-	var[0] = req.getContentLengthStr();
-	var[1] = req.getContentType();
+	var[0] = _req.getContentLengthStr();
+	var[1] = _req.getContentType();
 	var[2] = "CGI/1.1";
-	var[3] = req.getPath();
-	var[4] = serv.get_root() + req.getPath().substr(1, (req.getPath().size() - 1));
-	var[5] = req.getQueryString();
-	var[6] = req.getOrigin();
-	var[7] = req.getAddr();
+	var[3] = _req.getPath();
+	var[4] = _serv.get_root() + _req.getPath().substr(1, (_req.getPath().size() - 1));
+	var[5] = _req.getQueryString();
+	var[6] = _req.getOrigin();
+	var[7] = _req.getAddr();
 	var[8] =  "NULL"; // -client_login;
 	var[9] = "NULL"; //user_login;
-	if (req.getMethode() == GET)
+	if (_req.getMethode() == GET)
 		var[10] = "GET";
-	else if (req.getMethode() == POST)
+	else if (_req.getMethode() == POST)
 		var[10] = "POST";
-	else if (req.getMethode() == DELETE)
+	else if (_req.getMethode() == DELETE)
 		var[10] = "DELETE";
-	var[11]= req.getPath();
-	var[12] = (static_cast<Server>(serv)).getServerName()[0];
-	var[13] = serv.getPortStr();
+	var[11]= _req.getPath();
+	var[12] = (static_cast<Server>(_serv)).getServerName()[0];
+	var[13] = _serv.getPortStr();
 	var[14] = "HTTP/1.1";
 	var[15] = "SAMserver/1.0";
 	var[16] = "COOKIE";//req.cookieString;

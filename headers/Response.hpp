@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/08 12:42:23 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/09 10:32:28 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,18 +37,22 @@ class Response
 		std::string	_response;
 		bool		_isCGI;
 		int			_status;
+		Server		&_serv;
+		Request		&_req;
+		Server		_initserv;
+		Request		_initreq;
 
 		char    	**_getArgv(std::string script);
 		void    	_clear_argv(char **argv);
 		void		_clear_env(char **env);
-		int    	_execCGI(std::string script, char **env);
+		int    		_execCGI(std::string script, char **env);
 		std::string _getEnv(std::string key, char **env);
 		std::string	_readFile(std::string path);
 		std::string	_readFile(std::string path, Server &serv);
-		void		_initVar(std::string *var, Request const & req, Server const & serv);
+		void		_initVar(std::string *var);
 		void		_printErrorPage(void);
-		void		_getErrorPage(Server &serv);
-		char**		_buildCGIenv(Request const & req, Server const & serv);
+		void		_getErrorPage(void);
+		char**		_buildCGIenv();
 		char**		_ft_split(char const *s, char c);
 		bool		_checkFileToDelete(std::string const & script);
 		std::string	_getType(std::string str);
@@ -65,9 +69,9 @@ class Response
 		const std::string	& getStringResponse( void ) const;
 		int					& getStatus(void);
 		
-		void				GET_response(Server &serv, Request &req);
-		void				POST_response(Server &serv, Request &req);
-		void				DELETE_response(Server &serv, Request &req);
+		void				GET_response(void);
+		void				POST_response(void);
+		void				DELETE_response(void);
 };
 
 char	*ft_find_wrd(char const *s, char set, int wordneeded);

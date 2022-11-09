@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/08 20:27:06 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/09 10:39:15 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -448,6 +448,42 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 	}
 }
 
+
+/*=======================================*/
+/*             find and insert           */
+/*=======================================*/
+
+size_t  Request::_find(std::vector<unsigned char> str, std::string occur)
+{
+    size_t  pos = 0;
+    size_t  temp;
+
+    for (std::vector<unsigned char>::iterator it = str.begin(); it != str.end(); it++)
+    {
+
+        temp = 0;
+        if ( *it == occur[temp])
+        {
+            while (occur[temp] && *(it + temp) == occur[temp])
+                temp++;
+            if (!occur[temp])
+                return (pos);
+        }
+        pos++;
+    }
+    return (std::string::npos);
+}
+
+void    Request::_insert(std::vector<unsigned char> &vec, unsigned char * buff)
+{
+    int len = strlen((char *)buff);
+    int i = 0;
+    while (i < len)
+        vec.push_back(buff[i++]);
+}
+
+
+
 int			Request::readData( int readFd, size_t bufferSize, int flag,
 				t_epoll & epollVar, int i )
 {
@@ -467,10 +503,10 @@ int			Request::readData( int readFd, size_t bufferSize, int flag,
 
 	bufferRead[rd] = '\0';
 	this->_sizeFile += rd;
-/*	if ( flag )
-		this->_vectorChar = 
-	if ( !flag )*/
-	this->_request += reinterpret_cast<char *>(bufferRead);
+	if ( flag )
+		_insert(this->_vectorChar, bufferRead);
+	else
+		this->_request += reinterpret_cast<char *>(bufferRead);
 	if ( !this->_isSetRequest && this->_request.find( "\r\n\r\n", 0 ) == std::string::npos )
 	{
 		setStatusError( 431, epollVar, i );

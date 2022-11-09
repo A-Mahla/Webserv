@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 15:27:08 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/09 10:37:44 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,8 @@ class Request
 
 		std::map< std::string, std::string >	_contentDisposition;
 
+		std::vector<unsigned char>	_vectorChar;
+
 
 		//max
 		void	_parseMethodAndPath(std::string request);
@@ -67,6 +69,8 @@ class Request
 		void	_parseHost( std::string str_const );
 		bool	_getPath(std::string request);
 		void	_checkUserAgent( const std::string request );
+		size_t  _find(std::vector<unsigned char> str, std::string occur);
+		void    _insert(std::vector<unsigned char> &vec, unsigned char * buff);
 
 		//amir
 		void		_parseOrigin( std::string request );

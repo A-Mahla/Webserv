@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 09:33:17 by meudier           #+#    #+#             */
-/*   Updated: 2022/11/08 12:34:52 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/09 09:54:54 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ int main()
     /*    make header whith env */
     /*==========================*/
 
-    std::cout << "HTTP/1.1 200 OK\n";
+    std::cout << "HTTP/1.1 200\n";
     std::cout << "Content-Type: text/html\r\n";
     std::cout << "Content-Length: ";
     std::cout <<  ss.str();
