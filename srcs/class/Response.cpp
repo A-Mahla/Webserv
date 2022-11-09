@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/04 09:35:37 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/11/09 20:39:38 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,9 @@ Response::Response(Server & serv, Request & req, int fd) : _isCGI(0), _status(0)
 		std::cout << "Response request Constructor" << std::endl;
 
 	_fd = fd;
-	if (req.getMethode() == GET)
+	if (serv.getRedirect() && _pathMatchRedirect(serv, req))
+		REDIR_response(serv.getRedirectStr());
+	else if (req.getMethode() == GET)
 		GET_response(serv, req);
 	else if ( req.getMethode() == POST)
 		POST_response(serv, req);
@@ -173,7 +175,7 @@ void	Response::GET_response(Server & serv, Request & req)
 		std::string	script = "./cgi/autoindex.cgi";
 		_execCGI(script, env);
 	}
-	
+
 }
 
 void	Response::POST_response(Server &serv, Request &req)
@@ -182,6 +184,14 @@ void	Response::POST_response(Server &serv, Request &req)
 	std::string     script = "./cgi" + _getEnv("PATH_INFO", env);
 	_execCGI(script, env);
 }
+
+void	Response::REDIR_response(std::string const & redirectStr){
+		_response += "HTTP/1.1 302 Found\n";
+		_response += "Content-Type: text/html\r\n";
+		_response += "Location: " + redirectStr + "\n\r";
+		_response += "\r\n\r\n";
+}
+
 
 
 /*------------private methode--------------------*/
@@ -194,7 +204,7 @@ std::string	Response::_readFile(std::string path)
 	char			*buff;
 
 	filename = path;
-	
+
 	ifs.open(filename.c_str(), std::ifstream::in);
 
 	if ( !ifs.is_open() )
@@ -227,7 +237,7 @@ std::string	Response::_readFile(std::string path, Server &serv)
 	char			*buff;
 
 	filename = serv.get_root()+ path.erase(0, 1);
-	
+
 	ifs.open(filename.c_str(), std::ifstream::in);
 
 	if ( !ifs.is_open() )
@@ -345,12 +355,12 @@ int    Response::_execCGI(std::string script, char **env)
     if (pid == 0)
     {
         dup2(this->_fd, STDOUT_FILENO);
-		
+
         execve(argv[0], argv, env );
-		
+
 		_status = 400;
 		_printErrorPage();
-	
+
         close(this->_fd);
         _clear_argv(argv);
 		_clear_env(env);
@@ -362,6 +372,27 @@ int    Response::_execCGI(std::string script, char **env)
 	_isCGI = true;
 	return (status >> 8);
 }
+
+
+bool	Response::_compareLocation(std::string servRedir, std::string reqPath)
+{
+	int i = 0;
+	for (; servRedir[i] == '/' || servRedir[i] == '.'; i++){}
+	if (reqPath.find(servRedir.c_str() + i, 0) == std::string::npos)
+		return (true);
+	else
+		return (false);
+}
+
+bool		Response::_pathMatchRedirect(Server &serv, Request &req){
+	std::cout << GREEN << "\n\n----------IN _pathMatchRedirect ------ <<\n";
+	std::cout << GREEN << "serv.get_root : " << serv.get_root() << std::endl;
+	std::cout << GREEN << "req.getPath() : " << req.getPath() << std::endl;
+	std::cout << GREEN << "serv.getRedirectStr() : " << serv.getRedirectStr() << std::endl;
+	std::cout << GREEN << "\n\n********************FIN DU TEST******************\n";
+	return (_compareLocation(serv.getRedirectStr(), req.getPath()));
+}
+
 
 /*------------BUILDING CGI ENVIRONNEMENT--------------------*/
 
@@ -475,7 +506,7 @@ char	*ft_find_wrd(char const *s, char set, int wordneeded)
 	}
 	return (NULL);
 }
-	
+
 char**	Response::_ft_split(char const *s, char c)
 {
 	char	**strs;

@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 08:33:31 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/09 17:31:48 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ ParseFile::ParseFile( const char *av )
 	this->_ft[5] = &ParseFile::listenParse;
 	this->_ft[6] = &ParseFile::autoindexParse;
 	this->_ft[7] = &ParseFile::allowedMethodsParse;
+	this->_ft[8] = &ParseFile::redirectParse;
 	this->readFile( av );
 	// reset les location Server en fonction du server parent
 	// resetLocation();
@@ -109,14 +110,14 @@ void	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::s
 			}
 		}
 
-		for ( j = 0; j < 8 ; j++ )
+		for ( j = 0; j < 9 ; j++ )
 		{
 			if ( parent && ( j == 5 || j == 0 || j == 2 ))
 				continue ;
 			if ( (this->*_ft[j])( temp.c_str() + i, server ) )
 				break ;
 		}
-		if ( j == 8 && !setLocation( ifs, temp.c_str() + i, server ) )
+		if ( j == 9 && !setLocation( ifs, temp.c_str() + i, server ) )
 			throw WebServException( "ParseFile.cpp", "readFile", "Invalid format config file" );
 	}
 }
@@ -440,4 +441,22 @@ bool	ParseFile::allowedMethodsParse(std::string str, Server & serv)
     serv.setAllowDelete(false);
     serv.setAllowPost(false);
     return (false);
+}
+
+bool	ParseFile::redirectParse( const std::string str_const, Server & serv )
+{
+	int i = 0;
+	std::string	str = str_const;
+	if (serv.get_is_set( "redirect" ))
+		return (false);
+	if ((str.compare(0, 9, "redirect ") == 0 || str.compare(0, 9, "redirect\t") == 0) && checkOccurance(str, ";") == 1 && afterSemiColon(str))
+	{
+		for (i = 8; str[i] == ' ' || str[i] == '\t'; i++){ /* just skipping space and tab */}
+		serv.setRedirectStr( str.substr(i, str.find(";", 0) - i) );
+		serv.setRedirect(true);
+		serv.set_is_set( "redirect" );
+		return (true);
+	}
+	else
+		return (false);
 }

@@ -11,17 +11,18 @@ server	{
 
 	index						index.html index.php test.html ;
 
-	root						./srcs;
+	root						.;
 
 	client_body_buffer_size		8k;
 
+	redirect							/headers/;
 	methodes        					POST:GET:DELETE;
 	location		ifs	{
 
 				autoindex		off;
-	
+
 	}
-	
+
 }
 
 server	{

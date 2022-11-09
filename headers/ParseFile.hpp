@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:38:07 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/01 08:32:39 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/09 17:23:42 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ class ParseFile
 	private:
 
 		std::vector<Server>	_servers;
-		bool				(ParseFile::*_ft[8])( const std::string str,
+		bool				(ParseFile::*_ft[9])( const std::string str,
 								Server & server );
 
 	public:
@@ -51,6 +51,7 @@ class ParseFile
 		bool	listenParse( const std::string str_const, Server & serv);
 		bool	autoindexParse( const std::string str_const, Server & serv );
 		bool	allowedMethodsParse(std::string str, Server & serv);
+		bool	redirectParse(std::string str_const, Server & serv);
 
 };
 

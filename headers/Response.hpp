@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/04 09:50:21 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/11/09 20:31:37 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,8 @@ class Response
 		char**		_buildCGIenv(Request const & req, Server const & serv);
 		char**		_ft_split(char const *s, char c);
 		bool		_checkFileToDelete(std::string const & script);
+		bool		_pathMatchRedirect(Server &serv, Request &req);
+		bool		_compareLocation(std::string servRedir, std::string reqPath);
 
 	public:
 		Response( void );
@@ -63,7 +65,8 @@ class Response
 		bool				getIsCGI(void);
 		const std::string	& getStringResponse( void ) const;
 		int					& getStatus(void);
-		
+
+		void				REDIR_response(std::string const & redirectStr);
 		void				GET_response(Server &serv, Request &req);
 		void				POST_response(Server &serv, Request &req);
 		void				DELETE_response(Server &serv, Request &req);
