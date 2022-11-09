@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/09 19:45:32 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/09 20:24:06 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -335,7 +335,7 @@ void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 		temp.insert(temp.begin(), this->_vectorChar.begin(), this->_vectorChar.begin() + pos);
 //		if ( ( posBoundary = _find( temp, this->_boundary ) ) != std::string::npos )
 //			break ;
-
+		
 		std::cout << YELLOW;
 		for ( size_t i(0); i < temp.size(); i++ )
 		{
@@ -353,14 +353,14 @@ void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 		if ( isDelimit )
 			pos += 2;
 		this->_vectorChar.erase( this->_vectorChar.begin(), this->_vectorChar.begin() + pos );
-		if ( ( posBoundary = _find( this->_vectorChar, this->_boundary ) ) != std::string::npos )
+		if ( ( posBoundary = _find( this->_vectorChar, this->_boundary.c_str() ) ) != std::string::npos )
 		{
 			std::cout << RED << posBoundary << SET << std::endl;
 			for (size_t j(0); j < posBoundary; j++)
 				this->_newFile << _vectorChar[j];
 			break ;
 		}
-		
+//		std::cout << "Yooooooooooo";
 		if ( isDelimit )
 			this->_newFile << "\r\n";
 		if ( this->_vectorChar.empty() && (  pos = _find(this->_vectorChar, "\r\n") ) == std::string::npos )
@@ -368,7 +368,6 @@ void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 
 	
 	}
-	
 	if ( posBoundary != std::string::npos || this->_sizeFile == this->_contentLength )
 	{
 		temp.clear();
@@ -382,18 +381,15 @@ void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 		this->_newFile.close();
 		this->_contentDisposition.clear();
 		this->_isSetHeaderFile = false;
-//		parseHeaderFile( server, epollVar, i );
+		parseHeaderFile( server, epollVar, i );
 		return ;
 	}
-	
+
 	pos = _find(this->_vectorChar, "\r\n");
 	if ( pos != std::string::npos )
 		pos += 2;
 	this->_lastNewLineFile.insert(_lastNewLineFile.begin(), this->_vectorChar.begin() + pos, this->_vectorChar.end());
-//	if ( _find(this->_lastNewLineFile, "\r\n") != std::string::npos )
-
-	writeFile( server, epollVar, i );
-//	this->_vectorChar.clear();
+	this->_vectorChar.clear();
 
 }
 
@@ -553,7 +549,7 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 /*             find and insert           */
 /*=======================================*/
 
-size_t  Request::_find(std::vector<unsigned char> str, std::string occur)
+size_t  Request::_find(std::vector<unsigned char> & str, std::string occur)
 {
     size_t  pos = 0;
     size_t  temp;
@@ -574,7 +570,7 @@ size_t  Request::_find(std::vector<unsigned char> str, std::string occur)
     return (std::string::npos);
 }
 
-size_t  Request::_find(std::vector<unsigned char> str, std::string occur, size_t posFinal)
+size_t  Request::_find(std::vector<unsigned char> & str, std::string occur, size_t posFinal)
 {
     size_t  pos = 0;
     size_t  temp;
