@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 12:06:27 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/10 13:27:46 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,6 @@ bool			Client::_requestInsideLocation(std::string location, std::string path)
 		location.erase(0, 1);
 	if (!path.compare(0, location.size(), location))
 		return (true);
-	std::cout << RED << "je reteurn false ici ----------------------[ " << path << "] [ " << location << "]\n";
 	return (false);
 }
 
@@ -85,9 +84,8 @@ void	Client::_get_good_Root(std::string path, Server *serv)
 {
 	for (std::map<std::string, Server>::iterator it = serv->getLocation().begin(); it != serv->getLocation().end(); it++)
 	{
-		if (_requestInsideLocation(it->first, path))//it->first == path || (it->first[0] == '.' && it->first.substr(1, it->first.size()) == path))
+		if (_requestInsideLocation(it->first, path))
 		{
-			std::cout << RED << "22222****************** -> [" << it->first << "] [" << path << "]" << std::endl;
 			this->_server = &it->second;
 			break ;
 		}
@@ -100,18 +98,13 @@ void	Client::_chooseServer( std::string path, t_epoll & epollVar, int i )
 {
 	for (std::vector<Server *>::iterator it = _serverList.begin(); it != _serverList.end(); it++)
 	{
-		std::cout << RED << "*********************ici mon test " <<  (*it)->getAddrStr() << std::endl;
 			for (std::vector<std::string>::iterator it2 = (*it)->getServerName().begin(); it2 != (*it)->getServerName().end(); it2++)
 			{
-				std::cout << RED << "C ICI LE TEST [" << *it2 << "] [" << _request.getAddr() << "]\n";
 				if (*it2 == _request.getAddr())
 				{
 					_get_good_Root( path, *it );
 					if ( !this->_server )
-					{
-						std::cout << RED << "-------------> blip blup blop\n";
 						_server = *it;
-					}
 					return ;
 				}
 			}
@@ -120,10 +113,7 @@ void	Client::_chooseServer( std::string path, t_epoll & epollVar, int i )
 		{
 			_get_good_Root( path, *it );
 			if ( !this->_server )
-			{
-				std::cout << RED << "-------------> blip blup blop\n";
 				_server = *it;
-			}
 			return ;
 		}
 	}
