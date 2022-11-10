@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/08 18:45:34 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/10 14:24:44 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,8 @@ class Server
 		bool								_allowDelete;
 		bool								_allowGet;
 		bool								_allowPost;
+		bool								_redirect;
+		std::string							_redirectStr;
 		
 	public:
 
@@ -73,9 +75,11 @@ class Server
 		std::string								getAddrStr( void ) const;
 		std::vector< std::string >				& get_index( void );
 		bool									getAutoindex( void ) const;
-		bool    								getAllowGet( void );
-        bool								    getAllowPost( void );
-        bool								    getAllowDelete( void );
+		bool									getAllowGet( void );
+		bool								    getAllowPost( void );
+		bool								    getAllowDelete( void );
+		bool									getRedirect( void );
+		std::string const &						getRedirectStr( void );
 
 		void									setAutoindex( bool onOff );
 		void									set_clientBody( const int val );
@@ -85,9 +89,11 @@ class Server
 		void									setPort( const int port );
 		void									setPort( std::string const & port);
 
-        void    								setAllowDelete(bool val);
-        void    								setAllowPost(bool val);
-        void    								setAllowGet(bool val);
+		void									setAllowDelete(bool val);
+		void									setAllowPost(bool val);
+		void									setAllowGet(bool val);
+		void									setRedirect( bool redirect );
+		void									setRedirectStr( std::string redirectStr );
 
 
 };

@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/08 18:52:22 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/10 14:22:15 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-Server::Server( void ) : _servSock(0), _port(8080), _inetAddr(INADDR_ANY), _clientBody(16000), _autoindex( false ), _root("html/"), 
-_allowDelete(false), _allowGet(false), _allowPost(false)
+Server::Server( void ) : _servSock(0), _port(8080), _inetAddr(INADDR_ANY), _clientBody(16000), _autoindex( false ), _root("html/"),
+_allowDelete(false), _allowGet(false), _allowPost(false), _redirect(false)
 {
 	if ( DEBUG )
 		std::cout << "Server Default Constructor" << std::endl;
@@ -69,6 +69,8 @@ Server &			Server::operator=( const Server & rhs )
 		this->_allowDelete = rhs._allowDelete;
 		this->_allowGet = rhs._allowGet;
 		this->_allowPost = rhs._allowPost;
+		this->_redirect = rhs._redirect;
+		this->_redirectStr = rhs._redirectStr;
 	}
 	return ( *this );
 }
@@ -168,6 +170,16 @@ bool    								Server::getAllowDelete( void )
 	return (_allowDelete);
 }
 
+bool									Server::getRedirect( void )
+{
+	return (_redirect);
+}
+
+std::string const &						Server::getRedirectStr( void )
+{
+	return (_redirectStr);
+}
+
 void									Server::set_root( const std::string root )
 {
 	_root.clear();
@@ -214,7 +226,7 @@ void    								Server::setAllowPost(bool val)
 	_allowPost = val;
 }
 
-void    								Server::setAllowGet(bool val)
+void									Server::setAllowGet(bool val)
 {
 	_allowGet = val;
 }
@@ -232,6 +244,16 @@ std::string								Server::getAddrStr( void ) const
 		bit += 8;
 	}
 	return( ss.str() );
+}
+
+void									Server::setRedirect( bool redirect )
+{
+	_redirect = redirect;
+}
+
+void									Server::setRedirectStr( std::string redirectStr )
+{
+	_redirectStr = redirectStr;
 }
 
 std::ostream	& operator<<( std::ostream & o, Server rhs )
@@ -295,7 +317,23 @@ std::ostream	& operator<<( std::ostream & o, Server rhs )
 		}
 		o << std::endl;
 	}
+	o << "\n allowed methodes : \n";
+	if (rhs.getAllowDelete())
+		o << "--> DELETE = true\n" ;
+	else
+		o << "--> DELETE = false\n" ;
+	if (rhs.getAllowPost())
+		o << "--> POST = true\n" ;
+	else
+		o << "--> POST = false\n" ;
+	if (rhs.getAllowGet())
+		o << "--> GET = true\n" ;
+	else
+		o << "--> GET = false\n" ;
 
-	
+	if (rhs.getRedirect())
+		std::cout << "there is a redirection into : \n\t\t-->" << rhs.getRedirectStr() << "<--\n\n";
+	else
+		std::cout << "\n\nno redirection set\n";
 	return ( o );
 }

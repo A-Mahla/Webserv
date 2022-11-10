@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/09 10:32:28 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/10 14:25:23 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,8 @@ class Response
 		char**		_ft_split(char const *s, char c);
 		bool		_checkFileToDelete(std::string const & script);
 		std::string	_getType(std::string str);
+		bool		_pathMatchRedirect(Server &serv, Request &req);
+		bool		_compareLocation(std::string servRedir, std::string reqPath);
 
 	public:
 		Response( void );
@@ -72,6 +74,8 @@ class Response
 		void				GET_response(void);
 		void				POST_response(void);
 		void				DELETE_response(void);
+
+		void				REDIR_response(std::string const & redirectStr);
 };
 
 char	*ft_find_wrd(char const *s, char set, int wordneeded);
