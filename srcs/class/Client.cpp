@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/04 09:45:03 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/11/10 10:29:22 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,8 +75,10 @@ void	Client::_get_good_Root(std::string path, Server *serv)
 {
 	for (std::map<std::string, Server>::iterator it = serv->getLocation().begin(); it != serv->getLocation().end(); it++)
 	{
+	//	std::cout << RED << "22222****************** -> " << it->first << std::endl;
 		if (it->first == path || (it->first[0] == '.' && it->first.substr(1, it->first.size()) == path))
 		{
+			std::cout << RED << "22222****************** -> " << it->first << std::endl;
 			this->_server = &it->second;
 			break ;
 		}
@@ -96,14 +98,18 @@ void	Client::_chooseServer( std::string path )
 			{
 				_get_good_Root( path, *it );
 				if ( !this->_server )
+				{
+					std::cout << RED << "-------------> blip blup blop\n";
 					_server = *it;
+				}
 				return ;
 			}
 		}
 	}
 	_get_good_Root( path, this->_serverList[0] );
-	if ( !this->_server )
+	if ( !this->_server ){
 		_server = this->_serverList[0];
+	}
 }
 
 void	Client::setRequest( t_epoll & epollVar, int i )
@@ -116,6 +122,7 @@ void	Client::setRequest( t_epoll & epollVar, int i )
 		if ( this->_request.getIsSetRequest() )
 		{
 			this->_request.parseRequest( epollVar, i );
+			std::cout << RED << "***************************** -> " << this->_request.getPath() <<"\n";
 			_chooseServer( this->_request.getPath() );
 		}
 	}

@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/09 20:39:38 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/10 10:17:36 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,11 @@ Response::Response(Server & serv, Request & req, int fd) : _isCGI(0), _status(0)
 		std::cout << "Response request Constructor" << std::endl;
 
 	_fd = fd;
-	if (serv.getRedirect() && _pathMatchRedirect(serv, req))
-		REDIR_response(serv.getRedirectStr());
-	else if (req.getMethode() == GET)
+	// std::cout << RED << "ICI LE TEST : " << serv.getLocation().size() << std::endl;
+	// std::cout << RED << "autoindex is " << serv.getAutoindex() << std::endl;
+	// //if (serv.getRedirect() && _pathMatchRedirect(serv, req))
+	// //	REDIR_response(serv.getRedirectStr());
+	if (req.getMethode() == GET)
 		GET_response(serv, req);
 	else if ( req.getMethode() == POST)
 		POST_response(serv, req);
