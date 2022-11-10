@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 13:28:28 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/10 13:30:43 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@
 #include <sstream>
 #include <cstdlib>
 #include <cstring>
-# include <stdio.h>
-# include <string>
+#include <stdio.h>
+#include <string>
 #include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>

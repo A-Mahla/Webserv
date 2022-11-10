@@ -20,14 +20,10 @@ server	{
 
 	autoindex							on;
 
-	location		./srcs/class {
+	location		./srcs/class/ {
 				methodes					POST:GET:DELETE;
-				redirect					/headers/;
 				autoindex					off;
-
 	}
-
-
 }
 
 server	{
