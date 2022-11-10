@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 14:25:36 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/10 14:44:16 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@
 #include <sstream>
 #include <cstdlib>
 #include <cstring>
-# include <stdio.h>
-# include <string>
+#include <stdio.h>
+#include <string>
 #include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -175,14 +175,14 @@ void	Response::GET_response()
 			content_str = _readFile("./html/index.html");
 			type = "html";
 		}
-			
+
 		else
 			content_str = _readFile(_req.getPath(), _serv);
 		ss << content_str.size();
 
 		if (ss.str().empty())
 			return ;
-		
+
 		if (type.empty())
 			type = _getType(_req.getPath());
 
@@ -194,12 +194,14 @@ void	Response::GET_response()
 		_response += content_str;
 		_response += "\r\n\r\n";
 	}
-	else if (*_req.getPath().rbegin() == '/')
+	else if (*_req.getPath().rbegin() == '/' && this->_serv.getAutoindex())
 	{
 		char **env = _buildCGIenv();
 		std::string	script = "./cgi/autoindex.cgi";
 		_execCGI(script, env);
 	}
+	else
+		this->_status = 400;
 
 }
 
@@ -333,7 +335,7 @@ void	Response::_printErrorPage()
 	ss1 << _status;
 	std::string error;
 	std::string	type;
-	
+
 	if ( _serv.get_error_pages().find(ss1.str()) != _serv.get_error_pages().end())
 	{
 		if (_serv.get_root()[0] == '/')
@@ -352,7 +354,7 @@ void	Response::_printErrorPage()
 	if (type.empty())
 		type = _getType(error);
 
-	
+
 	std::string error_page = error;
 	std::string content_str = _readFile(error_page);
 	std::stringstream ss2;
@@ -392,7 +394,7 @@ void	Response::_getErrorPage()
 	if (type.empty())
 		type = _getType(error);
 
-	
+
 	std::string error_page = error;
 	std::string content_str = _readFile(error_page);
 	std::stringstream ss2;

@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 14:22:15 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/10 14:31:56 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -334,6 +334,6 @@ std::ostream	& operator<<( std::ostream & o, Server rhs )
 	if (rhs.getRedirect())
 		std::cout << "there is a redirection into : \n\t\t-->" << rhs.getRedirectStr() << "<--\n\n";
 	else
-		std::cout << "\n\nno redirection set\n";
+		std::cout << "\n\n no redirection set\n";
 	return ( o );
 }

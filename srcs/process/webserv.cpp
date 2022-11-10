@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/07 17:21:46 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/10 14:48:17 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,8 @@
 void	webServ( const char *av )
 {
 	ParseFile	file( av );
-// ========= test ==========
-	
 	std::vector<Server> servers = file.getServers();
-
 	servers = file.getServers();
-	for ( std::size_t i(0); i < servers.size(); i++ )
-		std::cout << std::endl << servers[i] << std::endl;
-// ========================= 
-
 	setServerSockets( file.getServers() );
 	appServ( file.getServers() );
-
 }

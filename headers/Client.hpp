@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/08 14:27:06 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/10 10:48:04 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,9 @@ class Client
 		void					_chooseServer(void);
 
 		void	_get_good_Root(std::string path, Server *serv);
+		bool	_requestInsideLocation(std::string location, std::string path);
 		void	_chooseServer( std::string path, t_epoll & epollVar, int i );
+
 
 	public:
 
@@ -42,7 +44,7 @@ class Client
 
 		Client &	operator=( const Client & rhs );
 
-		
+
 		int						& getSock( void );
 		const int				& getSock( void ) const;
 		int						getReadStatus( void );

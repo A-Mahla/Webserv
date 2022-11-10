@@ -6,7 +6,7 @@
 #    By: meudier <meudier@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/10/17 21:07:29 by amahla            #+#    #+#              #
-#    Updated: 2022/11/09 17:33:02 by meudier          ###   ########.fr        #
+#    Updated: 2022/11/10 14:53:44 by meudier          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -102,13 +102,14 @@ $(OUTDIR)/%.o		:	$(SRCDIR)/%.cpp | $(OUTDIR)
 
 $(NAME)				:	$(addprefix $(OUTDIR)/,$(SRCS:.cpp=.o))
 	$(CC) $(CCFLAGS) $(OPTFLAG) -o $(NAME) $^
+	./cgi/test_cgi.sh
 
 
 $(OUTDIR)			:
 	mkdir $(OUTDIR)
 
 clean				:
-	$(RM) -rf $(OBJDIR) $(DEBUGDIR)
+	$(RM) -rf $(OBJDIR) $(DEBUGDIR) ./cgi/signIn.cgi ./cgi/autoindex.cgi
 
 fclean				:	clean
 	$(RM) -f $(PROGNAME) $(addsuffix .mac,$(PROGNAME)) $(DEBUGNAME)

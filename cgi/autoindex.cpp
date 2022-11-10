@@ -193,9 +193,6 @@ int main(int ac, char **av, char **env){
 		for (std::vector<std::string>::iterator it = tab_output.begin(); it != tab_output.end(); it++)
 		{
 			content_body += "<a href=\"http://" + std::string(getenv("REMOTE_HOST")) + ":" + std::string(getenv("SERVER_PORT")) + std::string(getenv("PATH_INFO")) + *it + "\"><li class=\"card\">" + *it + "</li></a>";
-			std::cerr << "<a href=\"http://" + std::string(getenv("REMOTE_HOST")) + ":" + std::string(getenv("SERVER_PORT")) + std::string(getenv("PATH_INFO")) + *it + "\"><li>" + *it + "</li></a>";
-
-			
 		}
 
 

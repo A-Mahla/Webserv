@@ -3,7 +3,7 @@ server	{
 
 	server_name					YO.com;
 
-	listen						0.0.0.0:2020;
+	listen						2020;
 
 	autoindex					on;
 
@@ -15,10 +15,16 @@ server	{
 
 	client_body_buffer_size		8k;
 
-	redirect							/headers/;
-	methodes        					POST:GET:DELETE;
 	
 
+	methodes							POST:GET:DELETE;
+
+	autoindex							on;
+
+	location		./headers/ {
+				methodes					POST:GET:DELETE;
+				autoindex					on;
+	}
 }
 
 server	{

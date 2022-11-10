@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 14:24:44 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/10 14:33:11 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class Server
 		bool								_allowPost;
 		bool								_redirect;
 		std::string							_redirectStr;
-		
+
 	public:
 
 		Server( void );

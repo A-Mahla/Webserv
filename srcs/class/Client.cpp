@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/09 19:21:32 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/10 13:27:46 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,11 +71,20 @@ const Request	& Client::getRequest( void ) const
 	return ( this->_request );
 }
 
+bool			Client::_requestInsideLocation(std::string location, std::string path)
+{
+	if (location[0] == '.')
+		location.erase(0, 1);
+	if (!path.compare(0, location.size(), location))
+		return (true);
+	return (false);
+}
+
 void	Client::_get_good_Root(std::string path, Server *serv)
 {
 	for (std::map<std::string, Server>::iterator it = serv->getLocation().begin(); it != serv->getLocation().end(); it++)
 	{
-		if (it->first == path || (it->first[0] == '.' && it->first.substr(1, it->first.size()) == path))
+		if (_requestInsideLocation(it->first, path))
 		{
 			this->_server = &it->second;
 			break ;
@@ -89,27 +98,29 @@ void	Client::_chooseServer( std::string path, t_epoll & epollVar, int i )
 {
 	for (std::vector<Server *>::iterator it = _serverList.begin(); it != _serverList.end(); it++)
 	{
-		if ( (*it)->getAddrStr() == _request.getAddr()
+			for (std::vector<std::string>::iterator it2 = (*it)->getServerName().begin(); it2 != (*it)->getServerName().end(); it2++)
+			{
+				if (*it2 == _request.getAddr())
+				{
+					_get_good_Root( path, *it );
+					if ( !this->_server )
+						_server = *it;
+					return ;
+				}
+			}
+		if ( ((*it)->getAddrStr() == "0.0.0.0") || (*it)->getAddrStr() == _request.getAddr()
 			|| ( (*it)->getAddrStr() == "127.0.0.1" && _request.getAddr() == "localhost" ) )
 		{
-			_server = *it;
+			_get_good_Root( path, *it );
+			if ( !this->_server )
+				_server = *it;
 			return ;
-		}
-		for (std::vector<std::string>::iterator it2 = (*it)->getServerName().begin(); it2 != (*it)->getServerName().end(); it2++)
-		{
-			if (*it2 == _request.getAddr())
-			{
-				_get_good_Root( path, *it );
-				if ( !this->_server )
-					_server = *it;
-				return ;
-			}
 		}
 	}
 	if ( !this->_server )
 	{
 		epoll_ctl(epollVar.epollFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
-		close( epollVar.events[i].data.fd );	
+		close( epollVar.events[i].data.fd );
 		std::cout << RED << "Invalid hostname from client" << std::endl;
 		std::cout << "Client request rejected" << SET << std::endl;
 		this->_readStatus = 0;
