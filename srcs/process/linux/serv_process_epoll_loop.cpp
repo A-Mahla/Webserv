@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   serv_process_epoll_loop.cpp                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/08 20:18:44 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/10 17:12:29 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,15 +41,15 @@ void	sendData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, i
 {
 		const char	*buffer_write = it->getResponse(*(it->getServer()),
 			it->getRequest(), epollVar.events[i].data.fd).getStringResponse().c_str();
-		
-		if (!(it->getResponse().getIsCGI()) &&  send( epollVar.events[i].data.fd, buffer_write, strlen(buffer_write), 0 ) < 0 )
+
+		if (!(it->getResponse().getIsCGI()) &&  send( epollVar.events[i].data.fd, buffer_write, strlen(buffer_write), 0 ) <= 0 )
 		{
 			std::cout << RED << "Connexion client lost" << SET << std::endl;
 			clients.erase( it );
 			epoll_ctl(epollVar.epollFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
 			close( epollVar.events[i].data.fd );
 		}
-		
+
 		epollVar.new_event.events = EPOLLIN;
 		epollVar.new_event.data.fd = epollVar.events[i].data.fd;
 		epoll_ctl(epollVar.epollFd, EPOLL_CTL_MOD, epollVar.events[i].data.fd, &epollVar.new_event);
@@ -87,17 +87,17 @@ void	addConnection( std::vector<Client> & clients, std::vector< Server > & serve
 		if ( errno != EWOULDBLOCK )
 			throw WebServException( "serv_process_epoll_loop.cpp", "newConnection", "accept() failed" );
 	}
-	
+
 	else if ( newConnection >= 0 )
 	{
 
 		std::cout << std::endl;
 		nonBlockSock( newConnection );
-		
+
 		epollVar.new_event.data.fd = newConnection;
 		epollVar.new_event.events = EPOLLIN;
 		epoll_ctl( epollVar.epollFd, EPOLL_CTL_ADD, newConnection, &(epollVar.new_event ));
-		
+
 		clients.push_back( Client( newConnection ) );
 		if ( !whichAddrServer( servers, clients.back(), temp.sin_addr.s_addr, serverToConnect.getPort() ) )
 		{
@@ -143,12 +143,12 @@ bool	errorEpoll( std::vector<Server> & servers, std::vector<Client> & clients, t
 
 void	servProcess( std::vector<Server> & servers, std::vector<Client> & clients, t_epoll & epollVar )
 {
-	
+
 	setEpollQueue( epollVar, servers );
 
 	while (1)
 	{
-	
+
 		waitRequest( epollVar );
 		for ( int i(0); i < epollVar.maxNbFd; i++)
 		{

@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 16:59:47 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/10 19:08:23 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,6 @@ Response::Response(Server &serv, Request &req, int fd) : _isCGI(0), _status(req.
 	_fd = fd;
 	if (serv.getRedirect() && _pathMatchRedirect(serv, req))
 	{
-		std::cout << "ICI LE TEST  ---> " << serv.getRedirectStr() << "\n";
 		REDIR_response(serv.getRedirectStr());
 	}
 	else if (req.getMethode() == GET)
@@ -161,7 +160,7 @@ std::string		Response::_getType(std::string str)
 	std::string	rslt;
 
 	if ((pos = str.find(".", 0)) != std::string::npos)
-		rslt = str.erase(0, pos++);
+		rslt = str.erase(0, ++pos);
 	return (rslt);
 }
 
@@ -189,8 +188,10 @@ void	Response::GET_response()
 		if (type.empty())
 			type = _getType(_req.getPath());
 
+		std::cout << RED << type << SET << std::endl;
+
 		_response += "HTTP/1.1 200\n";
-		_response += "Content-Type: text/" + type + "\r\n";
+		_response += "Content-Type: text/" + type + " \r\n";
 		_response += "Content-Length: ";
 		_response += ss.str();
 		_response += "\n\n";
@@ -211,7 +212,11 @@ void	Response::GET_response()
 void	Response::POST_response()
 {
 	char **env = _buildCGIenv();
-	std::string     script = "./cgi" + _getEnv("PATH_INFO", env);
+	std::string		path =  _getEnv("PATH_INFO", env);
+	std::string		comp = "/html";
+	if (path.compare(0, comp.size(), comp) == 0)
+		path.erase(0, 5);
+	std::string     script = "./cgi" + path;
 	_execCGI(script, env);
 }
 

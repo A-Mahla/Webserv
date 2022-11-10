@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 14:17:27 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/10 18:26:45 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -299,12 +299,11 @@ void		Request::changeEpollEvent( t_epoll & epollVar, int i )
 
 void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 {
-	static int len = 0;
 	std::vector<unsigned char>	temp;
 	size_t						pos = 0;
 	size_t						posBoundary = 0;
 	bool						isDelimit = false;
-	
+
 	if ( this->_sizeFile != this->_contentLength )
 	{
 		if (( pos = _find(this->_vectorChar, "\r\n") ) == std::string::npos )
@@ -317,12 +316,12 @@ void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 		else
 			isDelimit = true;
 	}
-	
+
 	temp = this->_vectorChar;
 	this->_vectorChar = this->_lastNewLineFile;
 	this->_vectorChar.insert(this->_vectorChar.end(), temp.begin(), temp.end());
 	this->_lastNewLineFile.clear();
-	
+
 	while ( 1 )
 	{
 		if ( isDelimit )
@@ -331,19 +330,16 @@ void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 		temp.insert(temp.begin(), this->_vectorChar.begin(), this->_vectorChar.begin() + pos);
 
 		for (size_t j(0); j < temp.size(); j++)
-		{
-			len++;
 			this->_newFile << temp[j];
-		}
-		
+
 		this->_vectorChar.erase( this->_vectorChar.begin(), this->_vectorChar.begin() + pos );
 
 		if ( ( posBoundary = _find( this->_vectorChar, this->_boundary.c_str() ) ) != std::string::npos )
 		{
-			for (size_t j(0); j < _find(this->_vectorChar, "\r\n"); j++)
+			if ( _find(this->_vectorChar , "\r\n", posBoundary) != std::string::npos)
 			{
-				len++;
-				this->_newFile << _vectorChar[j];
+				for (size_t j(0); j < _find(this->_vectorChar, "\r\n"); j++)
+					this->_newFile << _vectorChar[j];
 			}
 			break ;
 		}
@@ -364,7 +360,7 @@ void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 		temp.insert(temp.begin(),
 			this->_vectorChar.begin() + pos, this->_vectorChar.end());
 		this->_vectorChar = temp;
-		
+
 
 		this->_newFile.close();
 		this->_contentDisposition.clear();
@@ -489,15 +485,15 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 			this->_isSetRequest = false;
 			return ;
 		}
-			
+
 		this->_request = temp;
 		this->_vectorChar = tempVec;
-		
+
 		if ( this->_contentType == "application/x-www-form-urlencoded" )
 			this->_queryString = this->_request;
 	}
 	if ( this->_method == GET || this->_method == DELETE
-			|| this->_method == BAD_REQUEST 
+			|| this->_method == BAD_REQUEST
 			|| ( this->_method == POST && this->_request.size() == this->_contentLength
 				&& this->_boundary.empty()))
 	{
@@ -575,7 +571,7 @@ int			Request::readData( int readFd, size_t bufferSize, int flag,
 		else
 			std::cout << RED << "Connexion client is closed" << SET << std::endl;
 		epoll_ctl(epollVar.epollFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
-		close( epollVar.events[i].data.fd );	
+		close( epollVar.events[i].data.fd );
 		return ( rd );
 	}
 
@@ -596,7 +592,7 @@ int			Request::readData( int readFd, size_t bufferSize, int flag,
 	}
 	if ( flag && this->_sizeFile == this->_contentLength )
 		changeEpollEvent( epollVar, i );
-	
+
 	/*if ( (size_t)rd < bufferSize - 1 && this->_sizeFile < this->_contentLength
 		&& this->_isSetContentLength )
 	{
@@ -605,13 +601,13 @@ int			Request::readData( int readFd, size_t bufferSize, int flag,
 		std::cout << "_sfile: " <<  this->_sizeFile << " _CL: " << this->_contentLength << std::endl << SET ;
 		setStatusError( 400, epollVar, i );
 	}*/
-		
+
 	std::cout << GREEN <<  "Server side receive from client : \n" << this->_request << SET << std::endl;
 	return ( rd );
 }
 
 
-int 	Request::getStatus(void) const 
+int 	Request::getStatus(void) const
 {
 	return (_status);
 }

@@ -15,9 +15,9 @@
 
 	root						./YoupiBanane;
 
-	methodes					GET:POST:DELETE;
 
-	client_body_buffer_size		8k; 
+
+	client_body_buffer_size		8k;
 
 }
 

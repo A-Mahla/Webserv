@@ -23,7 +23,7 @@ server	{
 
 	location		./headers/ {
 				methodes					POST:GET:DELETE;
-				autoindex					off;
+				autoindex					on;
 
 	}
 }
@@ -45,7 +45,7 @@ server	{
 
 	client_body_buffer_size		8k;
 
-	methodes        			POST:GET:DELETE;
+	methodes        			POST:GET;
 
 	location		./config {
 
