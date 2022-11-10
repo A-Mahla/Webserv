@@ -15,15 +15,16 @@ server	{
 
 	client_body_buffer_size		8k;
 
-	
 
 	methodes							POST:GET:DELETE;
 
 	autoindex							on;
+	redirect					/headers/Client.hpp;
 
 	location		./headers/ {
 				methodes					POST:GET:DELETE;
-				autoindex					on;
+				autoindex					off;
+
 	}
 }
 

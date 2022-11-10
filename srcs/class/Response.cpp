@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 14:44:16 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/10 16:59:47 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,10 @@ Response::Response(Server &serv, Request &req, int fd) : _isCGI(0), _status(req.
 
 	_fd = fd;
 	if (serv.getRedirect() && _pathMatchRedirect(serv, req))
+	{
+		std::cout << "ICI LE TEST  ---> " << serv.getRedirectStr() << "\n";
 		REDIR_response(serv.getRedirectStr());
+	}
 	else if (req.getMethode() == GET)
 		GET_response();
 	else if ( req.getMethode() == POST)
@@ -201,7 +204,7 @@ void	Response::GET_response()
 		_execCGI(script, env);
 	}
 	else
-		this->_status = 400;
+		this->_status = 403;
 
 }
 
@@ -213,6 +216,9 @@ void	Response::POST_response()
 }
 
 void	Response::REDIR_response(std::string const & redirectStr){
+
+
+		_response.clear();
 		_response += "HTTP/1.1 302 Found\n";
 		_response += "Content-Type: text/html\r\n";
 		_response += "Location: " + redirectStr + "\n\r";
@@ -456,11 +462,6 @@ bool	Response::_compareLocation(std::string servRedir, std::string reqPath)
 }
 
 bool		Response::_pathMatchRedirect(Server &serv, Request &req){
-	std::cout << GREEN << "\n\n----------IN _pathMatchRedirect ------ <<\n";
-	std::cout << GREEN << "serv.get_root : " << serv.get_root() << std::endl;
-	std::cout << GREEN << "req.getPath() : " << req.getPath() << std::endl;
-	std::cout << GREEN << "serv.getRedirectStr() : " << serv.getRedirectStr() << std::endl;
-	std::cout << GREEN << "\n\n********************FIN DU TEST******************\n";
 	return (_compareLocation(serv.getRedirectStr(), req.getPath()));
 }
 

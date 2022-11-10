@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseFile.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 14:39:52 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/10 16:54:43 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,7 @@ void	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::s
 		server.setAllowGet(false);
 		server.setAllowPost(false);
 		server.getLocation().clear();
+		server.setRedirect(false);
 	}
 
 	while ( std::getline( ifs, temp ).good() )
@@ -116,10 +117,12 @@ void	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::s
 
 		for ( j = 0; j < 9 ; j++ )
 		{
-			if ( parent && ( j == 5 || j == 0 || j == 2 ))
+			if ( parent && ( j == 5 || j == 0 || j == 2 )){
 				continue ;
-			if ( (this->*_ft[j])( temp.c_str() + i, server ) )
+			}
+			if ( (this->*_ft[j])( temp.c_str() + i, server ) ){
 				break ;
+			}
 		}
 		if ( j == 9 && !setLocation( ifs, temp.c_str() + i, server ) )
 			throw WebServException( "ParseFile.cpp", "readFile", "Invalid format config file" );
