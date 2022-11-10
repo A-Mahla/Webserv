@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 10:43:58 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/10 10:56:23 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,8 @@ class Response
 		void				GET_response(void);
 		void				POST_response(void);
 		void				DELETE_response(void);
+		void				REDIR_response(std::string const & redirectStr);
+
 };
 
 char	*ft_find_wrd(char const *s, char set, int wordneeded);

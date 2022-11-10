@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 10:39:33 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/10 12:06:27 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,14 +71,23 @@ const Request	& Client::getRequest( void ) const
 	return ( this->_request );
 }
 
+bool			Client::_requestInsideLocation(std::string location, std::string path)
+{
+	if (location[0] == '.')
+		location.erase(0, 1);
+	if (!path.compare(0, location.size(), location))
+		return (true);
+	std::cout << RED << "je reteurn false ici ----------------------[ " << path << "] [ " << location << "]\n";
+	return (false);
+}
+
 void	Client::_get_good_Root(std::string path, Server *serv)
 {
 	for (std::map<std::string, Server>::iterator it = serv->getLocation().begin(); it != serv->getLocation().end(); it++)
 	{
-	//	std::cout << RED << "22222****************** -> " << it->first << std::endl;
-		if (it->first == path || (it->first[0] == '.' && it->first.substr(1, it->first.size()) == path))
+		if (_requestInsideLocation(it->first, path))//it->first == path || (it->first[0] == '.' && it->first.substr(1, it->first.size()) == path))
 		{
-			std::cout << RED << "22222****************** -> " << it->first << std::endl;
+			std::cout << RED << "22222****************** -> [" << it->first << "] [" << path << "]" << std::endl;
 			this->_server = &it->second;
 			break ;
 		}
@@ -91,24 +100,31 @@ void	Client::_chooseServer( std::string path, t_epoll & epollVar, int i )
 {
 	for (std::vector<Server *>::iterator it = _serverList.begin(); it != _serverList.end(); it++)
 	{
-		if ( (*it)->getAddrStr() == _request.getAddr()
+		std::cout << RED << "*********************ici mon test " <<  (*it)->getAddrStr() << std::endl;
+			for (std::vector<std::string>::iterator it2 = (*it)->getServerName().begin(); it2 != (*it)->getServerName().end(); it2++)
+			{
+				std::cout << RED << "C ICI LE TEST [" << *it2 << "] [" << _request.getAddr() << "]\n";
+				if (*it2 == _request.getAddr())
+				{
+					_get_good_Root( path, *it );
+					if ( !this->_server )
+					{
+						std::cout << RED << "-------------> blip blup blop\n";
+						_server = *it;
+					}
+					return ;
+				}
+			}
+		if ( ((*it)->getAddrStr() == "0.0.0.0") || (*it)->getAddrStr() == _request.getAddr()
 			|| ( (*it)->getAddrStr() == "127.0.0.1" && _request.getAddr() == "localhost" ) )
 		{
-			_server = *it;
-			return ;
-		}
-		for (std::vector<std::string>::iterator it2 = (*it)->getServerName().begin(); it2 != (*it)->getServerName().end(); it2++)
-		{
-			if (*it2 == _request.getAddr())
+			_get_good_Root( path, *it );
+			if ( !this->_server )
 			{
-				_get_good_Root( path, *it );
-				if ( !this->_server )
-				{
-					std::cout << RED << "-------------> blip blup blop\n";
-					_server = *it;
-				}
-				return ;
+				std::cout << RED << "-------------> blip blup blop\n";
+				_server = *it;
 			}
+			return ;
 		}
 	}
 	if ( !this->_server )

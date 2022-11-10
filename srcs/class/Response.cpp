@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 10:43:25 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/10 12:12:50 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,18 +39,16 @@ Response::Response(Server &serv, Request &req, int fd) : _isCGI(0), _status(req.
 	}
 
 	_fd = fd;
-	// std::cout << RED << "ICI LE TEST : " << serv.getLocation().size() << std::endl;
-	// std::cout << RED << "autoindex is " << serv.getAutoindex() << std::endl;
-	// //if (serv.getRedirect() && _pathMatchRedirect(serv, req))
-	// //	REDIR_response(serv.getRedirectStr());
-	if (_req.getMethode() == GET)
+	//std::cout << RED << "ICI LE TEST : " << serv.getLocation().size() << std::endl;
+	//std::cout << RED << "autoindex is " << serv.getAutoindex() << std::endl;
+	if (serv.getRedirect() && _pathMatchRedirect(serv, req))
+		REDIR_response(serv.getRedirectStr());
+	else if (_req.getMethode() == GET)
 		GET_response();
 	else if ( _req.getMethode() == POST)
 		POST_response();
 	else if ( _req.getMethode() == DELETE)
 		DELETE_response();
-	else
-		_status = 400;
 	if (_status)
 		_getErrorPage();
 }
@@ -212,6 +210,7 @@ void	Response::POST_response()
 }
 
 void	Response::REDIR_response(std::string const & redirectStr){
+		std::cout << "IL A PAS RENVOYER HEADERS\n\n";
 		_response += "HTTP/1.1 302 Found\n";
 		_response += "Content-Type: text/html\r\n";
 		_response += "Location: " + redirectStr + "\n\r";
