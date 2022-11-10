@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 10:29:22 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/10 10:39:33 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,11 +87,16 @@ void	Client::_get_good_Root(std::string path, Server *serv)
 	}
 }
 
-void	Client::_chooseServer( std::string path )
+void	Client::_chooseServer( std::string path, t_epoll & epollVar, int i )
 {
-	_server = _serverList[0];
 	for (std::vector<Server *>::iterator it = _serverList.begin(); it != _serverList.end(); it++)
 	{
+		if ( (*it)->getAddrStr() == _request.getAddr()
+			|| ( (*it)->getAddrStr() == "127.0.0.1" && _request.getAddr() == "localhost" ) )
+		{
+			_server = *it;
+			return ;
+		}
 		for (std::vector<std::string>::iterator it2 = (*it)->getServerName().begin(); it2 != (*it)->getServerName().end(); it2++)
 		{
 			if (*it2 == _request.getAddr())
@@ -106,9 +111,13 @@ void	Client::_chooseServer( std::string path )
 			}
 		}
 	}
-	_get_good_Root( path, this->_serverList[0] );
-	if ( !this->_server ){
-		_server = this->_serverList[0];
+	if ( !this->_server )
+	{
+		epoll_ctl(epollVar.epollFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);
+		close( epollVar.events[i].data.fd );
+		std::cout << RED << "Invalid hostname from client" << std::endl;
+		std::cout << "Client request rejected" << SET << std::endl;
+		this->_readStatus = 0;
 	}
 }
 
@@ -117,21 +126,37 @@ void	Client::setRequest( t_epoll & epollVar, int i )
 	if ( !this->_request.getIsSetRequest() )
 	{
 		if ( ( this->_readStatus = this->_request.readData( this->_clientSock,
-			1023, 1, epollVar, i ) ) <= 0 )
+			4096, 0, epollVar, i ) ) <= 0 )
 			return ;
 		if ( this->_request.getIsSetRequest() )
 		{
 			this->_request.parseRequest( epollVar, i );
-			std::cout << RED << "***************************** -> " << this->_request.getPath() <<"\n";
-			_chooseServer( this->_request.getPath() );
+			if ( !this->_server )
+				_chooseServer( this->_request.getPath(), epollVar, i );
+			if ( this->_request.getStatus() )
+				return ;
+			if ( this->_readStatus == 0 )
+				return ;
+			this->_request.checkMethodeAllowed( *(this->_server) );
+			if ( this->_request.getStatus() )
+				return ;
 		}
 	}
-	else if ( this->_request.getIsSetRequest()
-		&& this->_request.getContentType() == "application/x-www-form-urlencoded" )
+	else if ( this->_request.getIsSetRequest() )
 	{
 		if ( ( this->_readStatus = this->_request.readData( this->_clientSock,
-			this->_server->get_clientBody(), 2, epollVar, i ) ) <= 0 )
+			this->_server->get_clientBody(), 1, epollVar, i ) ) <= 0 || this->_request.getStatus() )
 			return ;
+	}
+	if ( this->_request.getIsSetRequest()
+		&& !this->_request.getBoundary().empty() )
+	{
+		if ( !this->_request.getIsSetHeaderFile() )
+			this->_request.parseHeaderFile( *(this->_server), epollVar, i );
+		if ( this->_request.getStatus() )
+			return ;
+		if ( this->_request.getIsSetHeaderFile() )
+			this->_request.writeFile( *(this->_server), epollVar, i );
 	}
 }
 

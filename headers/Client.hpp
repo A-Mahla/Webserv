@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/04 09:43:16 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/11/08 14:27:06 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ class Client
 		void					_chooseServer(void);
 
 		void	_get_good_Root(std::string path, Server *serv);
-		void	_chooseServer( std::string path );
+		void	_chooseServer( std::string path, t_epoll & epollVar, int i );
 
 	public:
 

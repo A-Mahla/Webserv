@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/09 17:31:48 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/10 10:43:13 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,10 @@ void	ParseFile::readContent( std::ifstream & ifs, std::string temp, const std::s
 		for (std::map< std::string, bool >::iterator it = server.getMap().begin();
 				it != server.getMap().end(); it++ )
 			it->second = false;
+		server.setAllowDelete(false);
+		server.setAllowGet(false);
+		server.setAllowPost(false);
+		server.getLocation().clear();
 	}
 
 	while ( std::getline( ifs, temp ).good() )
@@ -252,8 +256,9 @@ bool	ParseFile::error_page(const std::string line_const, Server &server)
     if (!get_value_map_error(rslt, error_map))
         return (false);
 
-    std::map< std::string, std::string > &map_error = server.get_error_pages();
-    map_error.insert(error_map.begin(), error_map.end());
+//	std::map< std::string, std::string > &map_error = server.get_error_pages();
+	if ( !error_map.empty() )
+		server.get_error_pages().insert(error_map.begin(), error_map.end());
     server.set_is_set("error_page");
 
     //default value: none
@@ -266,7 +271,8 @@ bool	ParseFile::client_body(const std::string line_const, Server &server)
 	std::string rslt;
 	int     i = 0;
 
-	if (!get_the_info_i_need(line, "client_body_buffer_size", rslt))
+	if (!get_the_info_i_need(line, "client_body_buffer_size", rslt)
+		|| line.find("-", 0) != std::string::npos)
 		return (false);
 
 	while ( std::isdigit(rslt[++i]) );
@@ -430,16 +436,16 @@ bool	ParseFile::allowedMethodsParse(std::string str, Server & serv)
     int i = 0;
 	if ( serv.get_is_set( "allowMethods" ) )
 		return ( false );
-    if ( !(str.compare(0, 8, "methodes")) && checkOccurance(str, ";") == 1 && afterSemiColon(str)){
-        for (i = 8; str[i] == ' ' || str[i] == '\t'; i++){}
-        if (checkMethodes(str.c_str() + i, serv)){
+    if ( !(str.compare(0, 8, "methodes")) && checkOccurance(str, ";") == 1 && afterSemiColon(str))
+	{
+        for (i = 8; str[i] == ' ' || str[i] == '\t'; i++)
+			;
+        if (checkMethodes(str.c_str() + i, serv))
+		{
 			serv.set_is_set( "allowMethods" );
 		    return (true);
 		}
     }
-    serv.setAllowGet(false);
-    serv.setAllowDelete(false);
-    serv.setAllowPost(false);
     return (false);
 }
 

@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/09 17:32:47 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/10 10:38:18 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class Server
 		bool								_allowPost;
 		bool								_redirect;
 		std::string							_redirectStr;
-		
+
 	public:
 
 		Server( void );
@@ -72,6 +72,7 @@ class Server
 		in_addr_t								& getInetAddr( void );
 		int										get_clientBody( void ) const;
 		std::string								get_root( void ) const;
+		std::string								getAddrStr( void ) const;
 		std::vector< std::string >				& get_index( void );
 		bool									getAutoindex( void ) const;
 		bool									getAllowGet( void );

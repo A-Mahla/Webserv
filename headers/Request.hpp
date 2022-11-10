@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: maxenceeudier <maxenceeudier@student.42    +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/04 09:48:17 by maxenceeudi      ###   ########.fr       */
+/*   Updated: 2022/11/09 20:24:36 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <cstdlib>
 # include <map>
 # include "epoll.h"
+# include <fstream>
 
 enum e_method
 {
@@ -36,7 +37,8 @@ class Request
 		std::string					_request;
 
 		bool						_isSetRequest;
-		bool						_isSetBoundary;
+		bool						_isSetHeaderFile;
+		bool						_isSetContentLength;
 
 		size_t						_contentLength;
 		std::string					_contentLenghtStr;
@@ -50,7 +52,15 @@ class Request
 		std::string					_addr;
 		std::vector<std::string>	_accept;
 
+		std::ofstream				_newFile;
+		
+		size_t						_sizeFile;
+
+		int							_status;
+
 		std::map< std::string, std::string >	_contentDisposition;
+		std::vector<unsigned char>				_lastNewLineFile;
+		std::vector<unsigned char>				_vectorChar;
 
 
 		//max
@@ -59,6 +69,9 @@ class Request
 		void	_parseHost( std::string str_const );
 		bool	_getPath(std::string request);
 		void	_checkUserAgent( const std::string request );
+		size_t  _find(std::vector<unsigned char> & str, std::string occur );
+		size_t  _find(std::vector<unsigned char> & str, std::string occur, size_t posFinal);
+		void    _insert(std::vector<unsigned char> &vec, unsigned char * buff, int rd);
 
 		//amir
 		void		_parseOrigin( std::string request );
@@ -80,7 +93,8 @@ class Request
 		const std::string	& getStringRequest( void ) const;
 
 		bool			getIsSetRequest( void ) const;
-		bool			getIsSetBoundary( void ) const;
+		bool			getIsSetHeaderFile( void ) const;
+		bool			getIsSetContentLength( void ) const;
 
 		//max
 		int				getMethode() const;
@@ -90,11 +104,14 @@ class Request
 		std::string		getAddr() const;
 
 		size_t			getContentLength( void ) const;
+		size_t			getSizeFile( void ) const;
 		std::string 	const & getContentLengthStr( void ) const;
 		std::string		getContentType( void ) const;
 		std::string		getBoundary( void ) const;
 		std::string		getOrigin( void ) const;
 		std::string		getQueryString( void ) const;
+		int				getStatus( void ) const;
+		void			setStatusError( int status, t_epoll & epollVar, int i );
 
 		std::map< std::string, std::string >	& getContentDisposition( void );
 
@@ -102,7 +119,11 @@ class Request
 		int			readData( int readFd, size_t bufferSize, int flag,
 						t_epoll & epollVar, int i );
 		void		changeEpollEvent( t_epoll & epollVar, int i );
+		void		parseHeaderFile( Server & server, t_epoll & epollVar, int i );
+		void		writeFile( Server & server, t_epoll & epollVar, int i );
+		void		checkMethodeAllowed( Server & server );
 };
 
+typedef std::map< std::string, std::string >::iterator itMapStringString;
 
 #endif

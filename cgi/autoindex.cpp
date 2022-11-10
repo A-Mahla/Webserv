@@ -51,7 +51,7 @@ void	printErrorPage(std::string error)
 	std::stringstream ss;
 	ss << content_str.size();
 
-	std::cout << "HTTP/1.1 200 OK\n";
+	std::cout << "HTTP/1.1 200\n";
 	std::cout << "Content-Type: text/html\r\n";
 	std::cout << "Content-Length: ";
 	std::cout << ss.str();

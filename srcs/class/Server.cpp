@@ -6,13 +6,14 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/09 17:37:26 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/10 10:37:53 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <netinet/in.h>
 #include "../../headers/defines.h"
 #include <iostream>
+#include <sstream>
 #include "Server.hpp"
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -104,19 +105,14 @@ const short								& Server::getPort( void ) const
 	return ( this->_port );
 }
 
-short									& Server::getPort( void )
+short								& Server::getPort( void )
 {
 	return ( this->_port );
 }
 
-std::string const 						& Server::getPortStr(void) const
+std::string	const						& Server::getPortStr( void ) const
 {
 	return (this->_portStr);
-}
-
-const in_addr_t							& Server::getInetAddr( void ) const
-{
-	return (this->_inetAddr);
 }
 
 in_addr_t								& Server::getInetAddr( void )
@@ -215,7 +211,6 @@ void									Server::setPort( std::string const & port )
 	this->_portStr = port;
 }
 
-
 void									Server::setAutoindex( bool onOff )
 {
 	this->_autoindex = onOff;
@@ -244,6 +239,21 @@ void									Server::setRedirect( bool redirect )
 void									Server::setRedirectStr( std::string redirectStr )
 {
 	_redirectStr = redirectStr;
+}
+
+std::string								Server::getAddrStr( void ) const
+{
+	std::stringstream	ss;
+
+	for ( int i = 3, bit = 0; i >= 0; i-- )
+	{
+		int addr = ( this->_inetAddr >> bit) & 255;
+		ss << addr;
+		if ( i )
+			ss << ".";
+		bit += 8;
+	}
+	return( ss.str() );
 }
 
 std::ostream	& operator<<( std::ostream & o, Server rhs )
@@ -284,6 +294,19 @@ std::ostream	& operator<<( std::ostream & o, Server rhs )
 				it != rhs.get_error_pages().end(); it++ )
 			o << "			" << it->first << " => " << it->second << std::endl;
 	}
+	o << "	methodes:" << std::endl;
+	if (rhs.getAllowDelete())
+		o << "			DELETE = true\n" ;
+	else
+		o << "			DELETE = false\n" ;
+	if (rhs.getAllowPost())
+		o << "			POST = true\n" ;
+	else
+		o << "			POST = false\n" ;
+	if (rhs.getAllowGet())
+		o << "			GET = true\n" ;
+	else
+		o << "			GET = false\n" ;
 	if ( !rhs.getLocation().empty() )
 	{
 		for ( std::map< std::string, Server >::iterator it( rhs.getLocation().begin() );
@@ -311,6 +334,6 @@ std::ostream	& operator<<( std::ostream & o, Server rhs )
 	if (rhs.getRedirect())
 		std::cout << "there is a redirection into : \n\t\t-->" << rhs.getRedirectStr() << "<--\n\n";
 	else
-		std::cout << "\n\nno redirection set\n";
+		std::cout << "\n\n redirection set\n";
 	return ( o );
 }
