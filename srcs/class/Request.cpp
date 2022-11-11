@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/11 17:17:26 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/11 17:23:14 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,11 @@ std::string			& Request::getStringRequest( void )
 const std::string	& Request::getStringRequest( void ) const
 {
 	return ( this->_request );
+}
+
+std::vector<std::string>	Request::get_accept(void) const
+{
+	return (this->_accept);
 }
 
 int			Request::getMethode() const

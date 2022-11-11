@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/11 13:35:22 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/11 18:34:40 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,8 @@ class Response
 		std::string	_getType(std::string str);
 		bool		_pathMatchRedirect(Server &serv, Request &req);
 		bool		_compareLocation(std::string servRedir, std::string reqPath);
+		bool		_isAccept(std::string str);
+		void		_getPage(std::string page);
 
 	public:
 		Response( void );

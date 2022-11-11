@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/11 15:16:22 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/11 18:44:19 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,34 @@
 
 #define NB_ELEMENTS 17
 
+void	Response::_getPage(std::string page)
+{
+	std::vector<unsigned char>	content_str;
+	std::stringstream 			ss;
+
+	content_str = _readFile(page);
+	ss << content_str.size();
+
+	if (!this->_isAccept("text/html"))
+	{
+		this->_status = 406;
+		return ;
+	}
+
+	_response.clear();
+	_response += "HTTP/1.1 200\n";
+	_response += "Content-Type: text/html \r\n";
+	_response += "Content-Length: ";
+	_response += ss.str();
+	_response += "\n\n";
+	write (this->_fd, _response.c_str(), _response.size());
+	for (size_t i(0); i < content_str.size(); i++)
+		write (this->_fd, &(content_str[i]), 1);
+	write (this->_fd,  "\r\n\r\n", 4);
+	this->_isCGI = true;
+}
+
+
 
 Response::Response(Server &serv, Request &req, int fd) : _isCGI(0), _status(req.getStatus()), _serv(serv), _req(req)
 {
@@ -38,15 +66,8 @@ Response::Response(Server &serv, Request &req, int fd) : _isCGI(0), _status(req.
 	{
 		if (_status >= 400)
 			_getErrorPage();
-		else
-		{
-			_response += "HTTP/1.1 200\n";
-			_response += "Content-Type: text/html\r\n";
-			_response += "Content-Length: ";
-			_response += "0";
-			_response += "\n\n";
-			_response += "\r\n\r\n";
-		}
+		else if (_isAccept("text/html"))
+			_getPage("./html/home.html");
 		return ;
 	}
 	if (serv.getRedirect() && _pathMatchRedirect(serv, req))
@@ -99,10 +120,6 @@ Response::Response( void ) : _isCGI(0), _status(0), _serv(_initserv), _req(_init
 	if ( DEBUG )
 		std::cout << "Response Default Constructor" << std::endl;
 	_serv = Server();
-	this->_response = "HTTP/1.1 200\n";
-	this->_response += "Content-Type: text/plain\n";
-	this->_response += "Content-Length: 12";
-	this->_response += "\n\nHello world!";
 }
 
 /*------------geter--------------------*/
@@ -149,6 +166,11 @@ void	Response::DELETE_response()
 
 	if (_checkFileToDelete(script.substr(12, script.size() - 12)) && _execCGI(script, _buildCGIenv()) == 0)
 	{
+		if (!_isAccept("text/html"))
+		{
+			_status = 406;
+			_getErrorPage();
+		}
 		_response += "HTTP/1.1 204\n";
 		_response += "Content-Type: text/html\r\n";
 		_response += "Content-Length: ";
@@ -184,6 +206,21 @@ std::string		Response::_getType(std::string str)
 	return (rslt);
 }
 
+bool	Response::_isAccept(std::string str)
+{
+	std::vector<std::string>	vec = _req.get_accept();
+	if (vec.size() == 0)
+		return (true);
+	for (size_t i(0); i < vec.size(); i++)
+	{
+		if (vec[i].find(str, 0) != std::string::npos || vec[i].find("*/*", 0) != std::string::npos)
+			return (true);
+	}
+	return (false);
+}
+
+
+
 void	Response::GET_response()
 {
 	std::vector<unsigned char>	content_str;
@@ -218,7 +255,11 @@ void	Response::GET_response()
 		else
 			typo = "text";
 
-		std::cout << typo + "/" + type << std::endl;
+		if (!this->_isAccept(typo + "/" + type))
+		{
+			this->_status = 406;
+			return ;
+		}
 
 		_response.clear();
 		_response += "HTTP/1.1 200\n";
@@ -257,7 +298,12 @@ void	Response::POST_response()
 
 void	Response::REDIR_response(std::string const & redirectStr){
 
-
+		if (!_isAccept("text/html"))
+		{
+			_status = 406;
+			_getErrorPage();
+		}
+		
 		_response.clear();
 		_response += "HTTP/1.1 302 Found\n";
 		_response += "Content-Type: text/html\r\n";
@@ -398,14 +444,28 @@ void	Response::_printErrorPage()
 	std::stringstream ss2;
 	ss2 << content_str.size();
 
-	std::cout << "HTTP/1.1 " + ss1.str() + "\n";
-	std::cout << "Content-Type: " + typo + "/" + type + "\r\n";
-	std::cout << "Content-Length: ";
-	std::cout << ss2.str();
-	std::cout << "\n\n";
-	for (size_t i(0); i < content_str.size(); i++)
-		std::cout << content_str[i];
-	std::cout << "\r\n\r\n";
+	if (!_isAccept(typo + "/" + type))
+	{
+		std::cout <<  "HTTP/1.1 406\n";
+		std::cout <<  "Content-Type: text/plain\r\n";
+		std::cout <<  "Content-Length: ";
+		std::cout <<  "18";
+		std::cout <<  "\n\n";
+		std::cout <<  "406 Not Acceptable";
+		std::cout <<  "\r\n\r\n";
+	}
+	else
+	{
+		std::cout << "HTTP/1.1 " + ss1.str() + "\n";
+		std::cout << "Content-Type: " + typo + "/" + type + "\r\n";
+		std::cout << "Content-Length: ";
+		std::cout << ss2.str();
+		std::cout << "\n\n";
+		for (size_t i(0); i < content_str.size(); i++)
+			std::cout << content_str[i];
+		std::cout << "\r\n\r\n";
+	}
+
 }
 
 void	Response::_getErrorPage()
@@ -446,6 +506,18 @@ void	Response::_getErrorPage()
 	std::vector<unsigned char> content_str = _readFile(error_page);
 	std::stringstream ss2;
 	ss2 << content_str.size();
+
+	if (!_isAccept(typo + "/" + type))
+	{
+		_response += "HTTP/1.1 406\n";
+		_response += "Content-Type: text/plain\r\n";
+		_response += "Content-Length: ";
+		_response += "18";
+		_response += "\n\n";
+		_response += "406 Not Acceptable";
+		_response += "\r\n\r\n";
+		return ;
+	}
 
 	_response.clear();
 	_response += "HTTP/1.1 " + ss1.str() + "\n";

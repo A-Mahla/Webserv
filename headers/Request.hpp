@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 11:22:01 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/11 17:33:07 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,6 +110,7 @@ class Request
 		std::string		getBoundary( void ) const;
 		std::string		getOrigin( void ) const;
 		std::string		getQueryString( void ) const;
+		std::vector<std::string>	get_accept(void) const;
 		int				getStatus( void ) const;
 		void			setStatusError( int status, t_epoll & epollVar, int i );
 
