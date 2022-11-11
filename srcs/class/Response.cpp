@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/11 13:35:41 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/11 15:16:22 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,17 @@ Response::Response(Server &serv, Request &req, int fd) : _isCGI(0), _status(req.
 	_fd = fd;
 	if (_status)
 	{
-		_getErrorPage();
+		if (_status >= 400)
+			_getErrorPage();
+		else
+		{
+			_response += "HTTP/1.1 200\n";
+			_response += "Content-Type: text/html\r\n";
+			_response += "Content-Length: ";
+			_response += "0";
+			_response += "\n\n";
+			_response += "\r\n\r\n";
+		}
 		return ;
 	}
 	if (serv.getRedirect() && _pathMatchRedirect(serv, req))
@@ -438,7 +448,7 @@ void	Response::_getErrorPage()
 	ss2 << content_str.size();
 
 	_response.clear();
-	_response += "HTTP/1.1 200\n";
+	_response += "HTTP/1.1 " + ss1.str() + "\n";
 	_response += "Content-Type: " + typo + "/" + type + " \r\n";
 	_response += "Content-Length: ";
 	_response += ss2.str();

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/11 13:37:18 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/11 17:17:26 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -308,26 +308,24 @@ void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 	{
 		if (( pos = _find(this->_vectorChar, "\r\n") ) == std::string::npos )
 			return ;
-	}
-	else
-	{
-		if ( (pos = _find(this->_vectorChar, "\r\n") ) == std::string::npos )
-			pos = this->_vectorChar.size() - 1;
 		else
 			isDelimit = true;
 	}
-
-	temp = this->_vectorChar;
-	this->_vectorChar = this->_lastNewLineFile;
-	this->_vectorChar.insert(this->_vectorChar.end(), temp.begin(), temp.end());
-	this->_lastNewLineFile.clear();
-
+	else
+	{
+		if ( (pos = _find(this->_vectorChar, "\r\n") ) != std::string::npos )
+			isDelimit = true;
+	}
+	
 	while ( 1 )
 	{
 		if ( isDelimit )
 			pos += 2;
 		temp.clear();
-		temp.insert(temp.begin(), this->_vectorChar.begin(), this->_vectorChar.begin() + pos);
+		if ( !isDelimit )
+			temp.insert(temp.begin(), this->_vectorChar.begin(), this->_vectorChar.end());
+		else
+			temp.insert(temp.begin(), this->_vectorChar.begin(), this->_vectorChar.begin() + pos);
 
 		for (size_t j(0); j < temp.size(); j++)
 			this->_newFile << temp[j];
@@ -341,41 +339,32 @@ void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 				for (size_t j(0); j < _find(this->_vectorChar, "\r\n"); j++)
 					this->_newFile << _vectorChar[j];
 			}
-			break ;
+				break ;
+
 		}
 		if ( (  pos = _find(this->_vectorChar, "\r\n") ) == std::string::npos )
-		{
 			break;
-		}
 		isDelimit = true;
 	}
 
 	if ( posBoundary != std::string::npos || this->_sizeFile == this->_contentLength )
 	{
 		temp.clear();
-		if ( ( pos = _find(this->_vectorChar, "\r\n") ) != std::string::npos )
-			pos += 2;
-		else
-			pos = 0;
+		if ( posBoundary == std::string::npos )
+			posBoundary = 0;
 		temp.insert(temp.begin(),
-			this->_vectorChar.begin() + pos, this->_vectorChar.end());
+			this->_vectorChar.begin() + posBoundary, this->_vectorChar.end());
 		this->_vectorChar = temp;
 
 
 		this->_newFile.close();
+		this->_status = 200;
 		this->_contentDisposition.clear();
 		this->_isSetHeaderFile = false;
 		parseHeaderFile( server, epollVar, i );
 		return ;
 	}
 
-	pos = _find(this->_vectorChar, "\r\n");
-	if ( pos != std::string::npos )
-		pos += 2;
-	else
-		pos = 0;
-	this->_lastNewLineFile.insert(_lastNewLineFile.begin(), this->_vectorChar.begin() + pos, this->_vectorChar.end());
-	this->_vectorChar.clear();
 }
 
 void		Request::parseHeaderFile( Server & server, t_epoll & epollVar, int i )
@@ -386,14 +375,17 @@ void		Request::parseHeaderFile( Server & server, t_epoll & epollVar, int i )
 	std::string			nameFile;
 
 	size_t				pos = _find( this->_vectorChar, "\r\n\r\n");
-
-	if ( this->_sizeFile == this->_contentLength )
-		changeEpollEvent( epollVar, i );
-
+	
 	if ( pos == std::string::npos )
 		return ;
-
+		
+	if ( this->_sizeFile == this->_contentLength )
+		changeEpollEvent( epollVar, i );
+	
+		
+	temp.clear();
 	temp.insert(temp.begin(), this->_vectorChar.begin() + pos + 4, this->_vectorChar.end());
+	
 
 	this->_isSetHeaderFile = true;
 	this->_contentType.clear();
@@ -445,7 +437,7 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 
 	temp = this->_request.substr( this->_request.find( "\r\n\r\n", 0 ) + 4,  this->_request.size()- 1 );
 	tempVec.insert(tempVec.begin(), this->_vectorChar.begin() + _find(this->_vectorChar, "\r\n\r\n") + 4, this->_vectorChar.end());
-
+	
 	while ((pos = _request.find("\r")) != std::string::npos)
 	  	_request.erase(pos, 1);
 	ss << this->_request;
@@ -555,7 +547,6 @@ void    Request::_insert(std::vector<unsigned char> &vec, unsigned char * buff, 
     while (i < rd)
         vec.push_back(buff[i++]);
 }
-
 
 
 int			Request::readData( int readFd, size_t bufferSize, int flag,

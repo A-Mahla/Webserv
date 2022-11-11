@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/02 09:33:17 by meudier           #+#    #+#             */
-/*   Updated: 2022/11/09 09:54:54 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/11 14:41:27 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # include <string>
 # include <sstream>
 #include <fstream>
+#include <stdlib.h>
 
 std::string readFile(std::string path)
 {

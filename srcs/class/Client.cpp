@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 13:27:46 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/11 17:15:01 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,19 +139,19 @@ void	Client::setRequest( t_epoll & epollVar, int i )
 			this->_request.parseRequest( epollVar, i );
 			if ( !this->_server )
 				_chooseServer( this->_request.getPath(), epollVar, i );
-			if ( this->_request.getStatus() )
+			if ( this->_request.getStatus() >= 400 )
 				return ;
 			if ( this->_readStatus == 0 )
 				return ;
 			this->_request.checkMethodeAllowed( *(this->_server) );
-			if ( this->_request.getStatus() )
+			if ( this->_request.getStatus() >= 400 )
 				return ;
 		}
 	}
 	else if ( this->_request.getIsSetRequest() )
 	{
 		if ( ( this->_readStatus = this->_request.readData( this->_clientSock,
-			this->_server->get_clientBody(), 1, epollVar, i ) ) <= 0 || this->_request.getStatus() )
+			this->_server->get_clientBody(), 1, epollVar, i ) ) <= 0 || this->_request.getStatus() >= 400 )
 			return ;
 	}
 	if ( this->_request.getIsSetRequest()
@@ -159,7 +159,7 @@ void	Client::setRequest( t_epoll & epollVar, int i )
 	{
 		if ( !this->_request.getIsSetHeaderFile() )
 			this->_request.parseHeaderFile( *(this->_server), epollVar, i );
-		if ( this->_request.getStatus() )
+		if ( this->_request.getStatus() >= 400 )
 			return ;
 		if ( this->_request.getIsSetHeaderFile() )
 			this->_request.writeFile( *(this->_server), epollVar, i );
