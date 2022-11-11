@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 14:33:05 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/11 13:35:22 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,8 @@ class Response
 		void		_clear_env(char **env);
 		int    		_execCGI(std::string script, char **env);
 		std::string _getEnv(std::string key, char **env);
-		std::string	_readFile(std::string path);
-		std::string	_readFile(std::string path, Server &serv);
+		std::vector<unsigned char>	_readFile(std::string path);
+		std::vector<unsigned char>	_readFile(std::string path, Server &serv);
 		void		_initVar(std::string *var);
 		void		_printErrorPage(void);
 		void		_getErrorPage(void);
@@ -70,7 +70,7 @@ class Response
 		bool				getIsCGI(void);
 		const std::string	& getStringResponse( void ) const;
 		int					& getStatus(void);
-		
+
 		void				GET_response(void);
 		void				POST_response(void);
 		void				DELETE_response(void);

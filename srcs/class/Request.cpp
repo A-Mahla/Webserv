@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 18:26:45 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/11 13:37:18 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -474,13 +474,13 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 	{
 		if ( !this->_isSetContentLength || !this->_contentLength
 			|| this->_sizeFile > this->_contentLength
-			|| this->_contentLength > 2000000000 )
+			|| this->_contentLength > 100000000 )
 		{
 			if ( !this->_isSetContentLength )
 				setStatusError( 411, epollVar, i );
 			else if ( !this->_contentLength  || this->_sizeFile > this->_contentLength)
 				setStatusError( 400, epollVar, i );
-			else if ( this->_contentLength > 2000000000 )
+			else if ( this->_contentLength > 100000000 )
 				setStatusError( 413, epollVar, i );
 			this->_isSetRequest = false;
 			return ;
@@ -578,7 +578,8 @@ int			Request::readData( int readFd, size_t bufferSize, int flag,
 	bufferRead[rd] = '\0';
 	this->_sizeFile += rd;
 	_insert(this->_vectorChar, bufferRead, rd);
-	this->_request += reinterpret_cast<char *>(bufferRead);
+	if ( !flag )
+		this->_request += reinterpret_cast<char *>(bufferRead);
 	if ( !this->_isSetRequest && this->_request.find( "\r\n\r\n", 0 ) == std::string::npos )
 	{
 		setStatusError( 431, epollVar, i );

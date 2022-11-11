@@ -11,7 +11,7 @@ server	{
 
 	index						index.html index.php test.html ;
 
-	root						.;
+	root						./upload;
 
 	client_body_buffer_size		8k;
 
@@ -19,7 +19,6 @@ server	{
 	methodes							POST:GET:DELETE;
 
 	autoindex							on;
-	redirect					/headers/Client.hpp;
 
 	location		./headers/ {
 				methodes					POST:GET:DELETE;

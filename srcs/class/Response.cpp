@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 19:08:23 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/11 13:35:41 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,13 +32,13 @@ Response::Response(Server &serv, Request &req, int fd) : _isCGI(0), _status(req.
 {
 	if ( DEBUG )
 		std::cout << "Response request Constructor" << std::endl;
+
+	_fd = fd;
 	if (_status)
 	{
 		_getErrorPage();
 		return ;
 	}
-
-	_fd = fd;
 	if (serv.getRedirect() && _pathMatchRedirect(serv, req))
 	{
 		REDIR_response(serv.getRedirectStr());
@@ -145,30 +145,43 @@ void	Response::DELETE_response()
 		_response += "0";
 		_response += "\n\n";
 		_response += "\r\n\r\n";
+		_isCGI = false;
 	}
 	else
 	{
 		_status = 403;
 		_getErrorPage();
 	}
-	_isCGI = false;
+
 }
 
 std::string		Response::_getType(std::string str)
 {
-	size_t	pos = 0;
+	size_t	pos = str.size();
+	size_t	len = 0;
 	std::string	rslt;
 
-	if ((pos = str.find(".", 0)) != std::string::npos)
-		rslt = str.erase(0, ++pos);
+	while (pos && --pos)
+	{
+		if (str[pos] == '.')
+			break;
+		len++;
+	}
+	rslt = str.erase(0, str.size() - len);
+
+	std::cout << rslt << std::endl;
+
 	return (rslt);
 }
 
 void	Response::GET_response()
 {
-	std::string 		content_str;
-	std::stringstream 	ss;
-	std::string			type;
+	std::vector<unsigned char>	content_str;
+	std::stringstream 			ss;
+	std::string					type;
+	std::string					typo;
+
+	std::cout << RED << this->_fd << SET << std::endl;
 
 	if (_req.getPath() == "/"  || *_req.getPath().rbegin() != '/' )
 	{
@@ -177,26 +190,38 @@ void	Response::GET_response()
 			content_str = _readFile("./html/index.html");
 			type = "html";
 		}
-
 		else
 			content_str = _readFile(_req.getPath(), _serv);
+
 		ss << content_str.size();
 
-		if (ss.str().empty())
+		if ( !content_str.size() )
 			return ;
 
 		if (type.empty())
 			type = _getType(_req.getPath());
 
-		std::cout << RED << type << SET << std::endl;
+		if ( type == "png" || type == "jpeg")
+			typo = "image";
+		else if (type == "pdf")
+			typo = "application";
+		else
+			typo = "text";
 
+		std::cout << typo + "/" + type << std::endl;
+
+		_response.clear();
 		_response += "HTTP/1.1 200\n";
-		_response += "Content-Type: text/" + type + " \r\n";
+		_response += "Content-Type: " + typo + "/" + type + " \r\n";
 		_response += "Content-Length: ";
 		_response += ss.str();
 		_response += "\n\n";
-		_response += content_str;
-		_response += "\r\n\r\n";
+		write (this->_fd, _response.c_str(), _response.size());
+		for (size_t i(0); i < content_str.size(); i++)
+			write (this->_fd, &(content_str[i]), 1);
+		write (this->_fd,  "\r\n\r\n", 4);
+
+		this->_isCGI = true;
 	}
 	else if (*_req.getPath().rbegin() == '/' && this->_serv.getAutoindex())
 	{
@@ -233,13 +258,11 @@ void	Response::REDIR_response(std::string const & redirectStr){
 
 
 /*------------private methode--------------------*/
-std::string	Response::_readFile(std::string path)
+std::vector<unsigned char> Response::_readFile(std::string path)
 {
 	std::ifstream 	ifs;
-	std::string		file_content;
 	std::string		filename;
-	int				length;
-	char			*buff;
+
 
 	filename = path;
 
@@ -248,55 +271,41 @@ std::string	Response::_readFile(std::string path)
 	if ( !ifs.is_open() )
 	{
 		this->_status = 404;
-		return ("");
+		return (std::vector<unsigned char>());
 	}
-	ifs.seekg (0, ifs.end);
-	length = ifs.tellg();
-	ifs.seekg (0, ifs.beg);
 
-	buff = new char[length + 1];
-	ifs.read(buff, length);
+	std::vector<unsigned char> buffer((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+
+	std::cout << RED << this->_fd << SET << std::endl;
+	for (size_t i(0); i < buffer.size(); i++)
+		std::cout << YELLOW << buffer[i] << SET ;
+
 	if (ifs.fail())
 		this->_status = 403;
 	ifs.close();
-	buff[length] = '\0';
-	file_content = buff;
-	delete [] buff;
 
-	return (file_content);
+	return (buffer);
 }
 
-std::string	Response::_readFile(std::string path, Server &serv)
+std::vector<unsigned char> Response::_readFile(std::string path, Server &serv)
 {
 	std::ifstream 	ifs;
-	std::string		file_content;
 	std::string		filename;
-	int				length;
-	char			*buff;
 
 	filename = serv.get_root()+ path.erase(0, 1);
-
-	ifs.open(filename.c_str(), std::ifstream::in);
-
+	ifs.open(filename.c_str(), std::ios::binary);
 	if ( !ifs.is_open() )
 	{
 		this->_status = 404;
-		return ("");
+		return (std::vector<unsigned char>());
 	}
-	ifs.seekg (0, ifs.end);
-	length = ifs.tellg();
-	ifs.seekg (0, ifs.beg);
+	std::vector<unsigned char> buffer((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
 
-	buff = new char[length + 1];
-	ifs.read(buff, length);
 	if (ifs.fail())
 		this->_status = 403;
 	ifs.close();
-	buff[length] = '\0';
-	file_content = buff;
-	delete [] buff;
 
-	return (file_content);
+	return (buffer);
 }
 
 char    **Response::_getArgv(std::string script)
@@ -346,6 +355,7 @@ void	Response::_printErrorPage()
 	ss1 << _status;
 	std::string error;
 	std::string	type;
+	std::string	typo;
 
 	if ( _serv.get_error_pages().find(ss1.str()) != _serv.get_error_pages().end())
 	{
@@ -366,17 +376,25 @@ void	Response::_printErrorPage()
 		type = _getType(error);
 
 
+	if ( type == "png" || type == "jpeg")
+		typo = "image";
+	else if (type == "pdf")
+		typo == "application";
+	else
+		typo = "text";
+
 	std::string error_page = error;
-	std::string content_str = _readFile(error_page);
+	std::vector<unsigned char> content_str = _readFile(error_page);
 	std::stringstream ss2;
 	ss2 << content_str.size();
 
 	std::cout << "HTTP/1.1 " + ss1.str() + "\n";
-	std::cout << "Content-Type: text/" + type + "\r\n";
+	std::cout << "Content-Type: " + typo + "/" + type + "\r\n";
 	std::cout << "Content-Length: ";
 	std::cout << ss2.str();
 	std::cout << "\n\n";
-	std::cout << content_str;
+	for (size_t i(0); i < content_str.size(); i++)
+		std::cout << content_str[i];
 	std::cout << "\r\n\r\n";
 }
 
@@ -386,6 +404,7 @@ void	Response::_getErrorPage()
 	ss1 << _status;
 	std::string error;
 	std::string	type;
+	std::string	typo;
 
 	if ( _serv.get_error_pages().find(ss1.str()) != _serv.get_error_pages().end())
 	{
@@ -406,19 +425,30 @@ void	Response::_getErrorPage()
 		type = _getType(error);
 
 
+	if ( type == "png" || type == "jpeg")
+		typo = "image";
+	else if (type == "pdf")
+		typo == "application";
+	else
+		typo = "text";
+
 	std::string error_page = error;
-	std::string content_str = _readFile(error_page);
+	std::vector<unsigned char> content_str = _readFile(error_page);
 	std::stringstream ss2;
 	ss2 << content_str.size();
 
 	_response.clear();
-	_response = "HTTP/1.1 " + ss1.str() + "\n";
-	_response += "Content-Type: text/" + type + "\r\n";
+	_response += "HTTP/1.1 200\n";
+	_response += "Content-Type: " + typo + "/" + type + " \r\n";
 	_response += "Content-Length: ";
 	_response += ss2.str();
 	_response += "\n\n";
-	_response += content_str;
-	_response += "\r\n\r\n";
+	write (this->_fd, _response.c_str(), _response.size());
+	for (size_t i(0); i < content_str.size(); i++)
+		write (this->_fd, &(content_str[i]), 1);
+	write (this->_fd,  "\r\n\r\n", 4);
+
+	this->_isCGI = true;
 }
 
 int    Response::_execCGI(std::string script, char **env)
