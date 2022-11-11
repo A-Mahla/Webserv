@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/11 13:35:22 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/11 18:29:56 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,14 +41,15 @@ class Response
 		Request		&_req;
 		Server		_initserv;
 		Request		_initreq;
+		std::vector<unsigned char>	_buffer;
 
 		char    	**_getArgv(std::string script);
 		void    	_clear_argv(char **argv);
 		void		_clear_env(char **env);
 		int    		_execCGI(std::string script, char **env);
 		std::string _getEnv(std::string key, char **env);
-		std::vector<unsigned char>	_readFile(std::string path);
-		std::vector<unsigned char>	_readFile(std::string path, Server &serv);
+		void		_readFile(std::string path);
+		void		_readFile(std::string path, Server &serv);
 		void		_initVar(std::string *var);
 		void		_printErrorPage(void);
 		void		_getErrorPage(void);
@@ -58,6 +59,7 @@ class Response
 		std::string	_getType(std::string str);
 		bool		_pathMatchRedirect(Server &serv, Request &req);
 		bool		_compareLocation(std::string servRedir, std::string reqPath);
+		void		_fillVector(std::string buf);
 
 	public:
 		Response( void );
@@ -66,16 +68,20 @@ class Response
 		~Response( void );
 		Response &	operator=( const Response & rhs );
 
-		std::string			& getStringResponse( void );
-		bool				getIsCGI(void);
-		const std::string	& getStringResponse( void ) const;
-		int					& getStatus(void);
+		std::string					& getStringResponse( void );
+		bool						getIsCGI(void);
+		const std::string			& getStringResponse( void ) const;
+		int							& getStatus(void);
+		std::vector<unsigned char>	& getBufferVec( void );
 
 		void				GET_response(void);
 		void				POST_response(void);
 		void				DELETE_response(void);
 
 		void				REDIR_response(std::string const & redirectStr);
+
+		void				fillbuf(unsigned char *buf);
+
 };
 
 char	*ft_find_wrd(char const *s, char set, int wordneeded);
