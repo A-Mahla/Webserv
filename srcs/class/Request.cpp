@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: amahla <amahla@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/11 17:23:14 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/11 19:46:46 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,6 @@ void	Request::_checkUserAgent( const std::string request )
 	{
 		if (request.find("Firefox", 0) == std::string::npos )
 		{
-			std::cout << "yooooooooooooooooooooooooooooooooooooooooo" << std::endl;
 			_method = BAD_REQUEST;
 		}
 	}
@@ -401,7 +400,6 @@ void		Request::parseHeaderFile( Server & server, t_epoll & epollVar, int i )
 	while (!ss.eof())
 	{
 		std::getline(ss, line);
-		std::cout << line << std::endl;
 		_parseContentType( line );
 		_parseContentDisposition( line );
 		if ( !this->_contentType.empty() )
@@ -563,7 +561,7 @@ int			Request::readData( int readFd, size_t bufferSize, int flag,
 	if ( (rd = recv( readFd , bufferRead, bufferSize - 1, 0 )) <= 0 )
 	{
 		if ( rd < 0 )
-			std::cout << RED << "Connexion client lost qwd" << SET << std::endl;
+			std::cout << RED << "Connexion client lost" << SET << std::endl;
 		else
 			std::cout << RED << "Connexion client is closed" << SET << std::endl;
 		epoll_ctl(epollVar.epollFd, EPOLL_CTL_DEL, epollVar.events[i].data.fd, NULL);

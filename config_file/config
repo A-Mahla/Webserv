@@ -11,7 +11,7 @@ server	{
 
 	index						index.html index.php test.html ;
 
-	root						./upload;
+	root						./;
 
 	client_body_buffer_size		8k;
 
@@ -20,18 +20,14 @@ server	{
 
 	autoindex							on;
 
-	location		./headers/ {
-				methodes					POST:GET:DELETE;
-				autoindex					on;
-
-	}
+	
 }
 
 server	{
 
 	server_name					example.com;
 
-	listen						127.0.0.1:8080;
+	listen						8080;
 
 	autoindex					on;
 
@@ -47,7 +43,8 @@ server	{
 	methodes        			POST:GET;
 
 	location		./config {
-
+				methodes		GET;
+				redirect		/Image_created_with_a_mobile_phone.png;
 				autoindex		off;
 				root			.;
 	}

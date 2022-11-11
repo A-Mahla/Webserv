@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   serv_process_epoll_loop.cpp                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/11 15:39:06 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/11 18:17:25 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,12 +37,15 @@ void	readData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, i
 
 }
 
+
 void	sendData( std::vector<Client> & clients, itClient it, t_epoll & epollVar, int i )
 {
-		const char	*buffer_write = it->getResponse(*(it->getServer()),
-			it->getRequest(), epollVar.events[i].data.fd).getStringResponse().c_str();
+		it->getResponse(*(it->getServer()),
+			it->getRequest(), epollVar.events[i].data.fd);
 
-		if (!(it->getResponse().getIsCGI()) &&  send( epollVar.events[i].data.fd, buffer_write, strlen(buffer_write), 0 ) <= 0 )
+		unsigned char	buffer_write[it->getResponse().getBufferVec().size() + 1];
+		it->getResponse().fillbuf(buffer_write);
+		if (!(it->getResponse().getIsCGI()) &&  send( epollVar.events[i].data.fd, buffer_write, it->getResponse().getBufferVec().size(), 0 ) <= 0 )
 		{
 			std::cout << RED << "Connexion client lost" << SET << std::endl;
 			clients.erase( it );
