@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/12 11:56:08 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/12 13:50:38 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -291,9 +291,20 @@ void	Response::GET_response()
 
 void	Response::POST_response()
 {
+	
 	char **env = _buildCGIenv();
 	std::string		path =  _getEnv("PATH_INFO", env);
 	std::string		comp = "/html";
+	
+	if (_req.getContentType() ==  "text/plain" && _req.getBoundary().empty())
+	{
+		std::stringstream ss;
+		ss <<  _req.getContentLength() + 19;
+		_fillVector(std::string("HTTP/1.1 201\nContent-Type: text/plain\r\nContent-Length: ")
+		+ ss.str() + "\n\n" + "Receive contents : " + _req.getQueryString() + std::string("\r\n\r\n"));
+		return ;
+	}
+	
 	if (path.compare(0, comp.size(), comp) == 0)
 		path.erase(0, 5);
 	std::string     script = "./cgi" + path;
@@ -521,7 +532,7 @@ void	Response::_getErrorPage()
 	}
 
 	ss2 << this->_buffer.size();
-	_fillVector(std::string("HTTP/1.1 200\n") + std::string("Content-Type: ")
+	_fillVector(std::string("HTTP/1.1 ") + std::string(ss1.str()) + std::string("\n") + std::string("Content-Type: ")
 				+ std::string(typo) + std::string("/") + std::string(type) + std::string(" \r\n")
 				+ std::string("Content-Length: ") + std::string(ss2.str()) + std::string("\n\n"));
 }

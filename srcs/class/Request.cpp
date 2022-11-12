@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/12 11:02:10 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/12 13:33:18 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -486,7 +486,7 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 		this->_request = temp;
 		this->_vectorChar = tempVec;
 
-		if ( this->_contentType == "application/x-www-form-urlencoded" )
+		if ( this->_contentType == "application/x-www-form-urlencoded" || this->_contentType == "text/plain" )
 			this->_queryString = this->_request;
 	}
 	if ( this->_method == GET || this->_method == DELETE
@@ -598,7 +598,7 @@ int			Request::readData( int readFd, size_t bufferSize, int flag,
 		setStatusError( 400, epollVar, i );
 	}*/
 
-//	std::cout << GREEN <<  "Server side receive from client : \n" << this->_request << SET << std::endl;
+	std::cout << GREEN <<  "Server side receive from client : \n" << this->_request << SET << std::endl;
 	return ( rd );
 }
 
