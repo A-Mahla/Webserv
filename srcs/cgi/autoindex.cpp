@@ -122,7 +122,7 @@ int	find_path(std::string & path, char **env){
 	path = *(env + i);
 	equal = path.find("=", 0);
 	pathlen = path.size();
-	path = path.substr(equal + 1, pathlen - (equal + 2));
+	path = path.substr(equal + 1, pathlen - (equal + 1));
 	return (1);
 }
 

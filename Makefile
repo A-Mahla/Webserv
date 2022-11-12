@@ -6,7 +6,7 @@
 #    By: meudier <meudier@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/10/17 21:07:29 by amahla            #+#    #+#              #
-#    Updated: 2022/11/11 15:00:57 by meudier          ###   ########.fr        #
+#    Updated: 2022/11/12 13:32:28 by amahla           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,41 +18,43 @@ SRCDIR				:=	srcs
 
 INCLUDEDIR			:= headers
 
+CGIDIR				:=	cgi
 OBJDIR				:=	./obj
 DEBUGDIR			:=	./debugobj
 
-SRCSMAC				:=	$(addprefix	mac/,	serv_process_mac.cpp		\
-											socket_settings_mac.cpp		)
+SRCSLINUXSELECT		:=	$(addprefix	select/,	serv_process_select.cpp	)
 
-SRCSLINUXSELECT		:=	$(addprefix	linux/,	$(addprefix	select/,	serv_process_select.cpp)	\
-																	socket_settings.cpp			)
+SRCSLINUXEPOLL		:=	$(addprefix	process/,	serv_process_epoll.cpp			\
+												serv_process_epoll_loop.cpp		\
+												serv_process_epoll_utils.cpp)
 
-SRCSLINUXEPOLL		:=	$(addprefix	linux/,	serv_process_epoll.cpp			\
-											serv_process_epoll_loop.cpp		\
-											serv_process_epoll_utils.cpp	\
-											socket_settings.cpp	)
-
-SRCSLINUX			:=	$(addprefix	linux/,	serv_process_epoll_linux.cpp		\
-											socket_settings_linux.cpp	)
-
-SRCSMULTIOS			:=	$(addprefix process/,	main.cpp					\
-												webserv.cpp				)	\
+SRCSSHARE			:=	$(addprefix process/,	main.cpp					\
+												webserv.cpp					\
+												socket_settings.cpp		)	\
 						$(addprefix class/,		WebServException.cpp		\
 												ParseFile.cpp				\
-												ParseFileUtils.cpp				\
+												ParseFileUtils.cpp			\
 												Server.cpp					\
 												Client.cpp					\
 												Request.cpp					\
 												Response.cpp			)
 
-SRCS				:=	$(SRCSMULTIOS) 							\
-						$(addprefix process/,	$(SRCSLINUXEPOLL))
+SRCS				:=	$(SRCSSHARE) 							\
+						$(SRCSLINUXEPOLL)
+
+SRCSCGI1			:=	$(addprefix	cgi/,	autoindex.cpp)
+
+SRCSCGI2			:=	$(addprefix	cgi/,	signIn.cpp)
 
 CC					:=	c++
 RM					:=	rm
 
 CCFLAGS				:=  -std=c++98 -Wall -Wextra -Werror
 OPTFLAG				:=
+
+NAMECGI1			:=	$(addprefix	cgi/,	autoindex.cgi)
+
+NAMECGI2			:=	$(addprefix	cgi/,	signIn.cgi)
 
 NAME				:=	$(PROGNAME)
 
@@ -66,29 +68,16 @@ ifdef DEBUG
 	OUTDIR			:=	$(DEBUGDIR)
 endif
 
-ifdef MAC
-	NAME			:=	$(addsuffix .mac,$(PROGNAME))
-	SRCS				:=	$(SRCSMULTIOS) 							\
-							$(addprefix process/,	$(SRCSMAC))
-endif
-
 ifdef SELECT
-	SRCS				:=	$(SRCSMULTIOS) 							\
+	SRCS				:=	$(SRCSSHARE) 							\
 							$(addprefix process/,	$(SRCSLINUXSELECT))
 endif
 
-all					:	$(NAME)
-
-bonus				:	$(BONUS)
+all					:	$(NAME) $(NAMECGI1) $(NAMECGI2)
 
 debug				:
 ifndef DEBUG
 	$(MAKE) DEBUG=1
-endif
-
-mac					:
-ifndef MAC
-	$(MAKE) MAC=1
 endif
 
 select				:
@@ -101,22 +90,32 @@ $(OUTDIR)/%.o		:	$(SRCDIR)/%.cpp | $(OUTDIR)
 	$(CC) -c -MMD -MP $(CCFLAGS) $(OPTFLAG) $(addprefix -I ,$(INCLUDEDIR)) $< -o $@
 
 $(NAME)				:	$(addprefix $(OUTDIR)/,$(SRCS:.cpp=.o))
-	$(CC) $(CCFLAGS) $(OPTFLAG) -o $(NAME) $^
-	./cgi/test_cgi.sh
+	$(CC) $(CCFLAGS) $(OPTFLAG) -o $@ $^
+	@mkdir -p $(dir $(CGIDIR))
+
+$(NAMECGI1)			:	$(addprefix $(OUTDIR)/,$(SRCSCGI1:.cpp=.o))
+	@mkdir -p $(CGIDIR)
+	$(CC) $(CCFLAGS) $(OPTFLAG) -o $@ $<
+
+$(NAMECGI2)			:	$(addprefix $(OUTDIR)/,$(SRCSCGI2:.cpp=.o))
+	@mkdir -p $(CGIDIR)
+	$(CC) $(CCFLAGS) $(OPTFLAG) -o $@ $<
 
 
 $(OUTDIR)			:
 	mkdir $(OUTDIR)
 
 clean				:
-	$(RM) -rf $(OBJDIR) $(DEBUGDIR) ./cgi/signIn.cgi ./cgi/autoindex.cgi
+	$(RM) -rf $(OBJDIR) $(DEBUGDIR)
 
 fclean				:	clean
-	$(RM) -f $(PROGNAME) $(addsuffix .mac,$(PROGNAME)) $(DEBUGNAME)
+	$(RM) -rf $(PROGNAME) $(addsuffix .mac,$(PROGNAME)) $(DEBUGNAME) $(CGIDIR)
 
 re					:	fclean
-	$(MAKE) $(NAME)
+	$(MAKE) $(NAME) $(NAMECGI1) $(NAMECGI2)
 
 .PHONY				:	all clean fclean re debug mac select
 
 -include	$(addprefix $(OUTDIR)/,$(SRCS:.cpp=.d))
+-include	$(addprefix $(OUTDIR)/,$(SRCSCGI1:.cpp=.d))
+-include	$(addprefix $(OUTDIR)/,$(SRCSCGI2:.cpp=.d))
