@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ParseFile.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 16:54:43 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/12 11:14:21 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,10 +167,10 @@ void	ParseFile::readFile( const char *file )
 	std::string			temp;
 
 	if ( !ifs.is_open() )
-		throw WebServException( "ParseFile.cpp", "readFile", "File not found" );
+		throw WebServException( "ParseFile.cpp", "readFile", "File not found or opening impossible" );
 	std::getline( ifs, temp );
-	if ( ifs.eof() && temp == "")
-		WebServException( "ParseFile.cpp", "readFile", "Empty config file" );
+	if ( ifs.eof() && temp.empty() )
+		throw WebServException( "ParseFile.cpp", "readFile", "Empty config file" );
 	FormatFile( ifs, temp );
 
 	ifs.close();

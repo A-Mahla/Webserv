@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/12 10:06:41 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/12 11:03:39 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,7 @@ void	Client::setRequest( t_epoll & epollVar, int i )
 	else if ( this->_request.getIsSetRequest() )
 	{
 		if ( ( this->_readStatus = this->_request.readData( this->_clientSock,
-			/*this->_server->get_clientBody()*/1, 1, epollVar, i ) ) <= 0 || this->_request.getStatus() >= 400 )
+			this->_server->get_clientBody(), 1, epollVar, i ) ) <= 0 || this->_request.getStatus() >= 400 )
 			return ;
 	}
 	if ( this->_request.getIsSetRequest()

@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/12 10:42:01 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/12 11:02:10 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -308,6 +308,7 @@ void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 	size_t						posBoundary = 0;
 	bool						isDelimit = false;
 
+//	std::cout << this->_sizeFile << std::endl;
 	if ( this->_sizeFile != this->_contentLength )
 	{
 		if (( pos = _find(this->_vectorChar, "\r\n") ) == std::string::npos )
@@ -320,6 +321,7 @@ void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 		if ( (pos = _find(this->_vectorChar, "\r\n") ) != std::string::npos )
 			isDelimit = true;
 	}
+	
 	
 	while ( 1 )
 	{
@@ -596,7 +598,7 @@ int			Request::readData( int readFd, size_t bufferSize, int flag,
 		setStatusError( 400, epollVar, i );
 	}*/
 
-	std::cout << GREEN <<  "Server side receive from client : \n" << this->_request << SET << std::endl;
+//	std::cout << GREEN <<  "Server side receive from client : \n" << this->_request << SET << std::endl;
 	return ( rd );
 }
 
