@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/12 13:33:18 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/12 18:06:53 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,14 @@
 #include <sstream>
 
 Request::Request( void ) : _isSetRequest(false), _isSetHeaderFile(false),
-	_isSetContentLength(false), _contentLength(0), _sizeFile(0), _status(0)
+	_isSetContentLength(false), _contentLength(0), _method(BAD_REQUEST), _sizeFile(0), _status(0)
 {
 	if ( DEBUG )
 		std::cout << "Request Default Constructor" << std::endl;
 }
 
 Request::Request( const Request & rhs ) : _isSetRequest(false),
-	_isSetHeaderFile(false), _isSetContentLength(false), _contentLength(0), _sizeFile(0), _status(0)
+	_isSetHeaderFile(false), _isSetContentLength(false), _contentLength(0), _method(BAD_REQUEST), _sizeFile(0), _status(0)
 {
 	if ( DEBUG )
 		std::cout << "Request copy Constructor" << std::endl;
@@ -364,7 +364,7 @@ void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 
 
 		this->_newFile.close();
-		this->_status = 200;
+		this->_status = 201;
 		this->_contentDisposition.clear();
 		this->_isSetHeaderFile = false;
 		parseHeaderFile( server, epollVar, i );
@@ -437,7 +437,7 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 	std::stringstream 			ss;
 	std::string					temp;
 	std::vector<unsigned char>	tempVec;
-	size_t						pos;
+	size_t						pos = 0;
 
 	temp = this->_request.substr( this->_request.find( "\r\n\r\n", 0 ) + 4,  this->_request.size()- 1 );
 	tempVec.insert(tempVec.begin(), this->_vectorChar.begin() + _find(this->_vectorChar, "\r\n\r\n") + 4, this->_vectorChar.end());
@@ -589,16 +589,7 @@ int			Request::readData( int readFd, size_t bufferSize, int flag,
 	if ( flag && this->_sizeFile == this->_contentLength )
 		changeEpollEvent( epollVar, i );
 
-	/*if ( (size_t)rd < bufferSize - 1 && this->_sizeFile < this->_contentLength
-		&& this->_isSetContentLength )
-	{
-		std::cout << YELLOW << "rd: " << rd << std::endl;
-		std::cout << "bufferSize: " << bufferSize -1 << std::endl;
-		std::cout << "_sfile: " <<  this->_sizeFile << " _CL: " << this->_contentLength << std::endl << SET ;
-		setStatusError( 400, epollVar, i );
-	}*/
-
-	std::cout << GREEN <<  "Server side receive from client : \n" << this->_request << SET << std::endl;
+	//std::cout << GREEN <<  "Server side receive from client : \n" << this->_request << SET << std::endl;
 	return ( rd );
 }
 

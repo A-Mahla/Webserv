@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/12 15:20:45 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/12 18:13:12 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,28 @@
 void	Response::_getPage(std::string page)
 {
 	std::stringstream 			ss;
+	std::string					type;
+	std::string					typo;
+	std::string					extention;
 
 	_readFile(page);
 	ss << this->_buffer.size();
+
+
+	type = _getType(page);
+
+	if ( type == "png" || type == "jpeg")
+		typo = "image";
+	else if (type == "pdf")
+		typo = "application";
+	else
+		typo = "text";
+
+	if (!this->_isAccept(typo + "/" + type))
+	{
+		this->_status = 406;
+		return ;
+	}
 
 	if (!this->_isAccept("text/html"))
 	{
@@ -40,9 +59,51 @@ void	Response::_getPage(std::string page)
 		return ;
 	}
 
-	_fillVector(std::string("HTTP/1.1 200\n") + std::string("Content-Type: text/html \r\n")
+	_fillVector(std::string("HTTP/1.1 200\n") + std::string("Content-Type: ")
+				+ std::string(typo) + std::string("/") + std::string(type) + std::string(" \r\n")
 				+ std::string("Content-Length: ") + std::string(ss.str()) + std::string("\n\n"));
 }
+
+void	Response::_getPage(std::string page, int _stat)
+{
+	std::stringstream 			ss;
+	std::stringstream			ss2;
+	std::string					type;
+	std::string					typo;
+	std::string					extention;
+
+	_readFile(page);
+	ss << this->_buffer.size();
+
+
+	type = _getType(page);
+
+	if ( type == "png" || type == "jpeg")
+		typo = "image";
+	else if (type == "pdf")
+		typo = "application";
+	else
+		typo = "text";
+
+	if (!this->_isAccept(typo + "/" + type))
+	{
+		this->_status = 406;
+		return ;
+	}
+
+	if (!this->_isAccept("text/html"))
+	{
+		this->_status = 406;
+		return ;
+	}
+	
+	ss2 << _stat;
+
+	_fillVector(std::string("HTTP/1.1 ") + ss2.str() + std::string("\n") + std::string("Content-Type: ")
+				+ std::string(typo) + std::string("/") + std::string(type) + std::string(" \r\n")
+				+ std::string("Content-Length: ") + std::string(ss.str()) + std::string("\n\n"));
+}
+
 
 
 
@@ -57,7 +118,7 @@ Response::Response(Server &serv, Request &req, int fd) : _isCGI(0), _status(req.
 		if (_status >= 400)
 			_getErrorPage();
 		else if (_isAccept("text/html"))
-			_getPage("./html/home.html");
+			_getPage("./html/home.html", this->_status);
 		return ;
 	}
 	if (serv.getRedirect() && _pathMatchRedirect(serv, req))
@@ -284,6 +345,14 @@ void	Response::GET_response()
 		std::string	script = "./cgi/autoindex.cgi";
 		_execCGI(script, env);
 	}
+	else if (*_req.getPath().rbegin() == '/' && !this->_serv.getAutoindex())
+	{
+		if (_serv.get_error_pages().find("000") != _serv.get_error_pages().end())
+			_getPage(_serv.get_error_pages()["000"]);
+		else
+			_status = 403;
+		
+	}
 	else
 		this->_status = 403;
 
@@ -291,11 +360,6 @@ void	Response::GET_response()
 
 void	Response::POST_response()
 {
-
-	char **env = _buildCGIenv();
-	std::string		path =  _getEnv("PATH_INFO", env);
-	std::string		comp = "/html";
-
 	if (_req.getContentType() ==  "text/plain" && _req.getBoundary().empty())
 	{
 		std::stringstream ss;
@@ -304,6 +368,10 @@ void	Response::POST_response()
 		+ ss.str() + "\n\n" + "Receive contents : " + _req.getQueryString() + std::string("\r\n\r\n"));
 		return ;
 	}
+
+	char **env = _buildCGIenv();
+	std::string		path =  _getEnv("PATH_INFO", env);
+	std::string		comp = "/html";
 
 	if (path.compare(0, comp.size(), comp) == 0)
 		path.erase(0, 5);

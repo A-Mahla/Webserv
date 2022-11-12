@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/12 11:03:39 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/12 16:44:10 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,9 @@ void	Client::_chooseServer( std::string path, t_epoll & epollVar, int i )
 					return ;
 				}
 			}
+	}
+	for ( std::vector<Server *>::iterator it = _serverList.begin(); it != _serverList.end(); it++ )
+	{
 		if ( ((*it)->getAddrStr() == "0.0.0.0") || (*it)->getAddrStr() == _request.getAddr()
 			|| ( (*it)->getAddrStr() == "127.0.0.1" && _request.getAddr() == "localhost" ) )
 		{

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/12 15:16:24 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/12 18:12:43 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ class Response
 		bool		_compareLocation(std::string servRedir, std::string reqPath);
 		bool		_isAccept(std::string str);
 		void		_getPage(std::string page);
+		void		_getPage(std::string page, int _status);
 		void		_fillVector(std::string buf);
 		bool		_checkScript(std::string str);
 

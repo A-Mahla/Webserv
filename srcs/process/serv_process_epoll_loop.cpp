@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   serv_process_epoll_loop.cpp                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/11 18:17:25 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/12 16:31:11 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +137,7 @@ bool	errorEpoll( std::vector<Server> & servers, std::vector<Client> & clients, t
 		if ( isServer( servers, fdToClear ) == NULL )
 			clients.erase( find( clients, fdToClear ) );
 		else
-			servers.erase( find( servers, fdToClear ) );// error to handle
+			servers.erase( find( servers, fdToClear ) );
 		close( fdToClear );
 		return ( true );
 	}
