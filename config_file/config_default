@@ -1,0 +1,5 @@
+
+
+server	{
+	methodes	GET:POST:DELETE;
+}

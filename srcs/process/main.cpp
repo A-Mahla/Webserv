@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/17 21:10:19 by amahla            #+#    #+#             */
-/*   Updated: 2022/10/25 15:22:45 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/12 14:11:07 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,17 @@
 
 int main( int ac, char **av )
 {
-	if ( ac != 2 )
+	if ( ac > 2 )
 	{
-		std::cout << "Error: Config file needed as argument" << std::endl;
+		std::cout << "Error: needed zero ( server set by default ) or just one ( config server file ) argument" << std::endl;
 		return ( EXIT_FAILURE );
 	}
 	try
 	{
-		webServ( av[1] );
+		if ( ac == 2 )
+			webServ( av[1] );
+		else
+			webServ( "./config_file/config_default" );
 	}
 	catch ( std::exception & e )
 	{

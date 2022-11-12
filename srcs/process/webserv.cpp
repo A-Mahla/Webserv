@@ -6,14 +6,11 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 12:45:35 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 14:48:17 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/12 14:06:27 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "webserv.h"
-// ==== test =====
-# include <iostream>
-// ==============
 
 void	webServ( const char *av )
 {
