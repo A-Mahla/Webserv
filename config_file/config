@@ -1,4 +1,11 @@
 
+server {
+	listen								127.0.0.1:9595;
+	root								./;
+	redirect							http://127.0.0.1:2020/config_file/;
+	methodes							GET;
+}
+
 server	{
 
 	server_name					YO.com;
@@ -20,7 +27,12 @@ server	{
 
 	autoindex							on;
 
-	
+	location							./config_file {
+										methodes							POST:GET:DELETE;
+										redirect					http://127.0.0.1:8080/;
+	}
+
+
 }
 
 server	{

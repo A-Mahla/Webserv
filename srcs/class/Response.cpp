@@ -6,7 +6,7 @@
 /*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/11 19:44:47 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/12 10:52:40 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -296,7 +296,7 @@ void	Response::REDIR_response(std::string const & redirectStr)
 		_status = 406;
 		_getErrorPage();
 	}
-		
+
 	_fillVector(std::string("HTTP/1.1 302 Found\nContent-Type: text/html\r\nLocation: ")
 		+ redirectStr + std::string("\n\r\r\n\r\n"));
 }
