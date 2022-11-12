@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/10 14:31:56 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/12 14:34:50 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ _allowDelete(false), _allowGet(false), _allowPost(false), _redirect(false)
 		std::cout << "Server Default Constructor" << std::endl;
 
 	this->_index.push_back("index.html");
+	this->_serverName.push_back("");
 
 	this->_is_set["listen"] = false;
 	this->_is_set["server_name"] = false;

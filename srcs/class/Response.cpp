@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/12 13:50:38 by meudier          ###   ########.fr       */
+/*   Updated: 2022/11/12 15:20:45 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -274,7 +274,7 @@ void	Response::GET_response()
 	else if (extention == ".cgi")
 	{
 		char **env = _buildCGIenv();
-		
+
 		std::string	script = "." + _req.getPath();
 		_execCGI(script, env);
 	}
@@ -291,11 +291,11 @@ void	Response::GET_response()
 
 void	Response::POST_response()
 {
-	
+
 	char **env = _buildCGIenv();
 	std::string		path =  _getEnv("PATH_INFO", env);
 	std::string		comp = "/html";
-	
+
 	if (_req.getContentType() ==  "text/plain" && _req.getBoundary().empty())
 	{
 		std::stringstream ss;
@@ -304,7 +304,7 @@ void	Response::POST_response()
 		+ ss.str() + "\n\n" + "Receive contents : " + _req.getQueryString() + std::string("\r\n\r\n"));
 		return ;
 	}
-	
+
 	if (path.compare(0, comp.size(), comp) == 0)
 		path.erase(0, 5);
 	std::string     script = "./cgi" + path;
@@ -538,12 +538,29 @@ void	Response::_getErrorPage()
 }
 
 
+bool	Response::_checkScript(std::string str)
+{
+	if (str == "./cgi/autoindex.cgi" || str == "./cgi/signIn.cgi" || (str.size() >= 7 && str.substr(0,7) == "/bin/rm"))
+		return (true);
+	return (false);
+}
+
 int    Response::_execCGI(std::string script, char **env)
 {
-	
+
     int pid;
 	int	status;
-    char            **argv = _getArgv(script);
+
+	if (!_checkScript(script))
+	{
+		_status = 400;
+
+		_clear_env(env);
+		_getErrorPage();
+		return (-1);
+	}
+
+	char            **argv = _getArgv(script);
 
     pid = fork();
     if (pid == -1 || !argv)
@@ -554,18 +571,17 @@ int    Response::_execCGI(std::string script, char **env)
 
     if (pid == 0)
     {
-		
-        dup2(this->_fd, STDOUT_FILENO);
 
+        dup2(this->_fd, STDOUT_FILENO);
         execve(argv[0], argv, env );
 
 		_status = 400;
 		_printErrorPage();
 
         close(this->_fd);
-        _clear_argv(argv);
+        _clear_env(argv);
 		_clear_env(env);
-		exit(1);
+		throw (WebServException(""));
     }
     wait(&status);
     _clear_env(argv);

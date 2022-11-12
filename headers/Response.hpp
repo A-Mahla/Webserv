@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
+/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:46:05 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/11 19:14:10 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/12 15:16:24 by slahlou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ class Response
 		bool		_isAccept(std::string str);
 		void		_getPage(std::string page);
 		void		_fillVector(std::string buf);
+		bool		_checkScript(std::string str);
 
 	public:
 		Response( void );
