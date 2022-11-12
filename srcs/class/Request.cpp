@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: amahla <amahla@student.42.fr>              +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/11 19:46:46 by amahla           ###   ########.fr       */
+/*   Updated: 2022/11/12 10:42:01 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -343,7 +343,7 @@ void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 				for (size_t j(0); j < _find(this->_vectorChar, "\r\n"); j++)
 					this->_newFile << _vectorChar[j];
 			}
-				break ;
+			break ;
 
 		}
 		if ( (  pos = _find(this->_vectorChar, "\r\n") ) == std::string::npos )
@@ -366,7 +366,6 @@ void		Request::writeFile( Server & server, t_epoll & epollVar, int i )
 		this->_contentDisposition.clear();
 		this->_isSetHeaderFile = false;
 		parseHeaderFile( server, epollVar, i );
-		return ;
 	}
 
 }
@@ -382,7 +381,7 @@ void		Request::parseHeaderFile( Server & server, t_epoll & epollVar, int i )
 	
 	if ( pos == std::string::npos )
 		return ;
-		
+
 	if ( this->_sizeFile == this->_contentLength )
 		changeEpollEvent( epollVar, i );
 	
@@ -443,6 +442,7 @@ void		Request::parseRequest( t_epoll & epollVar, int i )
 	
 	while ((pos = _request.find("\r")) != std::string::npos)
 	  	_request.erase(pos, 1);
+		
 	ss << this->_request;
 	while (!ss.eof())
 	{
@@ -513,7 +513,7 @@ size_t  Request::_find(std::vector<unsigned char> & str, const char * occur)
         temp = 0;
         if ( *it == static_cast<unsigned char>(occur[temp]))
         {
-            while ( occur[temp] && *(it + temp) == occur[temp])
+            while ( occur[temp] && it + temp != str.end() && *(it + temp) == occur[temp])
                 temp++;
             if (!occur[temp])
                 return (pos);
@@ -530,11 +530,10 @@ size_t  Request::_find(std::vector<unsigned char> & str, const char * occur, siz
 
     for (std::vector<unsigned char>::iterator it = str.begin(); it != str.begin() + posFinal; it++)
     {
-
         temp = 0;
         if ( *it == occur[temp])
         {
-            while ( occur[temp] && *(it + temp) == occur[temp])
+            while ( occur[temp] && it + temp != str.end() && *(it + temp) == occur[temp])
                 temp++;
             if (!occur[temp])
                 return (pos);
@@ -555,10 +554,10 @@ void    Request::_insert(std::vector<unsigned char> &vec, unsigned char * buff, 
 int			Request::readData( int readFd, size_t bufferSize, int flag,
 				t_epoll & epollVar, int i )
 {
-	unsigned char	bufferRead[ bufferSize ];
+	unsigned char	bufferRead[ bufferSize + 1 ];
 	int				rd = 0;
 
-	if ( (rd = recv( readFd , bufferRead, bufferSize - 1, 0 )) <= 0 )
+	if ( (rd = recv( readFd , bufferRead, bufferSize, 0 )) <= 0 )
 	{
 		if ( rd < 0 )
 			std::cout << RED << "Connexion client lost" << SET << std::endl;
@@ -574,7 +573,7 @@ int			Request::readData( int readFd, size_t bufferSize, int flag,
 	_insert(this->_vectorChar, bufferRead, rd);
 	if ( !flag )
 		this->_request += reinterpret_cast<char *>(bufferRead);
-	if ( !this->_isSetRequest && this->_request.find( "\r\n\r\n", 0 ) == std::string::npos )
+	if ( !this->_isSetRequest && (size_t)rd == bufferSize && this->_request.find( "\r\n\r\n", 0 ) == std::string::npos )
 	{
 		setStatusError( 431, epollVar, i );
 		this->_isSetRequest = true;
