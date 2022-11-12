@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: slahlou <slahlou@student.42.fr>            +#+  +:+       +#+        */
+/*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/12 10:52:40 by slahlou          ###   ########.fr       */
+/*   Updated: 2022/11/12 11:56:08 by meudier          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,8 +232,12 @@ void	Response::GET_response()
 	std::stringstream 			ss;
 	std::string					type;
 	std::string					typo;
+	std::string					extention;
 
-	if (_req.getPath() == "/"  || *_req.getPath().rbegin() != '/' )
+	if (_req.getPath().size() >= 4)
+		extention = _req.getPath().substr(_req.getPath().size() - 4, 4);
+
+	if ( _req.getPath() == "/"  || (*_req.getPath().rbegin() != '/' && extention != ".cgi"  ))
 	{
 		if (_req.getPath() == "/")
 		{
@@ -266,6 +270,13 @@ void	Response::GET_response()
 				+ std::string(typo) + std::string("/") + std::string(type) + std::string(" \r\n")
 				+ std::string("Content-Length: ") + std::string(ss.str()) + std::string("\n\n"));
 		}
+	}
+	else if (extention == ".cgi")
+	{
+		char **env = _buildCGIenv();
+		
+		std::string	script = "." + _req.getPath();
+		_execCGI(script, env);
 	}
 	else if (*_req.getPath().rbegin() == '/' && this->_serv.getAutoindex())
 	{
@@ -518,6 +529,7 @@ void	Response::_getErrorPage()
 
 int    Response::_execCGI(std::string script, char **env)
 {
+	
     int pid;
 	int	status;
     char            **argv = _getArgv(script);
@@ -531,6 +543,7 @@ int    Response::_execCGI(std::string script, char **env)
 
     if (pid == 0)
     {
+		
         dup2(this->_fd, STDOUT_FILENO);
 
         execve(argv[0], argv, env );
@@ -692,6 +705,7 @@ char**	Response::_ft_split(char const *s, char c)
 	while (++i < nbwrd)
 		*(strs + i) = ft_find_wrd(s, c, i);
 	*(strs + i) = NULL;
+
 	return (strs);
 }
 
