@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/24 17:41:45 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/12 11:14:21 by meudier          ###   ########.fr       */
+/*   Updated: 2023/01/25 15:46:44 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,26 +246,26 @@ bool	ParseFile::setLocation( std::ifstream & ifs, std::string temp, Server & ser
 
 bool	ParseFile::error_page(const std::string line_const, Server &server)
 {
-    std::string line = line_const;
-    std::string rslt;
-    std::map< std::string, std::string > error_map;
+	std::string line = line_const;
+	std::string rslt;
+	std::map< std::string, std::string > error_map;
 
-    if (!get_the_info_i_need(line, "error_page", rslt))
-        return (false);
+	if (!get_the_info_i_need(line, "error_page", rslt))
+		return (false);
 
-    if (!get_key_map_error(rslt, error_map))
-        return (false);
+	if (!get_key_map_error(rslt, error_map))
+		return (false);
 
-    if (!get_value_map_error(rslt, error_map))
-        return (false);
+	if (!get_value_map_error(rslt, error_map))
+		return (false);
 
-//	std::map< std::string, std::string > &map_error = server.get_error_pages();
+	//	std::map< std::string, std::string > &map_error = server.get_error_pages();
 	if ( !error_map.empty() )
 		server.get_error_pages().insert(error_map.begin(), error_map.end());
-    server.set_is_set("error_page");
+	server.set_is_set("error_page");
 
-    //default value: none
-    return (true);
+	//default value: none
+	return (true);
 }
 
 bool	ParseFile::client_body(const std::string line_const, Server &server)

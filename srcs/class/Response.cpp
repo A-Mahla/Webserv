@@ -6,7 +6,7 @@
 /*   By: meudier <meudier@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/22 14:51:31 by amahla            #+#    #+#             */
-/*   Updated: 2022/11/12 18:13:12 by meudier          ###   ########.fr       */
+/*   Updated: 2023/01/25 15:47:43 by amahla           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -519,7 +519,7 @@ void	Response::_printErrorPage()
 	if ( type == "png" || type == "jpeg")
 		typo = "image";
 	else if (type == "pdf")
-		typo == "application";
+		typo = "application";
 	else
 		typo = "text";
 
@@ -583,7 +583,7 @@ void	Response::_getErrorPage()
 	if ( type == "png" || type == "jpeg")
 		typo = "image";
 	else if (type == "pdf")
-		typo == "application";
+		typo = "application";
 	else
 		typo = "text";
 
